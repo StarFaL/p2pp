@@ -23,9 +23,9 @@ function AppRoutes() {
   const { state } = useContext(AppContext);
 
   return (
-    <div className="flex flex-col h-screen w-screen">
-      {/* Основной контент растягивается на весь экран */}
-      <div className="flex-1 flex items-center justify-center overflow-hidden">
+    <>
+      {/* Контент с отступом сверху, умещаемый в экран */}
+      <div className="h-screen pt-32 box-border overflow-hidden">
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
@@ -45,19 +45,20 @@ function AppRoutes() {
 
       {/* Bottom navigation */}
       {state.isAuthenticated && <BottomNav />}
-    </div>
+    </>
   );
 }
 
 function App() {
   useEffect(() => {
+    // Включаем dark mode Tailwind
     document.documentElement.classList.add('dark');
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        {/* Контейнер на весь экран, без скролла */}
+        {/* Полностью фиксированная высота, скрываем скролл */}
         <div className="h-screen w-screen bg-[#0b1120] text-white font-sans overflow-hidden">
           <AppRoutes />
         </div>
