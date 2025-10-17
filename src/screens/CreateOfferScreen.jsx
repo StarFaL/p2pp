@@ -2,7 +2,7 @@ import { useContext, useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { ChevronLeftIcon, ChevronDownIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon } from '@heroicons/react/24/solid';
 import { AppContext } from '../contexts/AppContext';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +20,9 @@ const schema = yup.object({
 export default function CreateOfferScreen() {
   const { state, dispatch } = useContext(AppContext);
   const navigate = useNavigate();
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
+  });
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState('Select payment');
@@ -28,7 +30,7 @@ export default function CreateOfferScreen() {
 
   const paymentMethods = ['PayPal', 'Bank'];
 
-  // закрытие при клике вне
+  // Закрытие dropdown при клике вне
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -56,24 +58,23 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center p-6 pb-24">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+      <div className="w-full max-w-md sm:max-w-sm">
 
-        {/* Заголовок по центру */}
-        <div className="flex items-center justify-center mb-6 relative">
-          
-        
-          <h1 className="text-lg font-bold text-center">Create Offer</h1>
+        {/* Заголовок */}
+        <div className="flex justify-center mb-6 relative">
+          <h1 className="text-xl font-semibold text-center">Create Offer</h1>
         </div>
 
         {/* Форма */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-[#1a2338] p-6 rounded-2xl shadow-md space-y-4"
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4"
         >
-          <div className="grid grid-cols-2 gap-4">
+          {/* Sell / Currency */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">You Sell</label>
+              <label className="block text-xs font-medium mb-1">You Sell</label>
               <input
                 {...register('sell')}
                 defaultValue="BTC"
@@ -81,8 +82,9 @@ export default function CreateOfferScreen() {
               />
               <ErrorMessage message={errors.sell?.message} />
             </div>
+
             <div>
-              <label className="block text-sm font-medium mb-1">&nbsp;</label>
+              <label className="block text-xs font-medium mb-1">Currency</label>
               <input
                 {...register('currency')}
                 defaultValue="USD"
@@ -92,33 +94,36 @@ export default function CreateOfferScreen() {
             </div>
           </div>
 
+          {/* Rate */}
           <div>
-            <label className="block text-sm font-medium mb-1">Exchange Rate</label>
+            <label className="block text-xs font-medium mb-1">Exchange Rate</label>
             <input
               {...register('rate')}
               defaultValue="36782.32"
+              inputMode="decimal"
               className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
             />
             <ErrorMessage message={errors.rate?.message} />
           </div>
 
+          {/* Limits */}
           <div>
-            <label className="block text-sm font-medium mb-1">Limits</label>
+            <label className="block text-xs font-medium mb-1">Limits</label>
             <input
               {...register('limits')}
               defaultValue="50-1000"
-              className="w-full bg-[#24304a] p-3 rounded-xl text-sm  placeholder-[#24304a] focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
             />
             <ErrorMessage message={errors.limits?.message} />
           </div>
 
-          {/* Payment Method выпадающий */}
+          {/* Payment Method */}
           <div className="relative" ref={dropdownRef}>
-            <label className="block text-sm font-medium mb-1">Payment Method</label>
+            <label className="block text-xs font-medium mb-1">Payment Method</label>
             <button
               type="button"
               onClick={() => setOpen(!open)}
-              className="w-full bg-[#24304a] p-3 rounded-xl text-left flex justify-between items-center text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="w-full bg-[#24304a] p-3 rounded-xl flex justify-between items-center text-sm text-gray-300 focus:ring-2 focus:ring-[#00a968] outline-none transition"
             >
               <span>{selected}</span>
               <ChevronDownIcon
@@ -126,9 +131,10 @@ export default function CreateOfferScreen() {
               />
             </button>
 
+            {/* Dropdown */}
             <div
-              className={`absolute w-full bg-[#1a2338] border border-gray-700  mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
-                open ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+              className={`absolute w-full bg-[#1a2338] border border-gray-700 mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
+                open ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
               }`}
             >
               {paymentMethods.map((method) => (
@@ -144,18 +150,20 @@ export default function CreateOfferScreen() {
           </div>
           <ErrorMessage message={errors.paymentMethod?.message} />
 
+          {/* Comments */}
           <div>
-            <label className="block text-sm font-medium mb-1">Comments</label>
+            <label className="block text-xs font-medium mb-1">Comments</label>
             <textarea
               {...register('comments')}
-              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition resize-none"
               rows="4"
             ></textarea>
           </div>
 
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-sm"
+            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-sm active:scale-[0.98]"
           >
             Create
           </button>

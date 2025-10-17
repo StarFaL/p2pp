@@ -2,10 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- 🌗 Базовые стили приложения --- */
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #0f172a; /* фон по умолчанию */
+  -webkit-text-size-adjust: none;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent; /* убирает синюю подсветку при тапе */
+}
+
+/* --- 🌙 Тёмная тема --- */
 body {
   @apply dark:bg-primary dark:text-white;
 }
 
+/* --- 🧩 Переключатель темы --- */
 .toggle-checkbox:checked {
   @apply right-0 border-accent;
 }
@@ -14,4 +33,39 @@ body {
 }
 .toggle-checkbox:checked:focus + .toggle-label {
   @apply shadow-lg;
+}
+
+/* --- 📱 Адаптация под мобильные экраны --- */
+@media (max-width: 768px) {
+  body {
+    @apply text-sm leading-relaxed;
+  }
+
+  h1 {
+    @apply text-xl font-semibold;
+  }
+
+  h2 {
+    @apply text-lg font-semibold;
+  }
+
+  h3 {
+    @apply text-base font-medium;
+  }
+
+  button,
+  .btn {
+    @apply w-full py-3 text-base rounded-xl;
+  }
+  input,
+  select,
+  textarea {
+    @apply w-full text-base py-2 px-3 rounded-lg;
+  }
+  .card {
+    @apply w-full max-w-md mx-auto p-4 rounded-2xl;
+  }
+  .container {
+    @apply w-full px-4;
+  }
 }

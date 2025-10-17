@@ -5,16 +5,15 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
-
 const initialState = {
   isAuthenticated: false,
   user: null,
   offers: [],
   trades: [],
   assets: [
-     { symbol: 'UA', balance: 1000, price: 2 },   // 100 * 2 = 200
-     { symbol: 'USDT', balance: 50, price: 1 },  // 50 * 1 = 50
-     { symbol: 'USD', balance: 25, price: 10 }   // 25 * 10 = 250
+     { symbol: 'UA', balance: 1000, price: 2 },
+     { symbol: 'USDT', balance: 50, price: 1 },
+     { symbol: 'USD', balance: 25, price: 10 }
   ],
   loading: false,
   error: null,
@@ -27,11 +26,13 @@ const reducer = (state, action) => {
     case 'LOGOUT':
       return { ...state, isAuthenticated: false, user: null };
     case 'SET_LOADING':
-      return { ...state, loading: true };
+      return { ...state, loading: true, error: null };
     case 'SET_OFFERS':
-       return { ...state, offers: action.payload, loading: false };
-    case 'SET_TRADES': 
-  return { ...state, trades: action.payload, loading: false };
+      return { ...state, offers: Array.isArray(action.payload) ? action.payload : [], loading: false };
+    case 'SET_TRADES':
+      return { ...state, trades: Array.isArray(action.payload) ? action.payload : [], loading: false };
+    case 'SET_ASSETS':
+      return { ...state, assets: action.payload };
     case 'SET_ERROR':
       return { ...state, error: action.payload, loading: false };
     default:
@@ -51,7 +52,7 @@ export function AppProvider({ children }) {
         const res = await api.get('/offers');
         dispatch({ type: 'SET_OFFERS', payload: res.data });
       } catch (err) {
-        dispatch({ type: 'SET_ERROR', payload: err.message });
+        dispatch({ type: 'SET_ERROR', payload: err.response?.data?.message || err.message });
       }
     };
     fetchOffers();

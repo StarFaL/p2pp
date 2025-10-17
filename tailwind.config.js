@@ -11,7 +11,14 @@ export default {
         textSecondary: '#94a3b8',
         error: '#ef4444',
       },
+        screens: {
+        xs: "360px",
+        sm: "480px",
+        md: "768px",
+        lg: "1024px",
+        xl: "1280px",
     },
+  },
   },
   plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography')],
 };
