@@ -25,7 +25,7 @@ function AppRoutes() {
   return (
     <>
       {/* Контент с отступом сверху, умещаемый в экран */}
-      <div className="h-screen pt-32 box-border overflow-hidden">
+      <div className="h-screen pt-30 box-border overflow-hidden">
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
