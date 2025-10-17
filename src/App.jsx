@@ -23,41 +23,42 @@ function AppRoutes() {
   const { state } = useContext(AppContext);
 
   return (
-    <>
-      <Routes>
-        <Route path="/login" element={<LoginScreen />} />
-        <Route path="/register" element={<RegisterScreen />} />
-        <Route
-          path="/"
-          element={<Navigate to={state.isAuthenticated ? "/market" : "/login"} replace />}
-        />
-        <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
-        <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
-        <Route path="/trade-details/:id" element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
-        <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
-        <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
-      </Routes>
+    <div className="flex flex-col h-screen bg-[#0b1120] text-white">
+      {/* Контент страниц */}
+      <div className="flex-1 overflow-auto pt-4 pb-24">
+        <Routes>
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/register" element={<RegisterScreen />} />
+          <Route
+            path="/"
+            element={<Navigate to={state.isAuthenticated ? "/market" : "/login"} replace />}
+          />
+          <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
+          <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
+          <Route path="/trade-details/:id" element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
+          <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
+          <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
+        </Routes>
+      </div>
 
-      {/* Bottom navigation, показываем только если авторизован */}
+      {/* Bottom navigation */}
       {state.isAuthenticated && <BottomNav />}
-    </>
+    </div>
   );
 }
 
 function App() {
   useEffect(() => {
-    // Для dark mode Tailwind
+    // Включаем dark mode для Tailwind
     document.documentElement.classList.add('dark');
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        <div className="min-h-screen bg-[#0b1120] text-white font-sans">
-          <AppRoutes />
-        </div>
+        <AppRoutes />
       </Router>
     </AppProvider>
   );

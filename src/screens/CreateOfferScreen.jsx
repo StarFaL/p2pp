@@ -62,9 +62,9 @@ export default function CreateOfferScreen() {
       <div className="w-full max-w-md sm:max-w-sm">
 
         {/* Заголовок */}
-        <div className="flex justify-center mb-6 relative">
-          <h1 className="text-xl font-semibold text-center">Create Offer</h1>
-        </div>
+       <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
+          Create Offer
+        </h1>
 
         {/* Форма */}
         <form
