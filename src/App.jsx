@@ -23,9 +23,9 @@ function AppRoutes() {
   const { state } = useContext(AppContext);
 
   return (
-    <div className="flex flex-col h-screen bg-[#0b1120] text-white">
-      {/* Контент страниц */}
-      <div className="flex-1 overflow-auto pt-4 pb-24">
+    <>
+      {/* Контент с отступом сверху, умещаемый в экран */}
+      <div className="h-screen pt-24 box-border overflow-hidden">
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
@@ -45,20 +45,23 @@ function AppRoutes() {
 
       {/* Bottom navigation */}
       {state.isAuthenticated && <BottomNav />}
-    </div>
+    </>
   );
 }
 
 function App() {
   useEffect(() => {
-    // Включаем dark mode для Tailwind
+    // Включаем dark mode Tailwind
     document.documentElement.classList.add('dark');
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        <AppRoutes />
+        {/* Полностью фиксированная высота, скрываем скролл */}
+        <div className="h-screen w-screen bg-[#0b1120] text-white font-sans overflow-hidden">
+          <AppRoutes />
+        </div>
       </Router>
     </AppProvider>
   );
