@@ -16,70 +16,74 @@ export default function TransactionHistoryScreen() {
   const [openId, setOpenId] = useState(null);
   const toggleDetails = (id) => setOpenId(openId === id ? null : id);
 
-  // WebView-friendly высота
+  // Подстройка высоты под Telegram WebView
   useEffect(() => {
-    const resizeHandler = () => { document.body.style.height = `${window.innerHeight}px`; };
+    const resizeHandler = () => {
+      document.body.style.height = `${window.innerHeight}px`;
+    };
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
     return () => window.removeEventListener('resize', resizeHandler);
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white p-4 pb-24 flex flex-col items-center">
-      {/* Заголовок */}
-      <div className="flex items-center w-full max-w-md relative">
-        <ChevronLeftIcon
-          onClick={() => navigate(-1)}
-          className="h-6 w-6 text-gray-400 cursor-pointer hover:text-white transition absolute left-0"
-        />
-        <div className="mx-auto text-center">
-          <h1 className="text-lg sm:text-xl font-bold">
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex justify-center items-start px-3 pt-4 pb-[calc(env(safe-area-inset-bottom)+70px)] sm:px-4 sm:pt-6">
+      <div className="w-full max-w-md flex flex-col flex-grow">
+
+        {/* Заголовок */}
+        <div className="flex items-center mb-5 sm:mb-6 relative">
+          <ChevronLeftIcon
+            onClick={() => navigate(-1)}
+            className="h-6 w-6 text-gray-400 cursor-pointer hover:text-white transition absolute left-0"
+          />
+          <h1 className="text-lg sm:text-xl font-semibold mx-auto text-center leading-tight">
             Transaction<br />History
           </h1>
         </div>
-      </div>
 
-      {/* Список транзакций */}
-      <div className="space-y-3 w-full sm:max-w-md mt-8">
-        {transactions.length === 0 && (
-          <p className="text-gray-400 text-center">No transactions found</p>
-        )}
+        {/* Подложка */}
+        <div className="bg-[#1a2338] p-4 sm:p-5 rounded-2xl shadow-md flex flex-col flex-grow overflow-y-auto space-y-3 sm:space-y-4 max-h-[calc(100vh-150px)] sm:max-h-[calc(100vh-180px)] transition-all">
 
-        {transactions.map((tx) => (
-          <div
-            key={tx.id}
-            className="bg-[#1a2338] rounded-2xl shadow-md overflow-hidden transition-all hover:bg-[#24304a]"
-          >
-            {/* Основная строка */}
+          {transactions.length === 0 && (
+            <p className="text-gray-400 text-center text-sm sm:text-base mt-6">No transactions found</p>
+          )}
+
+          {transactions.map((tx) => (
             <div
-              onClick={() => toggleDetails(tx.id)}
-              className="flex justify-between items-center p-4 cursor-pointer select-none"
+              key={tx.id}
+              className="bg-[#151b2c] rounded-2xl shadow-md overflow-hidden hover:bg-[#24304a] transition-all"
             >
-              <span className="font-semibold text-[#00a968] text-base sm:text-lg">{tx.type}</span>
+              {/* Основная строка */}
               <div
-                className="flex items-center justify-center h-full transition-transform duration-300"
-                style={{ transform: openId === tx.id ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                onClick={() => toggleDetails(tx.id)}
+                className="flex justify-between items-center p-4 cursor-pointer select-none"
               >
-                <ChevronDownIcon className="h-6 w-6 sm:h-7 sm:w-7 text-[#9e9f9e]" />
+                <span className="font-semibold text-[#00a968] text-sm sm:text-base">{tx.type}</span>
+                <div
+                  className={`transition-transform duration-300 ${openId === tx.id ? 'rotate-180' : ''}`}
+                >
+                  <ChevronDownIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Детали */}
+              <div
+                className={`px-4 pb-4 text-gray-400 text-xs sm:text-sm transition-all duration-500 ease-in-out overflow-hidden ${
+                  openId === tx.id ? 'max-h-72 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'
+                }`}
+              >
+                {openId === tx.id && (
+                  <div className="mt-2">
+                    <p className="mb-1"><strong>Amount:</strong> <span className="text-[#00a968] font-bold">{tx.amount}</span></p>
+                    <p className="mb-1"><strong>Date:</strong> {tx.date}</p>
+                    <p><strong>Details:</strong> {tx.details}</p>
+                  </div>
+                )}
               </div>
             </div>
+          ))}
 
-            {/* Раскрытые детали */}
-            <div
-              className={`px-4 pb-4 text-gray-400 text-sm sm:text-base transition-all duration-500 ease-in-out overflow-hidden ${
-                openId === tx.id ? 'max-h-72 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'
-              }`}
-            >
-              {openId === tx.id && (
-                <div className="mt-2">
-                  <p className="mb-1"><strong>Сумма:</strong> <span className="text-[#00a968] font-bold">{tx.amount}</span></p>
-                  <p className="mb-1"><strong>Дата:</strong> {tx.date}</p>
-                  <p><strong>Детали:</strong> {tx.details}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+        </div>
       </div>
     </div>
   );

@@ -4,11 +4,11 @@ export default function BottomNav() {
   const location = useLocation();
 
   const navItems = [
-    { to: '/my-assets', label: 'Home', icon: '/assets.png' },
-    { to: '/market', label: 'Market', icon: '/market.png' },
-    { to: '/create-offer', label: 'Create', icon: '/plus.png' },
-    { to: '/dashboard', label: 'Dashboard', icon: '/dashboard.png' },
-    { to: '/profile', label: 'Profile', icon: '/profile.png' },
+    { to: '/my-assets', label: 'Home', icon: '/assets.svg' },
+    { to: '/market', label: 'Market', icon: '/market.svg' },
+    { to: '/create-offer', label: 'Create', icon: '/plus.svg' },
+    { to: '/dashboard', label: 'Dashboard', icon: '/dashboard.svg' },
+    { to: '/profile', label: 'Profile', icon: '/profile.svg' },
   ];
 
   return (

@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
 import axios from 'axios';
@@ -8,12 +8,12 @@ export default function TradeDetailsScreen() {
   const { state, dispatch } = useContext(AppContext);
   const [trade, setTrade] = useState(null);
   const [message, setMessage] = useState('');
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const existingTrade = state.trades.find(t => t.id === parseInt(id) || t.id === id);
-    if (existingTrade) {
-      setTrade(existingTrade);
-    } else {
+    if (existingTrade) setTrade(existingTrade);
+    else {
       axios.get(`http://localhost:5000/api/trades/${id}`)
         .then(res => setTrade(res.data))
         .catch(() => setTrade(null));
@@ -22,8 +22,8 @@ export default function TradeDetailsScreen() {
 
   const handleSend = async () => {
     if (!message.trim() || !trade) return;
+    const newMessage = { text: message, time: new Date().toLocaleTimeString() };
     try {
-      const newMessage = { text: message, time: new Date().toLocaleTimeString() };
       await axios.post(`http://localhost:5000/api/trades/message`, { tradeId: trade.id, message: newMessage });
 
       setTrade(prev => ({
@@ -42,27 +42,31 @@ export default function TradeDetailsScreen() {
     }
   };
 
+  // Авто-прокрутка вниз при новых сообщениях
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [trade?.messages]);
+
   // WebView-friendly высота
   useEffect(() => {
-    const resizeHandler = () => {
-      document.body.style.height = `${window.innerHeight}px`;
-    };
+    const resizeHandler = () => { document.body.style.height = `${window.innerHeight}px`; };
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
     return () => window.removeEventListener('resize', resizeHandler);
   }, []);
 
-  if (!trade) {
-    return <p className="text-[#00a968] text-center text-lg font-bold mt-10">Trade Loading...</p>;
-  }
+  if (!trade) return <p className="text-[#00a968] text-center text-lg font-bold mt-[10vh]">Trade Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center p-4 pb-24">
-      <div className="w-full sm:max-w-sm">
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+
+      {/* Карточка-подложка */}
+      <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-5 mt-5">
+
         {/* Заголовок */}
-        <div className="flex items-center justify-center mb-6">
-          <h1 className="text-lg sm:text-xl font-bold text-center">Trade Details</h1>
-        </div>
+        <h1 className="text-xl font-bold text-center">Trade Details</h1>
 
         {/* Информация о трейде */}
         <div className="space-y-4">
@@ -77,45 +81,49 @@ export default function TradeDetailsScreen() {
             <p className="text-gray-400 text-sm">{trade.btc} BTC</p>
           </div>
 
-          <div className="bg-[#24304a] p-4 sm:p-5 rounded-2xl text-center">
+          <div className="bg-[#24304a] p-4 rounded-2xl text-center">
             <p className="font-medium text-base">Waiting for the buyer to pay</p>
-            <p className="text-gray-400 text-xs mt-2">Lorem ipsum...</p>
+            <p className="text-gray-400 text-xs mt-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
           </div>
 
-          <button className="w-full bg-[#00613c] hover:bg-[#00a968] transition py-4 rounded-2xl font-bold text-base">
+          <button className="w-full bg-[#00613c] hover:bg-[#00a968] transition py-3 rounded-2xl font-bold text-base">
             Pay
           </button>
         </div>
 
         {/* Сообщения */}
-        <div className="mt-6 space-y-3">
+        <div className="flex flex-col gap-3 mt-4 max-h-[300px] overflow-y-auto">
           {trade.messages?.map((msg, idx) => (
             <div key={idx} className="flex items-start">
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-600" />
-              <div className="ml-2 bg-[#1a2338] p-4 sm:p-5 rounded-2xl flex-1">
+              <div className="ml-2 bg-[#1a2338] p-3 sm:p-4 rounded-2xl flex-1">
                 <p className="text-base">{msg.text}</p>
               </div>
               <span className="ml-2 text-gray-400 text-xs mt-1">{msg.time}</span>
             </div>
           ))}
-
-          {/* Ввод нового сообщения */}
-          <div className="flex mt-4">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              className="flex-1 bg-[#24304a] p-4 sm:p-5 rounded-l-2xl text-base placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
-            />
-            <button
-              onClick={handleSend}
-              className="bg-[#00613c] hover:bg-[#00a968] p-4 sm:p-5 rounded-r-2xl transition flex items-center justify-center"
-            >
-              <img src="/mesage.png" alt="send" className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-          </div>
+          <div ref={messagesEndRef} />
         </div>
+
+        {/* Ввод нового сообщения с кнопкой внутри поля */}
+        <div className="mt-4 relative w-full">
+          <input
+            type="text"
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            className="w-full bg-[#24304a] p-3 rounded-2xl text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00a968] focus:ring-offset-0 transition pr-12"
+          />
+          <button
+            onClick={handleSend}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#00613c] hover:bg-[#00a968] p-2 rounded-full flex items-center justify-center transition"
+            style={{ width: '36px', height: '36px' }}
+          >
+            <img src="/mesage.svg" alt="send" className="h-4 w-4 sm:h-5 sm:w-5" />
+          </button>
+        </div>
+
       </div>
     </div>
   );
