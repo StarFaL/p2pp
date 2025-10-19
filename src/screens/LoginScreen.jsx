@@ -19,7 +19,6 @@ export default function LoginScreen() {
   });
 
   const containerRef = useRef(null);
-  // фиксируем высоту экрана при первой загрузке
   const [screenHeight] = useState(window.innerHeight);
 
   const onSubmit = (data) => {
@@ -27,28 +26,29 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Скролл к инпуту при фокусе
+  // предотвращаем сдвиг при появлении клавиатуры
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    const inputs = containerRef.current.querySelectorAll('input, textarea');
-    const focusHandler = (e) => {
-      setTimeout(() => {
-        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
+    const handleResize = () => {
+      if (containerRef.current) {
+        // фиксируем высоту экрана, чтобы при появлении клавиатуры не тянуло вверх/вниз
+        containerRef.current.style.height = `${screenHeight}px`;
+      }
     };
-
-    inputs.forEach(input => input.addEventListener('focus', focusHandler));
-    return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
-  }, []);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [screenHeight]);
 
   return (
     <div
       ref={containerRef}
-      style={{ height: `${screenHeight}px` }}
-      className="w-full bg-[#0b1120] text-white overflow-y-auto flex justify-center items-center p-4"
+      style={{
+        height: `${screenHeight}px`,
+        touchAction: 'none', // запрещает тянуть
+        overscrollBehavior: 'none', // убирает прокрутку
+      }}
+      className="w-full bg-[#0b1120] text-white fixed top-0 left-0 flex justify-center items-center p-4"
     >
-      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#24304a] p-6 rounded-2xl shadow-md">
+      <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
