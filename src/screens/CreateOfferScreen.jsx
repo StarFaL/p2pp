@@ -7,9 +7,7 @@ import { AppContext } from '../contexts/AppContext';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import BottomNav from '../components/BottomNav';
 
-// Валидация формы
 const schema = yup.object({
   sell: yup.string().required(),
   currency: yup.string().required(),
@@ -19,34 +17,20 @@ const schema = yup.object({
   comments: yup.string(),
 });
 
-// Хук для реальной высоты экрана
-function useViewportHeight() {
-  const [height, setHeight] = useState(window.innerHeight);
-
-  useEffect(() => {
-    const onResize = () => setHeight(window.innerHeight);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  return height;
-}
-
 export default function CreateOfferScreen() {
   const { state, dispatch } = useContext(AppContext);
   const navigate = useNavigate();
   const { register, handleSubmit, setValue, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema),
   });
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState('Select payment');
   const dropdownRef = useRef(null);
+
   const paymentMethods = ['PayPal', 'Bank'];
 
-  const viewportHeight = useViewportHeight();
-
-  // Закрытие дропдауна при клике вне
+  // Закрытие dropdown при клике вне
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -68,64 +52,97 @@ export default function CreateOfferScreen() {
       const response = await axios.post('http://localhost:5000/api/offers', data);
       dispatch({ type: 'SET_OFFERS', payload: [...state.offers, response.data] });
       navigate('/market');
-    } catch {
+    } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to create offer' });
     }
   };
 
   return (
-    <div
-      style={{ height: viewportHeight }}
-      className="flex flex-col bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white"
-    >
-      {/* Контент с прокруткой */}
-      <div className="flex-1 overflow-auto px-6 py-6">
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+      <div className="w-full max-w-md sm:max-w-sm">
+
         {/* Заголовок */}
-        <div className="flex items-center justify-center mb-6">
-          <h1 className="text-lg font-bold text-center">Create Offer</h1>
-        </div>
+       <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
+          Create Offer
+        </h1>
 
         {/* Форма */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-[#1a2338] p-6 rounded-2xl shadow-md space-y-4"
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4"
         >
-          <div className="grid grid-cols-2 gap-4">
+          {/* Sell / Currency */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium mb-1">You Sell</label>
-              <input {...register('sell')} defaultValue="BTC" className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"/>
+              <label className="block text-xs font-medium mb-1">You Sell</label>
+              <input
+                {...register('sell')}
+                defaultValue="BTC"
+                className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              />
               <ErrorMessage message={errors.sell?.message} />
             </div>
+
             <div>
-              <label className="block text-sm font-medium mb-1">&nbsp;</label>
-              <input {...register('currency')} defaultValue="USD" className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"/>
+              <label className="block text-xs font-medium mb-1">Currency</label>
+              <input
+                {...register('currency')}
+                defaultValue="USD"
+                className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              />
               <ErrorMessage message={errors.currency?.message} />
             </div>
           </div>
 
+          {/* Rate */}
           <div>
-            <label className="block text-sm font-medium mb-1">Exchange Rate</label>
-            <input {...register('rate')} defaultValue="36782.32" className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"/>
+            <label className="block text-xs font-medium mb-1">Exchange Rate</label>
+            <input
+              {...register('rate')}
+              defaultValue="36782.32"
+              inputMode="decimal"
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+            />
             <ErrorMessage message={errors.rate?.message} />
           </div>
 
+          {/* Limits */}
           <div>
-            <label className="block text-sm font-medium mb-1">Limits</label>
-            <input {...register('limits')} defaultValue="50-1000" className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"/>
+            <label className="block text-xs font-medium mb-1">Limits</label>
+            <input
+              {...register('limits')}
+              defaultValue="50-1000"
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+            />
             <ErrorMessage message={errors.limits?.message} />
           </div>
 
           {/* Payment Method */}
           <div className="relative" ref={dropdownRef}>
-            <label className="block text-sm font-medium mb-1">Payment Method</label>
-            <button type="button" onClick={() => setOpen(!open)} className="w-full bg-[#24304a] p-3 rounded-xl text-left flex justify-between items-center text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition">
+            <label className="block text-xs font-medium mb-1">Payment Method</label>
+            <button
+              type="button"
+              onClick={() => setOpen(!open)}
+              className="w-full bg-[#24304a] p-3 rounded-xl flex justify-between items-center text-sm text-gray-300 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+            >
               <span>{selected}</span>
-              <ChevronDownIcon className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${open ? 'rotate-180' : ''}`}/>
+              <ChevronDownIcon
+                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+              />
             </button>
 
-            <div className={`absolute w-full bg-[#1a2338] border border-gray-700 mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${open ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+            {/* Dropdown */}
+            <div
+              className={`absolute w-full bg-[#1a2338] border border-gray-700 mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
+                open ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+              }`}
+            >
               {paymentMethods.map((method) => (
-                <div key={method} onClick={() => handleSelect(method)} className="px-4 py-3 hover:bg-[#24304a] hover:text-[#00a968] cursor-pointer text-sm">
+                <div
+                  key={method}
+                  onClick={() => handleSelect(method)}
+                  className="px-4 py-3 hover:bg-[#24304a] hover:text-[#00a968] cursor-pointer text-sm"
+                >
                   {method}
                 </div>
               ))}
@@ -133,17 +150,25 @@ export default function CreateOfferScreen() {
           </div>
           <ErrorMessage message={errors.paymentMethod?.message} />
 
+          {/* Comments */}
           <div>
-            <label className="block text-sm font-medium mb-1">Comments</label>
-            <textarea {...register('comments')} className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition" rows="4"></textarea>
+            <label className="block text-xs font-medium mb-1">Comments</label>
+            <textarea
+              {...register('comments')}
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition resize-none"
+              rows="4"
+            ></textarea>
           </div>
 
-          <button type="submit" className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-sm">Create</button>
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-sm active:scale-[0.98]"
+          >
+            Create
+          </button>
         </form>
       </div>
-
-      {/* Навигация */}
-      <BottomNav />
     </div>
   );
 }

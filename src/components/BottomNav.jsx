@@ -1,16 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 
 export default function BottomNav() {
   const location = useLocation();
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-
-  // Обновляем высоту при resize (клавиатура, ориентация)
-  useEffect(() => {
-    const handleResize = () => setViewportHeight(window.innerHeight);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const navItems = [
     { to: '/my-assets', label: 'Home', icon: '/assets.svg' },
@@ -21,10 +12,7 @@ export default function BottomNav() {
   ];
 
   return (
-    <div
-      style={{ top: viewportHeight - 64 }} // 64px — пример высоты навигации
-      className="absolute left-0 w-full bg-[#1a2338] border-t border-gray-700 flex justify-around py-3 px-4 z-20 text-gray-400 safe-area-bottom"
-    >
+    <nav className="fixed bottom-0 left-0 right-0 bg-[#1a2338] border-t border-gray-700 flex justify-around py-3 px-4 z-20 text-gray-400 safe-area-bottom">
       {navItems.map((item) => {
         const isActive = location.pathname === item.to;
         return (
@@ -46,6 +34,6 @@ export default function BottomNav() {
           </Link>
         );
       })}
-    </div>
+    </nav>
   );
 }
