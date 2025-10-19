@@ -20,31 +20,19 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Обновление высоты клавиатуры с debounce и стабилизацией
+  // Обновление высоты клавиатуры
   useEffect(() => {
-    let timeoutId;
     const updateHeight = () => {
-      clearTimeout(timeoutId);
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
-      if (newKeyboardHeight > 50 && !isKeyboardOpen) { // Порог для открытия
-        setIsKeyboardOpen(true);
-        setKeyboardHeight(newKeyboardHeight);
-      } else if (newKeyboardHeight < 50 && isKeyboardOpen) { // Порог для закрытия
-        setIsKeyboardOpen(false);
-        setKeyboardHeight(0);
-      } else if (isKeyboardOpen) {
-        setKeyboardHeight(newKeyboardHeight); // Обновляем только если открыто
-      }
-      timeoutId = setTimeout(() => {}, 100); // Задержка для сглаживания
+      setKeyboardHeight(newKeyboardHeight); // Прямое обновление без порогов
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -54,9 +42,8 @@ export default function LoginScreen() {
     return () => {
       window.visualViewport?.removeEventListener('resize', updateHeight);
       window.removeEventListener('resize', updateHeight);
-      clearTimeout(timeoutId);
     };
-  }, [isKeyboardOpen]);
+  }, []);
 
   // Скролл к инпуту при фокусе
   useEffect(() => {
@@ -69,9 +56,9 @@ export default function LoginScreen() {
         const rect = input.getBoundingClientRect();
         const minOffsetFromTop = 150; // Минимальный отступ от верха
         const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
-        const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.3 + offset;
+        const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset; // Увеличен коэффициент
         window.scrollTo({ top: scrollY, behavior: 'smooth' });
-      }, 200); // Увеличенная задержка
+      }, 250); // Увеличенная задержка
     };
 
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
@@ -106,12 +93,12 @@ export default function LoginScreen() {
     >
       <div
         style={{
-          position: isKeyboardOpen ? 'absolute' : 'relative',
-          bottom: isKeyboardOpen ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
-          maxHeight: isKeyboardOpen ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
+          position: keyboardHeight > 0 ? 'fixed' : 'relative', // fixed при открытой клавиатуре
+          bottom: keyboardHeight > 0 ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
+          maxHeight: keyboardHeight > 0 ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
           width: '100%',
           maxWidth: 'sm:max-w-sm',
-          transition: 'bottom 0.5s ease, max-height 0.5s ease', // Увеличенная задержка
+          transition: 'bottom 0.5s ease', // Только bottom анимируется
         }}
         className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
