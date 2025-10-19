@@ -1,4 +1,4 @@
-import { useContext, useState, useRef, useEffect } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -28,26 +28,35 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Отключаем любые автоматические скроллы браузера
+  // Отключаем скролл при появлении клавиатуры
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const handleResize = () => {
+      if (window.innerHeight < screenHeight) {
+        // Клавиатура открыта — фиксируем контейнер
+        if (containerRef.current) {
+          containerRef.current.style.height = `${screenHeight}px`;
+          containerRef.current.style.overflow = 'hidden';
+        }
+      } else {
+        // Клавиатура закрыта — возвращаем нормальный скролл
+        if (containerRef.current) {
+          containerRef.current.style.height = `${screenHeight}px`;
+          containerRef.current.style.overflow = 'hidden'; // можно оставить hidden, чтобы не скроллилось вообще
+        }
+      }
+    };
 
-    container.style.position = 'fixed';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.width = '100%';
-    container.style.height = `${screenHeight}px`;
-    container.style.overflow = 'hidden';
-    container.style.display = 'flex';
-    container.style.justifyContent = 'center';
-    container.style.alignItems = 'center';
-    container.style.flexDirection = 'column';
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [screenHeight]);
 
   return (
-    <div ref={containerRef} className="bg-[#0b1120] text-white p-4">
-      <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md">
+    <div
+      ref={containerRef}
+      style={{ height: `${screenHeight}px` }}
+      className="w-full bg-[#0b1120] text-white flex justify-center items-center p-4"
+    >
+      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#24304a] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
