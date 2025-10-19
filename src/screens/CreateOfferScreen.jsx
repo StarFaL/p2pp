@@ -56,15 +56,15 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex justify-center items-start sm:items-center overflow-auto p-4">
-      <div className="w-full max-w-md sm:max-w-sm mt-6 sm:mt-0">
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-y-auto flex justify-center items-start sm:items-center p-4">
+      <div className="w-full max-w-md sm:max-w-sm mt-6 mb-6">
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
         </h1>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4 overflow-auto max-h-[90vh]"
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4"
         >
           {/* Sell / Currency */}
           <div className="grid grid-cols-2 gap-3">
@@ -126,7 +126,6 @@ export default function CreateOfferScreen() {
               />
             </button>
 
-            {/* Dropdown */}
             <div
               className={`absolute w-full bg-[#1a2338] border border-gray-700 mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
                 open ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
