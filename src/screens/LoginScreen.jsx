@@ -79,15 +79,11 @@ export default function LoginScreen() {
       className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4 overflow-hidden"
     >
       <div
+        className={`form-container ${isKeyboardOpen ? 'fixed expanded' : ''}`}
         style={{
-          position: isKeyboardOpen ? 'absolute' : 'relative',
-          bottom: isKeyboardOpen ? `${Math.max(0, keyboardHeight + 37.8)}px` : 'auto', // Отступ 1 см (37.8px)
-          maxHeight: isKeyboardOpen ? `calc(100vh - ${Math.max(0, keyboardHeight + 37.8)}px)` : 'auto',
-          width: '100%',
-          maxWidth: 'sm:max-w-sm',
-          transition: 'bottom 0.6s ease, max-height 0.6s ease', // Плавные переходы
+          bottom: isKeyboardOpen ? `${Math.max(50, keyboardHeight + 37.8)}px` : 'auto', // Отступ 1 см (37.8px) + буфер
+          transition: 'bottom 0.7s ease', // Синхронизировано с CSS
         }}
-        className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
