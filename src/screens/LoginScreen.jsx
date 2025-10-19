@@ -25,7 +25,7 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Настройка высоты с учетом клавиатуры и отступа 3 мм
+  // Настройка высоты и отступа 3 мм от клавиатуры
   useEffect(() => {
     const resizeHandler = () => {
       if (containerRef.current) {
@@ -47,10 +47,9 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      className="bg-[#0b1120] text-white flex justify-center items-center p-4 overscroll-none"
-      style={{ minHeight: '100vh' }}
+      className="fixed inset-0 bg-[#0b1120] text-white flex justify-center items-center p-4 overscroll-none"
     >
-      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#1a2338] p-6 rounded-2xl shadow-md">
+      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
