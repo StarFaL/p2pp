@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -20,7 +20,7 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
 
-  // Фиксируем высоту экрана при первой загрузке
+  // фиксируем высоту экрана при первой загрузке
   const [screenHeight] = useState(window.innerHeight);
 
   const onSubmit = (data) => {
@@ -28,13 +28,17 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Центрируем контейнер и отключаем скролл полностью
+  // Отключаем любые автоматические скроллы браузера
   useEffect(() => {
-    if (!containerRef.current) return;
-
     const container = containerRef.current;
+    if (!container) return;
+
+    container.style.position = 'fixed';
+    container.style.top = '0';
+    container.style.left = '0';
+    container.style.width = '100%';
     container.style.height = `${screenHeight}px`;
-    container.style.overflow = 'hidden'; // полностью отключаем скролл
+    container.style.overflow = 'hidden';
     container.style.display = 'flex';
     container.style.justifyContent = 'center';
     container.style.alignItems = 'center';
@@ -42,10 +46,7 @@ export default function LoginScreen() {
   }, [screenHeight]);
 
   return (
-    <div
-      ref={containerRef}
-      className="w-full bg-[#0b1120] text-white p-4"
-    >
+    <div ref={containerRef} className="bg-[#0b1120] text-white p-4">
       <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
