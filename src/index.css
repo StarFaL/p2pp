@@ -85,9 +85,3 @@ body {
   }
 }
 
-/* Поддержка безопасных зон (safe area insets) для iOS */
-@supports (padding: env(safe-area-inset-bottom)) {
-  #root {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
