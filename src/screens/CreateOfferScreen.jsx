@@ -26,6 +26,7 @@ export default function CreateOfferScreen() {
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState('Select payment');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const dropdownRef = useRef(null);
 
   const paymentMethods = ['PayPal', 'Bank'];
@@ -41,13 +42,16 @@ export default function CreateOfferScreen() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Автоадаптация под Telegram WebApp (при открытии клавиатуры)
+  // Отслеживание клавиатуры (адаптировано под Telegram / Android / iOS)
   useEffect(() => {
+    let initialHeight = window.innerHeight;
+
     const handleResize = () => {
-      document.body.style.height = `${window.innerHeight}px`;
+      const diff = initialHeight - window.innerHeight;
+      setKeyboardVisible(diff > 150); // клавиатура открыта, если высота изменилась сильно
     };
+
     window.addEventListener('resize', handleResize);
-    handleResize();
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -68,9 +72,12 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="h-[100dvh] w-full bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center overflow-hidden">
+    <div
+      className={`h-[100dvh] w-full bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center overflow-hidden transition-transform duration-300 ${
+        keyboardVisible ? '-translate-y-[120px]' : 'translate-y-0'
+      }`}
+    >
       <div className="w-full max-w-md sm:max-w-sm flex flex-col flex-1 px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-y-auto">
-        
         {/* Заголовок */}
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
@@ -137,7 +144,9 @@ export default function CreateOfferScreen() {
             >
               <span>{selected}</span>
               <ChevronDownIcon
-                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${
+                  open ? 'rotate-180' : ''
+                }`}
               />
             </button>
 
