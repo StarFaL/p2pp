@@ -60,7 +60,7 @@ export default function TradeDetailsScreen() {
   if (!trade) return <p className="text-[#00a968] text-center text-lg font-bold mt-[10vh]">Trade Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+    <div className="min-h-screen bg-[#0b1120]  flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]">
 
       {/* Карточка-подложка */}
       <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-5 mt-5">

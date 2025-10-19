@@ -42,7 +42,7 @@ export default function MyAssetsScreen() {
   );
 
   return (
-    <div className="min-h-screen flex justify-center items-start bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+    <div className="min-h-screen flex justify-center items-start bg-[#0b1120]  text-white px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
       <div className="w-full max-w-lg flex flex-col flex-grow">
         {/* Заголовок */}
         <h1 className="text-xl sm:text-2xl font-bold text-center mb-6 tracking-wide">My Assets</h1>

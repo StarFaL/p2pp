@@ -35,7 +35,7 @@ export default function RegisterScreen() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0b1120]  flex flex-col items-center justify-center p-4">
       <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 sm:p-8 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Регистрация</h1>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

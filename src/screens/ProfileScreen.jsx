@@ -45,7 +45,7 @@ export default function ProfileScreen() {
   }, []);
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white px-4 pt-10 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+    <div className="flex flex-col items-center min-h-screen bg-[#0b1120]  text-white px-4 pt-10 pb-[calc(env(safe-area-inset-bottom)+80px)]">
       
       {/* Подложка компактная */}
       <div className="w-full sm:w-80 bg-[#1a2338] rounded-2xl shadow-lg p-4 sm:p-5 flex flex-col items-center">

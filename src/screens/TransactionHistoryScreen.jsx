@@ -27,7 +27,7 @@ export default function TransactionHistoryScreen() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex justify-center items-start px-3 pt-4 pb-[calc(env(safe-area-inset-bottom)+70px)] sm:px-4 sm:pt-6">
+    <div className="min-h-screen bg-[#0b1120]  text-white flex justify-center items-start px-3 pt-4 pb-[calc(env(safe-area-inset-bottom)+70px)] sm:px-4 sm:pt-6">
       <div className="w-full max-w-md flex flex-col flex-grow">
 
         {/* Заголовок */}

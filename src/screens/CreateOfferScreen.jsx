@@ -56,7 +56,7 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120]  text-white overflow-y-auto flex justify-center items-start sm:items-center p-4">
+    <div className="min-h-screen bg-[#0b1120]  text-white overflow-y-auto flex justify-center items-start sm:items-center p-4">
       <div className="w-full max-w-md sm:max-w-sm mt-6 mb-6">
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer

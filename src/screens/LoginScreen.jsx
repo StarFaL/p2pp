@@ -52,7 +52,7 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-y-auto flex justify-center items-center p-4"
+      className="min-h-screen bg-from-[#0b1120]  text-white overflow-y-auto flex justify-center items-center p-4"
     >
       <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#1a2338] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
