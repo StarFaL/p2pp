@@ -20,7 +20,7 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
@@ -35,12 +35,7 @@ export default function LoginScreen() {
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
-      if (newKeyboardHeight > 50 && !isExpanded) {
-        setIsExpanded(true);
-      } else if (newKeyboardHeight < 50 && isExpanded) {
-        setIsExpanded(false);
-      }
-      // Обновляем только при значительных изменениях
+      setIsKeyboardOpen(newKeyboardHeight > 50);
       if (Math.abs(newKeyboardHeight - keyboardHeight) > 20) {
         timeoutId = setTimeout(() => setKeyboardHeight(newKeyboardHeight), 100);
       }
@@ -55,9 +50,9 @@ export default function LoginScreen() {
       window.removeEventListener('resize', updateHeight);
       clearTimeout(timeoutId);
     };
-  }, [isExpanded, keyboardHeight]);
+  }, [keyboardHeight]);
 
-  // Удаляем обработку фокуса с прокруткой
+  // Инициализация Telegram WebApp
   useEffect(() => {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
@@ -84,11 +79,15 @@ export default function LoginScreen() {
       className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4 overflow-hidden"
     >
       <div
-        className={`form-container ${isExpanded ? 'fixed expanded' : ''}`}
         style={{
-          bottom: isExpanded ? `${Math.max(100, keyboardHeight + 100)}px` : 'auto', // Гибкий отступ
-          transition: 'bottom 0.6s ease', // Увеличенная задержка для сглаживания
+          position: isKeyboardOpen ? 'absolute' : 'relative',
+          bottom: isKeyboardOpen ? `${Math.max(0, keyboardHeight + 37.8)}px` : 'auto', // Отступ 1 см (37.8px)
+          maxHeight: isKeyboardOpen ? `calc(100vh - ${Math.max(0, keyboardHeight + 37.8)}px)` : 'auto',
+          width: '100%',
+          maxWidth: 'sm:max-w-sm',
+          transition: 'bottom 0.6s ease, max-height 0.6s ease', // Плавные переходы
         }}
+        className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
