@@ -25,11 +25,14 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Adjust height for Telegram WebView and keyboard
+  // Настройка высоты с учетом клавиатуры и отступа 3 мм
   useEffect(() => {
     const resizeHandler = () => {
       if (containerRef.current) {
-        containerRef.current.style.height = `${window.visualViewport?.height || window.innerHeight}px`;
+        const keyboardPaddingPx = 11; // 3 мм ≈ 11 пикселей
+        const viewportHeight = window.visualViewport?.height || window.innerHeight;
+        containerRef.current.style.height = `${viewportHeight}px`;
+        containerRef.current.style.paddingBottom = `${keyboardPaddingPx}px`;
       }
     };
     window.visualViewport?.addEventListener('resize', resizeHandler);
@@ -39,18 +42,6 @@ export default function LoginScreen() {
       window.visualViewport?.removeEventListener('resize', resizeHandler);
       window.removeEventListener('resize', resizeHandler);
     };
-  }, []);
-
-  // Scroll to input on focus
-  useEffect(() => {
-    const inputs = containerRef.current?.querySelectorAll('input, textarea');
-    const focusHandler = (e) => {
-      setTimeout(() => {
-        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
-    };
-    inputs?.forEach(input => input.addEventListener('focus', focusHandler));
-    return () => inputs?.forEach(input => input.removeEventListener('focus', focusHandler));
   }, []);
 
   return (
