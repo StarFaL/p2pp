@@ -21,23 +21,29 @@ export default function LoginScreen() {
   const containerRef = useRef(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [hasFocused, setHasFocused] = useState({ email: false, password: false });
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Обновление высоты клавиатуры
+  // Обновление высоты клавиатуры с debounce
   useEffect(() => {
+    let timeoutId;
     const updateHeight = () => {
+      clearTimeout(timeoutId);
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
       if (newKeyboardHeight > 50 && !isExpanded) {
         setIsExpanded(true);
+      } else if (newKeyboardHeight < 50 && isExpanded) {
+        setIsExpanded(false);
       }
-      setKeyboardHeight(newKeyboardHeight);
+      // Обновляем только при значительных изменениях
+      if (Math.abs(newKeyboardHeight - keyboardHeight) > 20) {
+        timeoutId = setTimeout(() => setKeyboardHeight(newKeyboardHeight), 100);
+      }
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -47,34 +53,11 @@ export default function LoginScreen() {
     return () => {
       window.visualViewport?.removeEventListener('resize', updateHeight);
       window.removeEventListener('resize', updateHeight);
+      clearTimeout(timeoutId);
     };
-  }, [isExpanded]);
+  }, [isExpanded, keyboardHeight]);
 
-  // Скролл к инпуту при первом фокусе
-  useEffect(() => {
-    if (!containerRef.current) return;
-
-    const inputs = containerRef.current.querySelectorAll('input, textarea');
-    const focusHandler = (e) => {
-      const inputName = e.target.name;
-      if (!hasFocused[inputName]) {
-        setTimeout(() => {
-          const input = e.target;
-          const rect = input.getBoundingClientRect();
-          const minOffsetFromTop = 200; // Увеличен для большего отступа сверху
-          const offset = Math.max(minOffsetFromTop, keyboardHeight + 100); // Увеличен отступ с клавиатурой
-          const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset;
-          window.scrollTo({ top: scrollY, behavior: 'smooth' });
-          setHasFocused(prev => ({ ...prev, [inputName]: true }));
-        }, 250);
-      }
-    };
-
-    inputs.forEach(input => input.addEventListener('focus', focusHandler));
-    return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
-  }, [keyboardHeight]);
-
-  // Инициализация Telegram WebApp
+  // Удаляем обработку фокуса с прокруткой
   useEffect(() => {
     if (window.Telegram?.WebApp) {
       window.Telegram.WebApp.ready();
@@ -103,7 +86,8 @@ export default function LoginScreen() {
       <div
         className={`form-container ${isExpanded ? 'fixed expanded' : ''}`}
         style={{
-          bottom: isExpanded ? `${Math.max(100, keyboardHeight + 100)}px` : 'auto', // Увеличен отступ с клавиатурой
+          bottom: isExpanded ? `${Math.max(100, keyboardHeight + 100)}px` : 'auto', // Гибкий отступ
+          transition: 'bottom 0.6s ease', // Увеличенная задержка для сглаживания
         }}
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
