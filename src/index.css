@@ -17,8 +17,7 @@ body,
   -webkit-text-size-adjust: none;
 }
 
-body {
-  touch-action: pan-x;
+* {
   -webkit-tap-highlight-color: transparent; /* убирает синюю подсветку при тапе */
 }
 
@@ -58,26 +57,17 @@ body {
 
   button,
   .btn {
-    @apply w-full py-2 text-sm rounded-xl; /* Обновлено для компактности */
+    @apply w-full py-3 text-base rounded-xl;
   }
-
   input,
   select,
   textarea {
-    @apply w-full text-sm py-2 px-3 rounded-lg; /* Обновлено для компактности */
+    @apply w-full text-base py-2 px-3 rounded-lg;
   }
-
   .card {
     @apply w-full max-w-md mx-auto p-4 rounded-2xl;
   }
-
   .container {
     @apply w-full px-4;
   }
-}
-
-/* --- 🎯 Стили для формы в Mini App --- */
-.form-container {
-  @apply bg-[#24304a] p-4 rounded-2xl shadow-md w-full max-w-sm; /* Уменьшен p-6 до p-4 */
-  transition: bottom 0.8s ease; /* Синхронизировано с JS */
 }
