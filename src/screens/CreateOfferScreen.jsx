@@ -127,7 +127,7 @@ export default function CreateOfferScreen() {
             </button>
 
             <div
-              className={`absolute w-full bg-[#1a2338] border border-gray-700 mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
+              className={`absolute w-full bg-[#1a2338] border mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
                 open ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
               }`}
             >
