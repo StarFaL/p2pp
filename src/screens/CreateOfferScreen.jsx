@@ -7,6 +7,7 @@ import { AppContext } from '../contexts/AppContext';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import BottomNav from '../components/BottomNav';
 
 // Валидация формы
 const schema = yup.object({
@@ -23,9 +24,9 @@ function useViewportHeight() {
   const [height, setHeight] = useState(window.innerHeight);
 
   useEffect(() => {
-    const handleResize = () => setHeight(window.innerHeight);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const onResize = () => setHeight(window.innerHeight);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
   return height;
@@ -75,11 +76,10 @@ export default function CreateOfferScreen() {
   return (
     <div
       style={{ height: viewportHeight }}
-      className="bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center"
+      className="flex flex-col bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white"
     >
       {/* Контент с прокруткой */}
-      <div className="w-full max-w-sm flex-1 overflow-auto px-6 py-6">
-
+      <div className="flex-1 overflow-auto px-6 py-6">
         {/* Заголовок */}
         <div className="flex items-center justify-center mb-6">
           <h1 className="text-lg font-bold text-center">Create Offer</h1>
@@ -141,6 +141,9 @@ export default function CreateOfferScreen() {
           <button type="submit" className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-sm">Create</button>
         </form>
       </div>
+
+      {/* Навигация */}
+      <BottomNav />
     </div>
   );
 }
