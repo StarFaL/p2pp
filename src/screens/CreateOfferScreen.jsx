@@ -41,6 +41,16 @@ export default function CreateOfferScreen() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Автоадаптация под Telegram WebApp (при открытии клавиатуры)
+  useEffect(() => {
+    const handleResize = () => {
+      document.body.style.height = `${window.innerHeight}px`;
+    };
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleSelect = (method) => {
     setSelected(method);
     setValue('paymentMethod', method);
@@ -58,11 +68,11 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
-      <div className="w-full max-w-md sm:max-w-sm">
-
+    <div className="h-[100dvh] w-full bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center overflow-hidden">
+      <div className="w-full max-w-md sm:max-w-sm flex flex-col flex-1 px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-y-auto">
+        
         {/* Заголовок */}
-       <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
+        <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
         </h1>
 
