@@ -24,18 +24,23 @@ function AppRoutes({ keyboardVisible }) {
 
   return (
     <>
-      {/* Контент с адаптивной высотой и плавным смещением при открытии клавиатуры */}
+      {/* Контейнер с адаптивной высотой и плавным смещением при клавиатуре */}
       <div
-        className={`relative h-[100dvh] transition-transform duration-300 ease-out overflow-hidden ${
+        className={`relative transition-transform duration-300 ease-out overflow-hidden ${
           keyboardVisible ? '-translate-y-[120px]' : 'translate-y-0'
         }`}
+        style={{
+          height: '100%',
+          minHeight: '100vh',
+          background: '#0b1120',
+        }}
       >
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
           <Route
             path="/"
-            element={<Navigate to={state.isAuthenticated ? "/market" : "/login"} replace />}
+            element={<Navigate to={state.isAuthenticated ? '/market' : '/login'} replace />}
           />
           <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
           <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
@@ -45,10 +50,14 @@ function AppRoutes({ keyboardVisible }) {
           <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
           <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
         </Routes>
-      </div>
 
-      {/* Нижняя навигация не смещается и скрывается при открытой клавиатуре */}
-      {state.isAuthenticated && !keyboardVisible && <BottomNav />}
+        {/* Нижняя навигация (скрывается при клавиатуре) */}
+        {state.isAuthenticated && !keyboardVisible && (
+          <div className="absolute bottom-0 left-0 right-0">
+            <BottomNav />
+          </div>
+        )}
+      </div>
     </>
   );
 }
@@ -57,36 +66,26 @@ function App() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
-    // Активируем тёмную тему Tailwind
     document.documentElement.classList.add('dark');
 
-    // Фиксируем стартовую высоту
     let initialHeight = window.innerHeight;
-
     const handleResize = () => {
-      const currentHeight = window.innerHeight;
-      const heightDiff = initialHeight - currentHeight;
-
-      // Если высота уменьшилась > 150px — клавиатура открыта
-      setKeyboardVisible(heightDiff > 150);
+      const diff = initialHeight - window.innerHeight;
+      setKeyboardVisible(diff > 150);
     };
 
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        {/* Корневая обёртка на всю высоту без скролла */}
-        <div className="h-[100dvh] w-screen bg-[#0b1120] text-white font-sans overflow-hidden relative">
-          {/* Анимация затемнения и размытия при открытой клавиатуре */}
-          <div
-            className={`absolute inset-0 bg-[#0b1120]/60 backdrop-blur-md transition-opacity duration-300 pointer-events-none ${
-              keyboardVisible ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
+        {/* Корневая обёртка без скролла */}
+        <div
+          className="min-h-screen h-full w-screen bg-[#0b1120] text-white font-sans overflow-hidden relative"
+          style={{ height: '100%' }}
+        >
           <AppRoutes keyboardVisible={keyboardVisible} />
         </div>
       </Router>
