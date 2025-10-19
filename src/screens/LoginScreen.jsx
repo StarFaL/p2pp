@@ -1,4 +1,4 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -18,25 +18,44 @@ export default function LoginScreen() {
     resolver: yupResolver(schema)
   });
 
+  const containerRef = useRef(null);
+
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Подстраиваем высоту под WebView Telegram (клавиатура)
+  // Подстраиваем высоту под WebView Telegram и клавиатуру
   useEffect(() => {
     const resizeHandler = () => {
-      document.body.style.height = `${window.innerHeight}px`;
+      if (containerRef.current) {
+        containerRef.current.style.height = `${window.innerHeight}px`;
+      }
     };
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
     return () => window.removeEventListener('resize', resizeHandler);
   }, []);
 
+  // Скролл к форме при фокусе на input
+  useEffect(() => {
+    const inputs = containerRef.current.querySelectorAll('input, textarea');
+    const focusHandler = (e) => {
+      setTimeout(() => {
+        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300); // задержка для клавиатуры
+    };
+    inputs.forEach(input => input.addEventListener('focus', focusHandler));
+    return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] flex flex-col items-center justify-center p-4">
-      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
+    <div
+      ref={containerRef}
+      className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-y-auto flex justify-center items-center p-4"
+    >
+      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#1a2338] p-6 rounded-2xl shadow-md">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
