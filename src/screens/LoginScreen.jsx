@@ -20,17 +20,20 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Динамическая высота с использованием visualViewport
+  // Обновление высоты и состояния клавиатуры
   useEffect(() => {
     const updateHeight = () => {
-      const newHeight = window.visualViewport?.height || window.innerHeight;
-      setScreenHeight(newHeight);
+      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+      const windowHeight = window.innerHeight;
+      setScreenHeight(viewportHeight);
+      setIsKeyboardOpen(windowHeight < viewportHeight); // Проверяем, открыта ли клавиатура
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -54,7 +57,7 @@ export default function LoginScreen() {
         const rect = input.getBoundingClientRect();
         const keyboardHeight = window.innerHeight - (window.visualViewport?.height || window.innerHeight);
         const offset = Math.max(100, keyboardHeight + 20);
-        const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) + offset;
+        const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.3 + offset;
         window.scrollTo({ top: scrollY, behavior: 'smooth' });
       }, 150);
     };
@@ -63,26 +66,19 @@ export default function LoginScreen() {
     return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
   }, []);
 
-  // Инициализация Telegram WebApp: расширение на весь экран
+  // Инициализация Telegram WebApp
   useEffect(() => {
     if (window.Telegram?.WebApp) {
-      // Уведомляем, что приложение готово (убирает плейсхолдер)
       window.Telegram.WebApp.ready();
-
-      // Расширяем до максимальной высоты, если не расширено
       if (!window.Telegram.WebApp.isExpanded) {
         window.Telegram.WebApp.expand();
       }
-
-      // Отключаем вертикальные свайпы для предотвращения сжатия
       window.Telegram.WebApp.disableVerticalSwipes();
-
-      // Стабилизируем высоту viewport
       if (window.Telegram.WebApp.setViewportStableHeight) {
         window.Telegram.WebApp.setViewportStableHeight();
       }
 
-      // Добавляем слушатель события viewportChanged
+      // Отслеживание изменений viewport
       window.Telegram.WebApp.onEvent('viewportChanged', (event) => {
         if (event.isStateStable) {
           console.log('Расширение завершено, стабильная высота:', window.Telegram.WebApp.viewportStableHeight);
@@ -95,16 +91,17 @@ export default function LoginScreen() {
     <div
       ref={containerRef}
       style={{ minHeight: `${screenHeight}px`, position: 'relative' }}
-      className="w-full bg-[#0b1120] text-white flex flex-col items-center justify-end p-4"
+      className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4"
     >
       <div
         style={{
-          position: 'absolute',
-          bottom: '20px',
-          maxHeight: `calc(${screenHeight}px - 60px)`,
-          overflowY: 'auto',
+          maxHeight: isKeyboardOpen ? `calc(${screenHeight}px - 60px)` : 'auto',
+          position: isKeyboardOpen ? 'absolute' : 'relative',
+          bottom: isKeyboardOpen ? '20px' : 'auto',
+          width: '100%',
+          maxWidth: 'sm:max-w-sm',
         }}
-        className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md"
+        className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
