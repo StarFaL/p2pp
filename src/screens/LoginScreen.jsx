@@ -27,7 +27,7 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Debounced обновление высоты клавиатуры
+  // Обновление высоты клавиатуры с debounce и стабилизацией
   useEffect(() => {
     let timeoutId;
     const updateHeight = () => {
@@ -35,8 +35,16 @@ export default function LoginScreen() {
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
-      setIsKeyboardOpen(newKeyboardHeight > 0);
-      timeoutId = setTimeout(() => setKeyboardHeight(newKeyboardHeight), 100); // Задержка 100ms
+      if (newKeyboardHeight > 50 && !isKeyboardOpen) { // Порог для открытия
+        setIsKeyboardOpen(true);
+        setKeyboardHeight(newKeyboardHeight);
+      } else if (newKeyboardHeight < 50 && isKeyboardOpen) { // Порог для закрытия
+        setIsKeyboardOpen(false);
+        setKeyboardHeight(0);
+      } else if (isKeyboardOpen) {
+        setKeyboardHeight(newKeyboardHeight); // Обновляем только если открыто
+      }
+      timeoutId = setTimeout(() => {}, 100); // Задержка для сглаживания
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -48,7 +56,7 @@ export default function LoginScreen() {
       window.removeEventListener('resize', updateHeight);
       clearTimeout(timeoutId);
     };
-  }, []);
+  }, [isKeyboardOpen]);
 
   // Скролл к инпуту при фокусе
   useEffect(() => {
@@ -63,7 +71,7 @@ export default function LoginScreen() {
         const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
         const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.3 + offset;
         window.scrollTo({ top: scrollY, behavior: 'smooth' });
-      }, 150);
+      }, 200); // Увеличенная задержка
     };
 
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
@@ -103,7 +111,7 @@ export default function LoginScreen() {
           maxHeight: isKeyboardOpen ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
           width: '100%',
           maxWidth: 'sm:max-w-sm',
-          transition: 'bottom 0.4s ease, max-height 0.4s ease', // Увеличена задержка
+          transition: 'bottom 0.5s ease, max-height 0.5s ease', // Увеличенная задержка
         }}
         className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
