@@ -10,13 +10,20 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  overscroll-behavior: contain;
-  background-color: #0f172a; /* фон по умолчанию */
-  -webkit-text-size-adjust: none;
+  height: 100%; /* важно: фиксируем базовую высоту */
+  width: 100%;
+  overflow: hidden; /* предотвращает прокрутку и дёргание при появлении клавиатуры */
+  overscroll-behavior: none; /* отключает инерционное "тянущее" поведение */
+  background-color: #0f172a;
+  -webkit-text-size-adjust: none; /* запрет масштабирования текста при фокусе */
+  -webkit-user-select: none; /* запрещает выделение */
+  -webkit-touch-callout: none;
+  touch-action: none; /* блокирует "растягивание" контента */
 }
 
 * {
   -webkit-tap-highlight-color: transparent; /* убирает синюю подсветку при тапе */
+  box-sizing: border-box;
 }
 
 /* --- 🌙 Тёмная тема --- */
@@ -37,6 +44,16 @@ body {
 
 /* --- 📱 Адаптация под мобильные экраны --- */
 @media (max-width: 768px) {
+  html,
+  body {
+    height: 100dvh; /* используем динамическую высоту окна */
+    overflow: hidden; /* запрещаем скролл при появлении клавиатуры */
+  }
+
+  #root {
+    height: 100dvh;
+  }
+
   body {
     @apply text-sm leading-relaxed;
   }
@@ -57,14 +74,18 @@ body {
   .btn {
     @apply w-full py-3 text-base rounded-xl;
   }
+
   input,
   select,
   textarea {
     @apply w-full text-base py-2 px-3 rounded-lg;
+    font-size: 16px !important; /* предотвращает авто-масштабирование на iOS */
   }
+
   .card {
     @apply w-full max-w-md mx-auto p-4 rounded-2xl;
   }
+
   .container {
     @apply w-full px-4;
   }

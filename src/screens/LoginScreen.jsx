@@ -19,36 +19,47 @@ export default function LoginScreen() {
   });
 
   const containerRef = useRef(null);
-  const [screenHeight] = useState(window.innerHeight);
+  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // предотвращаем сдвиг при появлении клавиатуры
   useEffect(() => {
-    const handleResize = () => {
-      if (containerRef.current) {
-        // фиксируем высоту экрана, чтобы при появлении клавиатуры не тянуло вверх/вниз
-        containerRef.current.style.height = `${screenHeight}px`;
-      }
+    // используем visualViewport для корректного поведения при клавиатуре
+    const viewport = window.visualViewport;
+
+    const updateHeight = () => {
+      if (!viewport) return;
+      const height = viewport.height; // учитывает клавиатуру
+      setViewportHeight(height);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [screenHeight]);
+
+    updateHeight();
+
+    viewport?.addEventListener('resize', updateHeight);
+    viewport?.addEventListener('scroll', updateHeight);
+
+    return () => {
+      viewport?.removeEventListener('resize', updateHeight);
+      viewport?.removeEventListener('scroll', updateHeight);
+    };
+  }, []);
 
   return (
     <div
       ref={containerRef}
       style={{
-        height: `${screenHeight}px`,
-        touchAction: 'none', // запрещает тянуть
-        overscrollBehavior: 'none', // убирает прокрутку
+        height: `${viewportHeight}px`,
+        touchAction: 'none',
+        overscrollBehavior: 'none',
+        position: 'fixed',
+        inset: 0,
       }}
-      className="w-full bg-[#0b1120] text-white fixed top-0 left-0 flex justify-center items-center p-4"
+      className="w-full bg-[#0b1120] text-white flex justify-center items-center p-4"
     >
-      <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md">
+      <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md transition-all duration-300">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -58,6 +69,7 @@ export default function LoginScreen() {
               {...register('email')}
               className="mt-1 w-full bg-[#1a2338] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
               placeholder="Введите email"
+              inputMode="email"
             />
             <ErrorMessage message={errors.email?.message} />
           </div>
