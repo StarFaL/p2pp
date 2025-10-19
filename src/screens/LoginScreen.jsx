@@ -15,11 +15,11 @@ export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema)
   });
 
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const [bottomOffset, setBottomOffset] = useState(0);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
@@ -27,52 +27,47 @@ export default function LoginScreen() {
   };
 
   useEffect(() => {
-    // Следим за изменением визуального viewport (при открытии клавиатуры)
     const handleResize = () => {
-      const visualHeight = window.visualViewport?.height || window.innerHeight;
-      const diff = window.innerHeight - visualHeight;
+      const vh = window.visualViewport?.height || window.innerHeight;
+      const keyboardHeight = window.innerHeight - vh;
 
-      // если клавиатура реально открыта (разница больше 150px)
-      if (diff > 150) {
-        setKeyboardVisible(true);
-        setViewportHeight(visualHeight);
-      } else {
-        setKeyboardVisible(false);
-        setViewportHeight(window.innerHeight);
-      }
+      // Отступ 3 мм (~11 px)
+      const offset = keyboardHeight > 0 ? 11 : 0;
+
+      setViewportHeight(vh);
+      setBottomOffset(offset);
     };
 
+    handleResize();
     window.visualViewport?.addEventListener('resize', handleResize);
-    return () => window.visualViewport?.removeEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('scroll', handleResize);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
   }, []);
 
   return (
     <div
       style={{
         height: `${viewportHeight}px`,
-        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingBottom: `${bottomOffset}px`,
         backgroundColor: '#0b1120',
+        overflow: 'hidden',
         position: 'fixed',
         top: 0,
         left: 0,
-        overflow: 'hidden',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: keyboardVisible ? 'flex-end' : 'center',
-        paddingBottom: keyboardVisible ? '3mm' : 0, // 🔹 отступ 3 мм от клавиатуры
-        transition: 'all 0.2s ease-in-out',
-        overscrollBehavior: 'none',
-        touchAction: 'none',
+        width: '100%',
       }}
     >
-      <div
-        className="w-[88%] max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md"
-        style={{
-          transform: keyboardVisible ? 'scale(0.95)' : 'scale(0.96)',
-          transition: 'transform 0.2s ease-in-out',
-        }}
-      >
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
+      <div className="card bg-[#24304a] p-6 rounded-2xl shadow-md transform scale-[0.95] transition-transform duration-300 ease-out">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">
+          Вход
+        </h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>

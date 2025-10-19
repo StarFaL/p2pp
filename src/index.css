@@ -1,5 +1,4 @@
 /* stylelint-disable at-rule-no-unknown */
-/* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -10,16 +9,17 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  overscroll-behavior: none; /* отключает инерционное "тянущее" поведение */
   background-color: #0f172a;
-  -webkit-text-size-adjust: none; /* запрет масштабирования текста при фокусе */
-  -webkit-user-select: none; /* запрещает выделение */
-
-  touch-action: none; /* блокирует "растягивание" контента */
+  -webkit-text-size-adjust: none;
+  -webkit-user-select: none;
+  overscroll-behavior-y: contain;
+  overscroll-behavior-x: none;
+  touch-action: manipulation; /* разрешаем естественное взаимодействие */
+  height: 100vh;
 }
 
 * {
-  -webkit-tap-highlight-color: transparent; /* убирает синюю подсветку при тапе */
+  -webkit-tap-highlight-color: transparent;
   box-sizing: border-box;
 }
 
@@ -28,55 +28,21 @@ body {
   @apply dark:bg-primary dark:text-white;
 }
 
-/* --- 🧩 Переключатель темы --- */
-.toggle-checkbox:checked {
-  @apply right-0 border-accent;
-}
-.toggle-checkbox:checked + .toggle-label {
-  @apply bg-accent;
-}
-.toggle-checkbox:checked:focus + .toggle-label {
-  @apply shadow-lg;
-}
-
-/* --- 📱 Адаптация под мобильные экраны --- */
+/* --- 📱 Мобильная адаптация --- */
 @media (max-width: 768px) {
   html,
-  body {
-    height: 100dvh; /* используем динамическую высоту окна */
-    overflow: hidden; /* запрещаем скролл при появлении клавиатуры */
-  }
-
+  body,
   #root {
-    height: 100dvh;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto; /* разрешаем вертикальное движение при клавиатуре */
   }
 
   body {
     @apply text-sm leading-relaxed;
   }
 
-  h1 {
-    @apply text-xl font-semibold;
-  }
-
-  h2 {
-    @apply text-lg font-semibold;
-  }
-
-  h3 {
-    @apply text-base font-medium;
-  }
-
-  button,
-  .btn {
-    @apply w-full py-3 text-base rounded-xl;
-  }
-
   .card {
     @apply w-full max-w-md mx-auto p-4 rounded-2xl;
-  }
-
-  .container {
-    @apply w-full px-4;
   }
 }
