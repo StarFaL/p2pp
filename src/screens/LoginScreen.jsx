@@ -1,10 +1,11 @@
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
 import ErrorMessage from '../components/ErrorMessage';
+import BottomNav from '../components/BottomNav';
 
 const schema = yup.object({
   email: yup.string().email('Неверный email').required('Обязательно'),
@@ -14,8 +15,10 @@ const schema = yup.object({
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
   const navigate = useNavigate();
+  const containerRef = useRef(null);
+
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema),
   });
 
   const onSubmit = (data) => {
@@ -26,16 +29,39 @@ export default function LoginScreen() {
   // Подстраиваем высоту под WebView Telegram (клавиатура)
   useEffect(() => {
     const resizeHandler = () => {
-      document.body.style.height = `${window.innerHeight}px`;
+      if (containerRef.current) {
+        containerRef.current.style.height = `${window.innerHeight}px`;
+      }
     };
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
     return () => window.removeEventListener('resize', resizeHandler);
   }, []);
 
+  // Автоскролл к активному полю ввода
+  useEffect(() => {
+    const handleFocus = (e) => {
+      const target = e.target;
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    };
+
+    const inputs = containerRef.current.querySelectorAll('input, textarea');
+    inputs.forEach(input => input.addEventListener('focus', handleFocus));
+
+    return () => {
+      inputs.forEach(input => input.removeEventListener('focus', handleFocus));
+    };
+  }, []);
+
   return (
-    <div className="fixed inset-0 bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-auto flex flex-col items-center justify-center p-4">
-      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md flex-shrink-0">
+    <div
+      ref={containerRef}
+      className="fixed inset-0 bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-auto flex flex-col items-center justify-start p-4"
+    >
+      {/* Контейнер формы */}
+      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md flex-shrink-0 pb-[calc(env(safe-area-inset-bottom)+80px)]">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
