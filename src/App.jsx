@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { AppProvider, AppContext } from './contexts/AppContext';
 import BottomNav from './components/BottomNav';
 
@@ -13,34 +13,26 @@ import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
+// Защищённые маршруты
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
   if (!state.isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }
 
-function AppRoutes({ keyboardVisible }) {
+function AppRoutes() {
   const { state } = useContext(AppContext);
 
   return (
     <>
-      {/* Контейнер с адаптивной высотой и плавным смещением при клавиатуре */}
-      <div
-        className={`relative transition-transform duration-300 ease-out overflow-hidden ${
-          keyboardVisible ? '-translate-y-[120px]' : 'translate-y-0'
-        }`}
-        style={{
-          height: '100%',
-          minHeight: '100vh',
-          background: '#0b1120',
-        }}
-      >
+      {/* Контент на весь экран, без скролла */}
+      <div className="flex flex-col h-full w-full overflow-hidden">
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
           <Route
             path="/"
-            element={<Navigate to={state.isAuthenticated ? '/market' : '/login'} replace />}
+            element={<Navigate to={state.isAuthenticated ? "/market" : "/login"} replace />}
           />
           <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
           <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
@@ -49,44 +41,49 @@ function AppRoutes({ keyboardVisible }) {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
           <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
           <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-
-        {/* Нижняя навигация (скрывается при клавиатуре) */}
-        {state.isAuthenticated && !keyboardVisible && (
-          <div className="absolute bottom-0 left-0 right-0">
-            <BottomNav />
-          </div>
-        )}
       </div>
+
+      {/* Нижняя навигация */}
+      {state.isAuthenticated && <BottomNav />}
     </>
   );
 }
 
 function App() {
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
-
   useEffect(() => {
-    document.documentElement.classList.add('dark');
+    // Telegram WebApp адаптация
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
 
-    let initialHeight = window.innerHeight;
-    const handleResize = () => {
-      const diff = initialHeight - window.innerHeight;
-      setKeyboardVisible(diff > 150);
-    };
+      // Разворачиваем приложение на весь экран Telegram
+      tg.expand();
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+      // Устанавливаем тёмную или светлую тему в зависимости от Telegram
+      if (tg.colorScheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      // Настраиваем цвет фона, чтобы совпадал с Telegram
+      document.body.style.backgroundColor = tg.themeParams.bg_color || '#0b1120';
+    } else {
+      // fallback для локального тестирования
+      document.documentElement.classList.add('dark');
+    }
+
+    // Отключаем скролл на странице
+    document.body.style.overflow = 'hidden';
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        {/* Корневая обёртка без скролла */}
-        <div
-          className="min-h-screen h-full w-screen bg-[#0b1120] text-white font-sans overflow-hidden relative"
-          style={{ height: '100%' }}
-        >
-          <AppRoutes keyboardVisible={keyboardVisible} />
+        {/* Корневой контейнер Mini App */}
+        <div className="h-[100dvh] w-screen bg-[#0b1120] text-white font-sans flex flex-col overflow-hidden">
+          <AppRoutes />
         </div>
       </Router>
     </AppProvider>
