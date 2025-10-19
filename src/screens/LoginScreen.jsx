@@ -18,8 +18,8 @@ export default function LoginScreen() {
     resolver: yupResolver(schema)
   });
 
-  const containerRef = useRef(null);
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
+  const [keyboardPadding, setKeyboardPadding] = useState(0); // расстояние до клавиатуры
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
@@ -27,39 +27,52 @@ export default function LoginScreen() {
   };
 
   useEffect(() => {
-    // используем visualViewport для корректного поведения при клавиатуре
     const viewport = window.visualViewport;
 
-    const updateHeight = () => {
+    const updateViewport = () => {
       if (!viewport) return;
-      const height = viewport.height; // учитывает клавиатуру
-      setViewportHeight(height);
+      const newHeight = viewport.height;
+      const fullHeight = window.innerHeight;
+      const keyboardVisible = newHeight < fullHeight - 100;
+
+      setViewportHeight(newHeight);
+      setKeyboardPadding(keyboardVisible ? 8 : 0); // 8px = 0.5см визуально
     };
 
-    updateHeight();
-
-    viewport?.addEventListener('resize', updateHeight);
-    viewport?.addEventListener('scroll', updateHeight);
+    updateViewport();
+    viewport?.addEventListener('resize', updateViewport);
+    viewport?.addEventListener('scroll', updateViewport);
 
     return () => {
-      viewport?.removeEventListener('resize', updateHeight);
-      viewport?.removeEventListener('scroll', updateHeight);
+      viewport?.removeEventListener('resize', updateViewport);
+      viewport?.removeEventListener('scroll', updateViewport);
     };
   }, []);
 
   return (
     <div
-      ref={containerRef}
       style={{
         height: `${viewportHeight}px`,
-        touchAction: 'none',
-        overscrollBehavior: 'none',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#0b1120',
+        color: 'white',
+        overflow: 'hidden',
         position: 'fixed',
-        inset: 0,
+        top: 0,
+        left: 0,
+        width: '100%',
+        paddingBottom: `${keyboardPadding}px`, // отступ от клавиатуры
+        transition: 'padding-bottom 0.25s ease',
       }}
-      className="w-full bg-[#0b1120] text-white flex justify-center items-center p-4"
     >
-      <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md transition-all duration-300">
+      <div
+        className="w-[90%] sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md transition-all duration-300"
+        style={{
+          transform: 'scale(0.95)', // немного уменьшен контейнер
+        }}
+      >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
