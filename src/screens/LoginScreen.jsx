@@ -20,22 +20,23 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Обновление высоты клавиатуры
+  // Debounced обновление высоты клавиатуры
   useEffect(() => {
+    let timeoutId;
     const updateHeight = () => {
+      clearTimeout(timeoutId);
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
-      setKeyboardHeight(prev => {
-        // Буферизация для плавности
-        return newKeyboardHeight > prev + 50 || newKeyboardHeight < prev - 50 ? newKeyboardHeight : prev;
-      });
+      setIsKeyboardOpen(newKeyboardHeight > 0);
+      timeoutId = setTimeout(() => setKeyboardHeight(newKeyboardHeight), 100); // Задержка 100ms
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -45,6 +46,7 @@ export default function LoginScreen() {
     return () => {
       window.visualViewport?.removeEventListener('resize', updateHeight);
       window.removeEventListener('resize', updateHeight);
+      clearTimeout(timeoutId);
     };
   }, []);
 
@@ -91,17 +93,17 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      style={{ position: 'relative', height: '100vh' }} // Фиксированная высота экрана
+      style={{ position: 'relative', height: '100vh' }}
       className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4 overflow-hidden"
     >
       <div
         style={{
-          position: 'absolute',
-          bottom: `${Math.max(20, keyboardHeight > 0 ? keyboardHeight + 20 : 0)}px`,
-          maxHeight: `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)`,
+          position: isKeyboardOpen ? 'absolute' : 'relative',
+          bottom: isKeyboardOpen ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
+          maxHeight: isKeyboardOpen ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
           width: '100%',
           maxWidth: 'sm:max-w-sm',
-          transition: 'bottom 0.3s ease, max-height 0.3s ease', // Плавные переходы
+          transition: 'bottom 0.4s ease, max-height 0.4s ease', // Увеличена задержка
         }}
         className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
