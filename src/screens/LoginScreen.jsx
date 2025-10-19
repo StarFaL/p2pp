@@ -52,15 +52,9 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      className="w-full min-h-screen text-white flex justify-center"
-      style={{
-        backgroundColor: '#0b1120',
-        paddingTop: 'env(safe-area-inset-top, 20px)',
-        paddingBottom: 'env(safe-area-inset-bottom, 20px)',
-        overflowY: 'auto',
-      }}
+      className="min-h-screen bg-from-[#0b1120]  text-white overflow-y-auto flex justify-center items-center p-4"
     >
-      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#1a2338] p-6 rounded-2xl shadow-md flex-shrink-0">
+      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#1a2338] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
