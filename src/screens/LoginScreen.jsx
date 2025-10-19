@@ -19,13 +19,14 @@ export default function LoginScreen() {
   });
 
   const containerRef = useRef(null);
+  const formRef = useRef(null);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Фиксируем высоту контейнера под WebView Telegram
+  // Подстраиваем высоту контейнера под экран
   useEffect(() => {
     const resizeHandler = () => {
       if (containerRef.current) {
@@ -37,35 +38,38 @@ export default function LoginScreen() {
     return () => window.removeEventListener('resize', resizeHandler);
   }, []);
 
-  // Блокируем скролл при появлении клавиатуры
+  // Поднимаем форму при фокусе на input, чтобы клавиатура не перекрывала
   useEffect(() => {
     const inputs = containerRef.current.querySelectorAll('input, textarea');
 
-    const handleFocus = (e) => {
-      // временно блокируем скролл
-      const preventScroll = (ev) => ev.preventDefault();
-      document.body.addEventListener('touchmove', preventScroll, { passive: false });
-
-      // плавно скроллим к полю
-      setTimeout(() => {
-        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 100);
-
-      // через 600ms убираем блокировку скролла
-      setTimeout(() => {
-        document.body.removeEventListener('touchmove', preventScroll);
-      }, 600);
+    const handleFocus = () => {
+      if (formRef.current) {
+        formRef.current.style.transform = 'translateY(-80px)'; // поднимаем форму
+      }
     };
 
-    inputs.forEach(input => input.addEventListener('focus', handleFocus));
+    const handleBlur = () => {
+      if (formRef.current) {
+        formRef.current.style.transform = 'translateY(0)'; // возвращаем форму
+      }
+    };
 
-    return () => inputs.forEach(input => input.removeEventListener('focus', handleFocus));
+    inputs.forEach(input => {
+      input.addEventListener('focus', handleFocus);
+      input.addEventListener('blur', handleBlur);
+    });
+
+    return () => {
+      inputs.forEach(input => {
+        input.removeEventListener('focus', handleFocus);
+        input.removeEventListener('blur', handleBlur);
+      });
+    };
   }, []);
 
   return (
     <div
       ref={containerRef}
-      className="w-full text-white flex flex-col justify-center items-center"
       style={{
         position: 'fixed',
         top: 0,
@@ -73,13 +77,27 @@ export default function LoginScreen() {
         width: '100vw',
         height: '100vh',
         backgroundColor: '#0b1120',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        overflow: 'hidden',
         paddingTop: 'env(safe-area-inset-top, 20px)',
         paddingBottom: 'env(safe-area-inset-bottom, 20px)',
-        overflow: 'hidden', // запрещаем скролл
       }}
     >
-      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md flex-shrink-0">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
+      <div
+        ref={formRef}
+        style={{
+          transition: 'transform 0.3s ease',
+          width: '100%',
+          maxWidth: '400px',
+          background: '#1a2338',
+          padding: '24px',
+          borderRadius: '24px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
+        }}
+      >
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
