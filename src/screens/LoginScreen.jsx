@@ -1,4 +1,4 @@
-у меня если сельнее потянуть в низ после моего цвета видно серый цвет import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
