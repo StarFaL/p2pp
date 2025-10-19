@@ -1,3 +1,22 @@
+import { useContext, useEffect, useState, useRef } from 'react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import { ChevronDownIcon } from '@heroicons/react/24/solid';
+import { AppContext } from '../contexts/AppContext';
+import ErrorMessage from '../components/ErrorMessage';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+const schema = yup.object({
+  sell: yup.string().required(),
+  currency: yup.string().required(),
+  rate: yup.number().positive().required(),
+  limits: yup.string().required(),
+  paymentMethod: yup.string().required(),
+  comments: yup.string(),
+});
+
 export default function CreateOfferScreen() {
   const { state, dispatch } = useContext(AppContext);
   const navigate = useNavigate();
@@ -37,8 +56,8 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="min-h-screen overflow-y-auto bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white p-4 flex justify-center items-start sm:items-center">
-      <div className="w-full max-w-md sm:max-w-sm">
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-y-auto flex justify-center items-start sm:items-center p-4">
+      <div className="w-full max-w-md sm:max-w-sm mt-6 mb-6">
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
         </h1>
