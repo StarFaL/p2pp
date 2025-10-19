@@ -10,7 +10,7 @@ body,
 #root {
   margin: 0;
   padding: 0;
-    min-height: 100vh;
+  min-height: 100vh;
   width: 100%;
   overscroll-behavior: none;
   touch-action: manipulation;
@@ -40,6 +40,12 @@ body {
 
 /* --- 📱 Адаптация под мобильные экраны --- */
 @media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    min-height: 100vh;
+    width: 100%;
+  }
   body {
     @apply text-sm leading-relaxed;
   }
