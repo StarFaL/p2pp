@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -19,56 +19,55 @@ export default function LoginScreen() {
   });
 
   const containerRef = useRef(null);
+  // фиксируем высоту экрана при первой загрузке
+  const [screenHeight] = useState(window.innerHeight);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Настройка высоты и отступа 3 мм от клавиатуры
+  // Скролл к инпуту при фокусе
   useEffect(() => {
-    const resizeHandler = () => {
-      if (containerRef.current) {
-        const keyboardPaddingPx = 11; // 3 мм ≈ 11 пикселей
-        const viewportHeight = window.visualViewport?.height || window.innerHeight;
-        containerRef.current.style.minHeight = `${viewportHeight}px`;
-        containerRef.current.style.paddingBottom = `${keyboardPaddingPx}px`;
-      }
+    if (!containerRef.current) return;
+
+    const inputs = containerRef.current.querySelectorAll('input, textarea');
+    const focusHandler = (e) => {
+      setTimeout(() => {
+        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
     };
-    window.visualViewport?.addEventListener('resize', resizeHandler);
-    window.addEventListener('resize', resizeHandler);
-    resizeHandler();
-    return () => {
-      window.visualViewport?.removeEventListener('resize', resizeHandler);
-      window.removeEventListener('resize', resizeHandler);
-    };
+
+    inputs.forEach(input => input.addEventListener('focus', focusHandler));
+    return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
   }, []);
 
   return (
     <div
       ref={containerRef}
-      className="min-h-screen bg-[#0b1120] text-white flex justify-center items-center p-4 overscroll-none"
+      style={{ height: `${screenHeight}px` }}
+      className="w-full bg-[#0b1120] text-white overflow-y-auto flex justify-center items-center p-4"
     >
-      <div className="w-full max-w-md bg-[#1a2338] p-6 rounded-2xl shadow-md sm:p-4 xs:p-3">
-        <h1 className="text-2xl font-bold mb-6 text-center sm:text-xl xs:text-lg">Вход</h1>
+      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#24304a] p-6 rounded-2xl shadow-md">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 sm:text-xs xs:text-xs">Email</label>
+            <label className="block text-sm font-medium text-gray-300">Email</label>
             <input
               {...register('email')}
-              className="mt-1 w-full bg-[#24304a] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition sm:p-3 sm:text-sm xs:p-2 xs:text-xs"
+              className="mt-1 w-full bg-[#1a2338] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
               placeholder="Введите email"
             />
             <ErrorMessage message={errors.email?.message} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 sm:text-xs xs:text-xs">Пароль</label>
+            <label className="block text-sm font-medium text-gray-300">Пароль</label>
             <input
               type="password"
               {...register('password')}
-              className="mt-1 w-full bg-[#24304a] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition sm:p-3 sm:text-sm xs:p-2 xs:text-xs"
+              className="mt-1 w-full bg-[#1a2338] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
               placeholder="Введите пароль"
             />
             <ErrorMessage message={errors.password?.message} />
@@ -76,13 +75,13 @@ export default function LoginScreen() {
 
           <button
             type="submit"
-            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-4 rounded-2xl font-bold text-white text-base sm:py-3 sm:text-sm xs:py-2 xs:text-xs"
+            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-4 rounded-2xl font-bold text-white text-base"
           >
             Войти
           </button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-gray-400 sm:text-xs xs:text-xs">
+        <p className="text-center mt-4 text-sm text-gray-400">
           Нет аккаунта?{' '}
           <a
             href="/register"

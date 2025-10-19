@@ -1,4 +1,5 @@
 /* stylelint-disable at-rule-no-unknown */
+/* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,12 +10,12 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  background-color: #0b1120 !important;
+  background-color: #0f172a; /* фон по умолчанию */
   -webkit-text-size-adjust: none;
-  overscroll-behavior: none;
-  touch-action: manipulation;
-  min-height: 100vh;
-  width: 100%;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent; /* убирает синюю подсветку при тапе */
 }
 
 /* --- 🌙 Тёмная тема --- */
@@ -22,66 +23,48 @@ body {
   @apply dark:bg-primary dark:text-white;
 }
 
-/* --- 📱 Мобильная адаптация --- */
-/* Устройства с маленькими экранами (≤375px, например, iPhone SE) */
-@media (max-width: 375px) {
-  html,
-  body,
-  #root {
-    min-height: 100vh;
-    width: 100%;
-  }
-
-  body {
-    @apply text-xs leading-relaxed;
-  }
-
-  .card {
-    @apply w-full max-w-[90%] mx-auto p-3 rounded-xl;
-  }
-
-  input, button {
-    @apply text-xs p-2;
-  }
+/* --- 🧩 Переключатель темы --- */
+.toggle-checkbox:checked {
+  @apply right-0 border-accent;
+}
+.toggle-checkbox:checked + .toggle-label {
+  @apply bg-accent;
+}
+.toggle-checkbox:checked:focus + .toggle-label {
+  @apply shadow-lg;
 }
 
-/* Средние экраны (376–768px, например, большинство смартфонов) */
-@media (min-width: 376px) and (max-width: 768px) {
-  html,
-  body,
-  #root {
-    min-height: 100vh;
-    width: 100%;
-  }
-
+/* --- 📱 Адаптация под мобильные экраны --- */
+@media (max-width: 768px) {
   body {
     @apply text-sm leading-relaxed;
   }
 
+  h1 {
+    @apply text-xl font-semibold;
+  }
+
+  h2 {
+    @apply text-lg font-semibold;
+  }
+
+  h3 {
+    @apply text-base font-medium;
+  }
+
+  button,
+  .btn {
+    @apply w-full py-3 text-base rounded-xl;
+  }
+  input,
+  select,
+  textarea {
+    @apply w-full text-base py-2 px-3 rounded-lg;
+  }
   .card {
     @apply w-full max-w-md mx-auto p-4 rounded-2xl;
   }
-
-  input, button {
-    @apply text-sm p-3;
+  .container {
+    @apply w-full px-4;
   }
 }
-
-/* Планшеты (769–1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .card {
-    @apply w-full max-w-lg mx-auto p-6 rounded-2xl;
-  }
-
-  input, button {
-    @apply text-base p-4;
-  }
-}
-
-/* Высокая плотность пикселей (Retina и аналоги) */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  input, button {
-    @apply font-medium;
-  }
-}
-
