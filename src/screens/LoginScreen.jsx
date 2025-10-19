@@ -21,7 +21,7 @@ export default function LoginScreen() {
   const containerRef = useRef(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [hasFocused, setHasFocused] = useState(false);
+  const [hasFocused, setHasFocused] = useState({ email: false, password: false });
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
@@ -35,7 +35,7 @@ export default function LoginScreen() {
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
       if (newKeyboardHeight > 50 && !isExpanded) {
-        setIsExpanded(true); // Фиксируем увеличение при первом открытии
+        setIsExpanded(true);
       }
       setKeyboardHeight(newKeyboardHeight);
     };
@@ -50,13 +50,14 @@ export default function LoginScreen() {
     };
   }, [isExpanded]);
 
-  // Скролл к инпуту при фокусе
+  // Скролл к инпуту при первом фокусе
   useEffect(() => {
     if (!containerRef.current) return;
 
     const inputs = containerRef.current.querySelectorAll('input, textarea');
     const focusHandler = (e) => {
-      if (!hasFocused) {
+      const inputName = e.target.name;
+      if (!hasFocused[inputName]) {
         setTimeout(() => {
           const input = e.target;
           const rect = input.getBoundingClientRect();
@@ -64,14 +65,14 @@ export default function LoginScreen() {
           const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
           const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset;
           window.scrollTo({ top: scrollY, behavior: 'smooth' });
-          setHasFocused(true); // Устанавливаем флаг после первого фокуса
+          setHasFocused(prev => ({ ...prev, [inputName]: true }));
         }, 250);
       }
     };
 
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
     return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
-  }, [keyboardHeight, hasFocused]);
+  }, [keyboardHeight]);
 
   // Инициализация Telegram WebApp
   useEffect(() => {
@@ -100,15 +101,10 @@ export default function LoginScreen() {
       className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4 overflow-hidden"
     >
       <div
+        className={`form-container ${isExpanded ? 'fixed expanded' : ''}`}
         style={{
-          position: isExpanded ? 'fixed' : 'relative',
           bottom: isExpanded ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
-          maxHeight: isExpanded ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
-          width: '100%',
-          maxWidth: 'sm:max-w-sm',
-          transition: 'bottom 0.5s ease',
         }}
-        className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
@@ -116,6 +112,7 @@ export default function LoginScreen() {
           <div>
             <label className="block text-sm font-medium text-gray-300">Email</label>
             <input
+              name="email"
               {...register('email')}
               className="mt-1 w-full bg-[#1a2338] p-3 rounded-xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
               placeholder="Введите email"
@@ -126,6 +123,7 @@ export default function LoginScreen() {
           <div>
             <label className="block text-sm font-medium text-gray-300">Пароль</label>
             <input
+              name="password"
               type="password"
               {...register('password')}
               className="mt-1 w-full bg-[#1a2338] p-3 rounded-xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
