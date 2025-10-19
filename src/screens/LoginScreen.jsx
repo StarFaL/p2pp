@@ -27,7 +27,7 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Обновление высоты клавиатуры с debounce
+  // Обновление высоты клавиатуры с debounce и адаптацией под плотность
   useEffect(() => {
     let timeoutId;
     const updateHeight = () => {
@@ -36,6 +36,9 @@ export default function LoginScreen() {
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
       setIsKeyboardOpen(newKeyboardHeight > 50);
+      // Адаптация под плотность экрана (0.5 см = 18.9px для 1x, 37.8px для 2x)
+      const pixelRatio = window.devicePixelRatio || 1;
+      const halfCmOffset = 18.9 * pixelRatio;
       if (Math.abs(newKeyboardHeight - keyboardHeight) > 20) {
         timeoutId = setTimeout(() => setKeyboardHeight(newKeyboardHeight), 100);
       }
@@ -79,11 +82,15 @@ export default function LoginScreen() {
       className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4 overflow-hidden"
     >
       <div
-        className={`form-container ${isKeyboardOpen ? 'fixed expanded' : ''}`}
         style={{
-          bottom: isKeyboardOpen ? `${Math.max(50, keyboardHeight + 37.8)}px` : 'auto', // Отступ 1 см (37.8px) + буфер
-          transition: 'bottom 0.7s ease', // Синхронизировано с CSS
+          position: isKeyboardOpen ? 'absolute' : 'relative',
+          bottom: isKeyboardOpen ? `${Math.max(0, keyboardHeight + 18.9 * (window.devicePixelRatio || 1))}px` : 'auto', // 0.5 см
+          maxHeight: isKeyboardOpen ? `calc(100vh - ${Math.max(0, keyboardHeight + 18.9 * (window.devicePixelRatio || 1))}px)` : 'auto',
+          width: '100%',
+          maxWidth: 'sm:max-w-sm',
+          transition: 'bottom 0.7s ease, max-height 0.7s ease', // Синхронизировано с CSS
         }}
+        className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
