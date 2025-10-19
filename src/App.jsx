@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AppProvider, AppContext } from './contexts/AppContext';
 import BottomNav from './components/BottomNav';
 
@@ -13,20 +13,23 @@ import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
-// Защищённые маршруты
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
   if (!state.isAuthenticated) return <Navigate to="/login" replace />;
   return children;
 }
 
-function AppRoutes() {
+function AppRoutes({ keyboardVisible }) {
   const { state } = useContext(AppContext);
 
   return (
     <>
-      {/* Контент на весь экран, без скролла */}
-      <div className="flex flex-col h-full w-full overflow-hidden">
+      {/* Контент с адаптивной высотой и плавным смещением при открытии клавиатуры */}
+      <div
+        className={`relative h-[100dvh] transition-transform duration-300 ease-out overflow-hidden ${
+          keyboardVisible ? '-translate-y-[120px]' : 'translate-y-0'
+        }`}
+      >
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
@@ -41,49 +44,50 @@ function AppRoutes() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
           <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
           <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 
-      {/* Нижняя навигация */}
-      {state.isAuthenticated && <BottomNav />}
+      {/* Нижняя навигация не смещается и скрывается при открытой клавиатуре */}
+      {state.isAuthenticated && !keyboardVisible && <BottomNav />}
     </>
   );
 }
 
 function App() {
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+
   useEffect(() => {
-    // Telegram WebApp адаптация
-    if (window.Telegram && window.Telegram.WebApp) {
-      const tg = window.Telegram.WebApp;
+    // Активируем тёмную тему Tailwind
+    document.documentElement.classList.add('dark');
 
-      // Разворачиваем приложение на весь экран Telegram
-      tg.expand();
+    // Фиксируем стартовую высоту
+    let initialHeight = window.innerHeight;
 
-      // Устанавливаем тёмную или светлую тему в зависимости от Telegram
-      if (tg.colorScheme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+    const handleResize = () => {
+      const currentHeight = window.innerHeight;
+      const heightDiff = initialHeight - currentHeight;
 
-      // Настраиваем цвет фона, чтобы совпадал с Telegram
-      document.body.style.backgroundColor = tg.themeParams.bg_color || '#0b1120';
-    } else {
-      // fallback для локального тестирования
-      document.documentElement.classList.add('dark');
-    }
+      // Если высота уменьшилась > 150px — клавиатура открыта
+      setKeyboardVisible(heightDiff > 150);
+    };
 
-    // Отключаем скролл на странице
-    document.body.style.overflow = 'hidden';
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        {/* Корневой контейнер Mini App */}
-        <div className="h-[100dvh] w-screen bg-[#0b1120] text-white font-sans flex flex-col overflow-hidden">
-          <AppRoutes />
+        {/* Корневая обёртка на всю высоту без скролла */}
+        <div className="h-[100dvh] w-screen bg-[#0b1120] text-white font-sans overflow-hidden relative">
+          {/* Анимация затемнения и размытия при открытой клавиатуре */}
+          <div
+            className={`absolute inset-0 bg-[#0b1120]/60 backdrop-blur-md transition-opacity duration-300 pointer-events-none ${
+              keyboardVisible ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+          <AppRoutes keyboardVisible={keyboardVisible} />
         </div>
       </Router>
     </AppProvider>
