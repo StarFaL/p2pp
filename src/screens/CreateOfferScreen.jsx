@@ -1,22 +1,3 @@
-import { useContext, useEffect, useState, useRef } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
-import { ChevronDownIcon } from '@heroicons/react/24/solid';
-import { AppContext } from '../contexts/AppContext';
-import ErrorMessage from '../components/ErrorMessage';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-const schema = yup.object({
-  sell: yup.string().required(),
-  currency: yup.string().required(),
-  rate: yup.number().positive().required(),
-  limits: yup.string().required(),
-  paymentMethod: yup.string().required(),
-  comments: yup.string(),
-});
-
 export default function CreateOfferScreen() {
   const { state, dispatch } = useContext(AppContext);
   const navigate = useNavigate();
@@ -56,8 +37,8 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-y-auto flex justify-center items-start sm:items-center p-4">
-      <div className="w-full max-w-md sm:max-w-sm mt-6 mb-6">
+    <div className="min-h-screen overflow-y-auto bg-gradient-to-b from-[#0b1120]  text-white p-4 flex justify-center items-start sm:items-center">
+      <div className="w-full max-w-md sm:max-w-sm">
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
         </h1>
@@ -127,7 +108,7 @@ export default function CreateOfferScreen() {
             </button>
 
             <div
-              className={`absolute w-full bg-[#1a2338] border mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
+              className={`absolute w-full bg-[#1a2338] border border-gray-700 mt-1 rounded-xl overflow-hidden transition-all duration-300 z-10 ${
                 open ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
               }`}
             >
