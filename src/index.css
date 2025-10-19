@@ -9,23 +9,12 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  background-color: #0b1120 !important; /* Согласован с LoginScreen.jsx */
+  background-color: #0b1120 !important;
   -webkit-text-size-adjust: none;
   overscroll-behavior: none;
   touch-action: manipulation;
-  height: 100%;
+  min-height: 100vh;
   width: 100%;
-}
-
-#root {
-  position: fixed;
-  inset: 0; /* Привязка к viewport */
-  overflow: hidden; /* Запрещаем прокрутку корневого элемента */
-}
-
-* {
-  -webkit-tap-highlight-color: transparent;
-  box-sizing: border-box;
 }
 
 /* --- 🌙 Тёмная тема --- */
@@ -34,13 +23,35 @@ body {
 }
 
 /* --- 📱 Мобильная адаптация --- */
-@media (max-width: 768px) {
+/* Устройства с маленькими экранами (≤375px, например, iPhone SE) */
+@media (max-width: 375px) {
   html,
   body,
   #root {
     min-height: 100vh;
     width: 100%;
-    overflow-x: hidden;
+  }
+
+  body {
+    @apply text-xs leading-relaxed;
+  }
+
+  .card {
+    @apply w-full max-w-[90%] mx-auto p-3 rounded-xl;
+  }
+
+  input, button {
+    @apply text-xs p-2;
+  }
+}
+
+/* Средние экраны (376–768px, например, большинство смартфонов) */
+@media (min-width: 376px) and (max-width: 768px) {
+  html,
+  body,
+  #root {
+    min-height: 100vh;
+    width: 100%;
   }
 
   body {
@@ -51,33 +62,15 @@ body {
     @apply w-full max-w-md mx-auto p-4 rounded-2xl;
   }
 
-  /* Поддержка безопасных зон (safe area insets) для iOS и других устройств */
-  @supports (padding: env(safe-area-inset-bottom)) {
-    #root {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-  }
-}
-
-/* Устройства с маленькими экранами (например, iPhone SE) */
-@media (max-width: 375px) {
-  body {
-    @apply text-xs;
-  }
-
-  .card {
-    @apply p-3;
-  }
-
   input, button {
     @apply text-sm p-3;
   }
 }
 
-/* Устройства с большими экранами (планшеты) */
+/* Планшеты (769–1024px) */
 @media (min-width: 769px) and (max-width: 1024px) {
   .card {
-    @apply max-w-lg p-6;
+    @apply w-full max-w-lg mx-auto p-6 rounded-2xl;
   }
 
   input, button {
@@ -89,5 +82,12 @@ body {
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
   input, button {
     @apply font-medium;
+  }
+}
+
+/* Поддержка безопасных зон (safe area insets) для iOS */
+@supports (padding: env(safe-area-inset-bottom)) {
+  #root {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 }

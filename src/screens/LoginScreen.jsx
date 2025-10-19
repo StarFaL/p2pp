@@ -31,7 +31,7 @@ export default function LoginScreen() {
       if (containerRef.current) {
         const keyboardPaddingPx = 11; // 3 мм ≈ 11 пикселей
         const viewportHeight = window.visualViewport?.height || window.innerHeight;
-        containerRef.current.style.height = `${viewportHeight}px`;
+        containerRef.current.style.minHeight = `${viewportHeight}px`;
         containerRef.current.style.paddingBottom = `${keyboardPaddingPx}px`;
       }
     };
@@ -47,28 +47,28 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 bg-[#0b1120] text-white flex justify-center items-center p-4 overscroll-none overflow-hidden"
+      className="min-h-screen bg-[#0b1120] text-white flex justify-center items-center p-4 overscroll-none"
     >
-      <div className="w-full max-w-md bg-[#1a2338] p-6 rounded-2xl shadow-md">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
+      <div className="w-full max-w-md bg-[#1a2338] p-6 rounded-2xl shadow-md sm:p-4 xs:p-3">
+        <h1 className="text-2xl font-bold mb-6 text-center sm:text-xl xs:text-lg">Вход</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
           <div>
-            <label className="block text-sm font-medium text-gray-300">Email</label>
+            <label className="block text-sm font-medium text-gray-300 sm:text-xs xs:text-xs">Email</label>
             <input
               {...register('email')}
-              className="mt-1 w-full bg-[#24304a] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="mt-1 w-full bg-[#24304a] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition sm:p-3 sm:text-sm xs:p-2 xs:text-xs"
               placeholder="Введите email"
             />
             <ErrorMessage message={errors.email?.message} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300">Пароль</label>
+            <label className="block text-sm font-medium text-gray-300 sm:text-xs xs:text-xs">Пароль</label>
             <input
               type="password"
               {...register('password')}
-              className="mt-1 w-full bg-[#24304a] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="mt-1 w-full bg-[#24304a] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition sm:p-3 sm:text-sm xs:p-2 xs:text-xs"
               placeholder="Введите пароль"
             />
             <ErrorMessage message={errors.password?.message} />
@@ -76,13 +76,13 @@ export default function LoginScreen() {
 
           <button
             type="submit"
-            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-4 rounded-2xl font-bold text-white text-base"
+            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-4 rounded-2xl font-bold text-white text-base sm:py-3 sm:text-sm xs:py-2 xs:text-xs"
           >
             Войти
           </button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-gray-400">
+        <p className="text-center mt-4 text-sm text-gray-400 sm:text-xs xs:text-xs">
           Нет аккаунта?{' '}
           <a
             href="/register"
