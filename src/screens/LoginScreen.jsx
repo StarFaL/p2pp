@@ -21,6 +21,7 @@ export default function LoginScreen() {
   const containerRef = useRef(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [hasFocused, setHasFocused] = useState(false);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
@@ -55,19 +56,22 @@ export default function LoginScreen() {
 
     const inputs = containerRef.current.querySelectorAll('input, textarea');
     const focusHandler = (e) => {
-      setTimeout(() => {
-        const input = e.target;
-        const rect = input.getBoundingClientRect();
-        const minOffsetFromTop = 150;
-        const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
-        const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset;
-        window.scrollTo({ top: scrollY, behavior: 'smooth' });
-      }, 250);
+      if (!hasFocused) {
+        setTimeout(() => {
+          const input = e.target;
+          const rect = input.getBoundingClientRect();
+          const minOffsetFromTop = 150;
+          const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
+          const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset;
+          window.scrollTo({ top: scrollY, behavior: 'smooth' });
+          setHasFocused(true); // Устанавливаем флаг после первого фокуса
+        }, 250);
+      }
     };
 
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
     return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
-  }, [keyboardHeight]);
+  }, [keyboardHeight, hasFocused]);
 
   // Инициализация Telegram WebApp
   useEffect(() => {
@@ -97,12 +101,12 @@ export default function LoginScreen() {
     >
       <div
         style={{
-          position: isExpanded ? 'fixed' : 'relative', // Фиксируем после первого расширения
+          position: isExpanded ? 'fixed' : 'relative',
           bottom: isExpanded ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
           maxHeight: isExpanded ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
           width: '100%',
           maxWidth: 'sm:max-w-sm',
-          transition: 'bottom 0.5s ease', // Только bottom анимируется
+          transition: 'bottom 0.5s ease',
         }}
         className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
