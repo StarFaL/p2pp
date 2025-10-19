@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -15,11 +15,11 @@ export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema),
   });
 
   const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-  const [keyboardOffset, setKeyboardOffset] = useState(0); // для отступа 0.5 см
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
@@ -27,38 +27,51 @@ export default function LoginScreen() {
   };
 
   useEffect(() => {
-    const updateHeight = () => {
+    // при изменении viewport корректируем только transform, а не высоту
+    const handleResize = () => {
       const vh = window.visualViewport?.height || window.innerHeight;
-      const offset = window.innerHeight - vh;
-      setViewportHeight(vh);
-      // если клавиатура открыта — делаем отступ 0.5см
-      setKeyboardOffset(offset > 0 ? 5 : 0);
+      const diff = window.innerHeight - vh;
+
+      // если клавиатура открыта — поднимаем всё содержимое
+      if (diff > 150) { // фильтр ложных срабатываний
+        setKeyboardVisible(true);
+        setViewportHeight(vh);
+      } else {
+        setKeyboardVisible(false);
+        setViewportHeight(window.innerHeight);
+      }
     };
 
-    updateHeight();
-    window.visualViewport?.addEventListener('resize', updateHeight);
-    return () => window.visualViewport?.removeEventListener('resize', updateHeight);
+    window.visualViewport?.addEventListener('resize', handleResize);
+    return () => window.visualViewport?.removeEventListener('resize', handleResize);
   }, []);
 
   return (
     <div
       style={{
         height: `${viewportHeight}px`,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingBottom: `${keyboardOffset}px`,
         backgroundColor: '#0b1120',
         overflow: 'hidden',
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: keyboardVisible ? 'flex-end' : 'center',
+        paddingBottom: keyboardVisible ? '5mm' : 0, // 0.5 см = 5 мм
+        transition: 'all 0.25s ease-out',
         touchAction: 'none',
         overscrollBehavior: 'none',
       }}
     >
-      <div className="w-[90%] max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md transform scale-[0.95]">
+      <div
+        className="w-[90%] max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md"
+        style={{
+          transform: keyboardVisible ? 'scale(0.94)' : 'scale(0.96)',
+          transition: 'transform 0.25s ease-out',
+        }}
+      >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
