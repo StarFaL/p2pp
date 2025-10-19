@@ -19,7 +19,6 @@ export default function LoginScreen() {
   });
 
   const containerRef = useRef(null);
-  const [screenHeight, setScreenHeight] = useState(window.innerHeight);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const onSubmit = (data) => {
@@ -27,13 +26,16 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Обновление высоты и высоты клавиатуры
+  // Обновление высоты клавиатуры
   useEffect(() => {
     const updateHeight = () => {
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
-      setScreenHeight(viewportHeight);
-      setKeyboardHeight(windowHeight - viewportHeight); // Высота клавиатуры
+      const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
+      setKeyboardHeight(prev => {
+        // Буферизация для плавности
+        return newKeyboardHeight > prev + 50 || newKeyboardHeight < prev - 50 ? newKeyboardHeight : prev;
+      });
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -46,7 +48,7 @@ export default function LoginScreen() {
     };
   }, []);
 
-  // Скролл к инпуту при фокусе с увеличенным смещением
+  // Скролл к инпуту при фокусе
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -64,7 +66,7 @@ export default function LoginScreen() {
 
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
     return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
-  }, [keyboardHeight]); // Зависимость от keyboardHeight для пересчёта
+  }, [keyboardHeight]);
 
   // Инициализация Telegram WebApp
   useEffect(() => {
@@ -89,14 +91,14 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      style={{ minHeight: `${screenHeight}px`, position: 'relative' }}
-      className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4"
+      style={{ position: 'relative', height: '100vh' }} // Фиксированная высота экрана
+      className="w-full bg-[#0b1120] text-white flex items-center justify-center p-4 overflow-hidden"
     >
       <div
         style={{
           position: 'absolute',
-          bottom: `${Math.max(20, keyboardHeight > 0 ? keyboardHeight + 20 : 0)}px`, // Плавный отступ
-          maxHeight: `calc(${screenHeight}px - ${Math.max(60, keyboardHeight + 20)}px)`,
+          bottom: `${Math.max(20, keyboardHeight > 0 ? keyboardHeight + 20 : 0)}px`,
+          maxHeight: `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)`,
           width: '100%',
           maxWidth: 'sm:max-w-sm',
           transition: 'bottom 0.3s ease, max-height 0.3s ease', // Плавные переходы
