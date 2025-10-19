@@ -10,15 +10,11 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* предотвращает прокрутку и дёргание при появлении клавиатуры */
   overscroll-behavior: none; /* отключает инерционное "тянущее" поведение */
   background-color: #0f172a;
   -webkit-text-size-adjust: none; /* запрет масштабирования текста при фокусе */
   -webkit-user-select: none; /* запрещает выделение */
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-touch-callout: none;
+
   touch-action: none; /* блокирует "растягивание" контента */
 }
 
@@ -74,13 +70,6 @@ body {
   button,
   .btn {
     @apply w-full py-3 text-base rounded-xl;
-  }
-
-  input,
-  select,
-  textarea {
-    @apply w-full text-base py-2 px-3 rounded-lg;
-    font-size: 16px !important; /* предотвращает авто-масштабирование на iOS */
   }
 
   .card {
