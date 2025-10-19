@@ -29,12 +29,16 @@ export default function LoginScreen() {
   useEffect(() => {
     const resizeHandler = () => {
       if (containerRef.current) {
-        containerRef.current.style.minHeight = `${window.innerHeight}px`;
+        containerRef.current.style.minHeight = `${window.visualViewport?.height || window.innerHeight}px`;
       }
     };
+    window.visualViewport?.addEventListener('resize', resizeHandler);
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
-    return () => window.removeEventListener('resize', resizeHandler);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', resizeHandler);
+      window.removeEventListener('resize', resizeHandler);
+    };
   }, []);
 
   // Scroll to input on focus
@@ -43,7 +47,7 @@ export default function LoginScreen() {
     const focusHandler = (e) => {
       setTimeout(() => {
         e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300); // Delay for keyboard
+      }, 300);
     };
     inputs?.forEach(input => input.addEventListener('focus', focusHandler));
     return () => inputs?.forEach(input => input.removeEventListener('focus', focusHandler));
