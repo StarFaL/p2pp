@@ -34,8 +34,8 @@ export default function LoginScreen() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] flex flex-col items-center justify-center p-4">
-      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md">
+    <div className="fixed inset-0 bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white overflow-auto flex flex-col items-center justify-center p-4">
+      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md flex-shrink-0">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
