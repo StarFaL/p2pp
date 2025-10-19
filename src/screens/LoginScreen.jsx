@@ -20,20 +20,20 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Обновление высоты и состояния клавиатуры
+  // Обновление высоты и высоты клавиатуры
   useEffect(() => {
     const updateHeight = () => {
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       setScreenHeight(viewportHeight);
-      setIsKeyboardOpen(windowHeight < viewportHeight);
+      setKeyboardHeight(windowHeight - viewportHeight); // Высота клавиатуры
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -55,9 +55,8 @@ export default function LoginScreen() {
       setTimeout(() => {
         const input = e.target;
         const rect = input.getBoundingClientRect();
-        const keyboardHeight = window.innerHeight - (window.visualViewport?.height || window.innerHeight);
-        const minOffsetFromTop = 150; // Минимальный отступ от верха экрана (в пикселях)
-        const offset = Math.max(minOffsetFromTop, keyboardHeight + 20); // Большее из двух значений
+        const minOffsetFromTop = 150; // Минимальный отступ от верха
+        const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
         const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.3 + offset;
         window.scrollTo({ top: scrollY, behavior: 'smooth' });
       }, 150);
@@ -65,7 +64,7 @@ export default function LoginScreen() {
 
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
     return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
-  }, []);
+  }, [keyboardHeight]); // Зависимость от keyboardHeight для пересчёта
 
   // Инициализация Telegram WebApp
   useEffect(() => {
@@ -79,7 +78,6 @@ export default function LoginScreen() {
         window.Telegram.WebApp.setViewportStableHeight();
       }
 
-      // Отслеживание изменений viewport
       window.Telegram.WebApp.onEvent('viewportChanged', (event) => {
         if (event.isStateStable) {
           console.log('Расширение завершено, стабильная высота:', window.Telegram.WebApp.viewportStableHeight);
@@ -96,11 +94,12 @@ export default function LoginScreen() {
     >
       <div
         style={{
-          maxHeight: isKeyboardOpen ? `calc(${screenHeight}px - 60px)` : 'auto',
-          position: isKeyboardOpen ? 'absolute' : 'relative',
-          bottom: isKeyboardOpen ? '20px' : 'auto',
+          position: 'absolute',
+          bottom: `${Math.max(20, keyboardHeight > 0 ? keyboardHeight + 20 : 0)}px`, // Плавный отступ
+          maxHeight: `calc(${screenHeight}px - ${Math.max(60, keyboardHeight + 20)}px)`,
           width: '100%',
           maxWidth: 'sm:max-w-sm',
+          transition: 'bottom 0.3s ease, max-height 0.3s ease', // Плавные переходы
         }}
         className="bg-[#24304a] p-6 rounded-2xl shadow-md"
       >
