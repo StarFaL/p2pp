@@ -80,9 +80,10 @@ export default function CreateOfferScreen() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 bg-gradient-to-b from-[#0b1120] to-[#151b2c] overflow-auto flex flex-col items-center justify-start p-4"
+      className="relative inset-0 bg-gradient-to-b from-[#0b1120] to-[#151b2c] overflow-auto flex flex-col items-center justify-start p-4"
     >
-      <div className="w-full sm:max-w-sm bg-[#1a2338] p-5 rounded-2xl shadow-md flex-shrink-0 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+      <div className="w-full sm:max-w-sm bg-[#1a2338] p-5 rounded-2xl shadow-md flex-shrink-0">
+
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide text-white">Create Offer</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -172,11 +173,6 @@ export default function CreateOfferScreen() {
             Create
           </button>
         </form>
-      </div>
-
-      {/* Bottom Navigation */}
-      <div className="mt-auto w-full">
-        <BottomNav />
       </div>
     </div>
   );
