@@ -13,6 +13,7 @@ import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
+// Защищённые маршруты
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
   if (!state.isAuthenticated) return <Navigate to="/login" replace />;
@@ -24,8 +25,8 @@ function AppRoutes() {
 
   return (
     <>
-      {/* Контент с отступом сверху, умещаемый в экран */}
-      <div className="h-screen pt-30 box-border overflow-hidden">
+      {/* Контент на весь экран, без скролла */}
+      <div className="flex flex-col h-full w-full overflow-hidden">
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
           <Route path="/register" element={<RegisterScreen />} />
@@ -40,10 +41,11 @@ function AppRoutes() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
           <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
           <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
 
-      {/* Bottom navigation */}
+      {/* Нижняя навигация */}
       {state.isAuthenticated && <BottomNav />}
     </>
   );
@@ -51,15 +53,36 @@ function AppRoutes() {
 
 function App() {
   useEffect(() => {
-    // Включаем dark mode Tailwind
-    document.documentElement.classList.add('dark');
+    // Telegram WebApp адаптация
+    if (window.Telegram && window.Telegram.WebApp) {
+      const tg = window.Telegram.WebApp;
+
+      // Разворачиваем приложение на весь экран Telegram
+      tg.expand();
+
+      // Устанавливаем тёмную или светлую тему в зависимости от Telegram
+      if (tg.colorScheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+
+      // Настраиваем цвет фона, чтобы совпадал с Telegram
+      document.body.style.backgroundColor = tg.themeParams.bg_color || '#0b1120';
+    } else {
+      // fallback для локального тестирования
+      document.documentElement.classList.add('dark');
+    }
+
+    // Отключаем скролл на странице
+    document.body.style.overflow = 'hidden';
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        {/* Полностью фиксированная высота, скрываем скролл */}
-        <div className="h-screen w-screen bg-[#0b1120] text-white font-sans overflow-hidden">
+        {/* Корневой контейнер Mini App */}
+        <div className="h-[100dvh] w-screen bg-[#0b1120] text-white font-sans flex flex-col overflow-hidden">
           <AppRoutes />
         </div>
       </Router>
