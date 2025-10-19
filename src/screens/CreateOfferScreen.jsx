@@ -27,10 +27,8 @@ export default function CreateOfferScreen() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState('Select payment');
   const dropdownRef = useRef(null);
-
   const paymentMethods = ['PayPal', 'Bank'];
 
-  // Закрытие dropdown при клике вне
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -58,18 +56,15 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
-      <div className="w-full max-w-md sm:max-w-sm">
-
-        {/* Заголовок */}
-       <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
+    <div className="fixed inset-0 bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex justify-center items-start sm:items-center overflow-auto p-4">
+      <div className="w-full max-w-md sm:max-w-sm mt-6 sm:mt-0">
+        <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
         </h1>
 
-        {/* Форма */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4"
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4 overflow-auto max-h-[90vh]"
         >
           {/* Sell / Currency */}
           <div className="grid grid-cols-2 gap-3">
