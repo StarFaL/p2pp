@@ -26,7 +26,6 @@ export default function CreateOfferScreen() {
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState('Select payment');
-  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const dropdownRef = useRef(null);
 
   const paymentMethods = ['PayPal', 'Bank'];
@@ -40,19 +39,6 @@ export default function CreateOfferScreen() {
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  // Отслеживание клавиатуры (адаптировано под Telegram / Android / iOS)
-  useEffect(() => {
-    let initialHeight = window.innerHeight;
-
-    const handleResize = () => {
-      const diff = initialHeight - window.innerHeight;
-      setKeyboardVisible(diff > 150); // клавиатура открыта, если высота изменилась сильно
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleSelect = (method) => {
@@ -72,14 +58,11 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    <div
-      className={`h-[100dvh] w-full bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center overflow-hidden transition-transform duration-300 ${
-        keyboardVisible ? '-translate-y-[120px]' : 'translate-y-0'
-      }`}
-    >
-      <div className="w-full max-w-md sm:max-w-sm flex flex-col flex-1 px-4 pt-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-y-auto">
+    <div className="min-h-screen bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+      <div className="w-full max-w-md sm:max-w-sm">
+
         {/* Заголовок */}
-        <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
+       <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
         </h1>
 
@@ -144,9 +127,7 @@ export default function CreateOfferScreen() {
             >
               <span>{selected}</span>
               <ChevronDownIcon
-                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${
-                  open ? 'rotate-180' : ''
-                }`}
+                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
               />
             </button>
 
