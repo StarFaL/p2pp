@@ -25,7 +25,7 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Подстраиваем высоту под WebView Telegram
+  // Подстраиваем высоту под WebView Telegram и клавиатуру
   useEffect(() => {
     const resizeHandler = () => {
       if (containerRef.current) {
@@ -37,13 +37,13 @@ export default function LoginScreen() {
     return () => window.removeEventListener('resize', resizeHandler);
   }, []);
 
-  // Скролл к форме при фокусе на input (без выхода за границы)
+  // Скролл к форме при фокусе на input
   useEffect(() => {
     const inputs = containerRef.current.querySelectorAll('input, textarea');
     const focusHandler = (e) => {
       setTimeout(() => {
         e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300); 
+      }, 300); // задержка для клавиатуры
     };
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
     return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
@@ -52,20 +52,9 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      className="w-full text-white flex flex-col justify-center items-center"
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        backgroundColor: '#0b1120',
-        paddingTop: 'env(safe-area-inset-top, 20px)',
-        paddingBottom: 'env(safe-area-inset-bottom, 20px)',
-        overflow: 'hidden', // запрещаем скролл
-      }}
+      className="min-h-screen bg-from-[#0b1120]  text-white overflow-y-auto flex justify-center items-center p-4"
     >
-      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md flex-shrink-0">
+      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#1a2338] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
