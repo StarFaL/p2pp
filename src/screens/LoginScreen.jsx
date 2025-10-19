@@ -61,8 +61,8 @@ export default function LoginScreen() {
         setTimeout(() => {
           const input = e.target;
           const rect = input.getBoundingClientRect();
-          const minOffsetFromTop = 150;
-          const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
+          const minOffsetFromTop = 200; // Увеличен для большего отступа сверху
+          const offset = Math.max(minOffsetFromTop, keyboardHeight + 100); // Увеличен отступ с клавиатурой
           const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset;
           window.scrollTo({ top: scrollY, behavior: 'smooth' });
           setHasFocused(prev => ({ ...prev, [inputName]: true }));
@@ -103,7 +103,7 @@ export default function LoginScreen() {
       <div
         className={`form-container ${isExpanded ? 'fixed expanded' : ''}`}
         style={{
-          bottom: isExpanded ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
+          bottom: isExpanded ? `${Math.max(100, keyboardHeight + 100)}px` : 'auto', // Увеличен отступ с клавиатурой
         }}
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
