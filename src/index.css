@@ -9,11 +9,18 @@ body,
 #root {
   margin: 0;
   padding: 0;
-  background-color: #0f172a;
+  background-color: #0b1120 !important; /* Согласован с LoginScreen.jsx */
   -webkit-text-size-adjust: none;
-   overscroll-behavior: none;
-   touch-action: manipulation; /* разрешаем естественное взаимодействие */
+  overscroll-behavior: none;
+  touch-action: manipulation;
+  height: 100%;
+  width: 100%;
+}
 
+#root {
+  position: fixed;
+  inset: 0; /* Привязка к viewport */
+  overflow: hidden; /* Запрещаем прокрутку корневого элемента */
 }
 
 * {
@@ -32,8 +39,8 @@ body {
   body,
   #root {
     min-height: 100vh;
+    width: 100%;
     overflow-x: hidden;
-    overflow-y: auto; /* разрешаем вертикальное движение при клавиатуре */
   }
 
   body {
@@ -42,5 +49,45 @@ body {
 
   .card {
     @apply w-full max-w-md mx-auto p-4 rounded-2xl;
+  }
+
+  /* Поддержка безопасных зон (safe area insets) для iOS и других устройств */
+  @supports (padding: env(safe-area-inset-bottom)) {
+    #root {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
+
+/* Устройства с маленькими экранами (например, iPhone SE) */
+@media (max-width: 375px) {
+  body {
+    @apply text-xs;
+  }
+
+  .card {
+    @apply p-3;
+  }
+
+  input, button {
+    @apply text-sm p-3;
+  }
+}
+
+/* Устройства с большими экранами (планшеты) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .card {
+    @apply max-w-lg p-6;
+  }
+
+  input, button {
+    @apply text-base p-4;
+  }
+}
+
+/* Высокая плотность пикселей (Retina и аналоги) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  input, button {
+    @apply font-medium;
   }
 }

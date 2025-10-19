@@ -47,12 +47,12 @@ export default function LoginScreen() {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 bg-[#0b1120] text-white flex justify-center items-center p-4 overscroll-none"
+      className="fixed inset-0 bg-[#0b1120] text-white flex justify-center items-center p-4 overscroll-none overflow-hidden"
     >
-      <div className="w-full sm:max-w-sm bg-[#1a2338] p-6 rounded-2xl shadow-md">
+      <div className="w-full max-w-md bg-[#1a2338] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
           <div>
             <label className="block text-sm font-medium text-gray-300">Email</label>
             <input
