@@ -27,15 +27,15 @@ export default function LoginScreen() {
   };
 
   useEffect(() => {
-    // при изменении viewport корректируем только transform, а не высоту
+    // Следим за изменением визуального viewport (при открытии клавиатуры)
     const handleResize = () => {
-      const vh = window.visualViewport?.height || window.innerHeight;
-      const diff = window.innerHeight - vh;
+      const visualHeight = window.visualViewport?.height || window.innerHeight;
+      const diff = window.innerHeight - visualHeight;
 
-      // если клавиатура открыта — поднимаем всё содержимое
-      if (diff > 150) { // фильтр ложных срабатываний
+      // если клавиатура реально открыта (разница больше 150px)
+      if (diff > 150) {
         setKeyboardVisible(true);
-        setViewportHeight(vh);
+        setViewportHeight(visualHeight);
       } else {
         setKeyboardVisible(false);
         setViewportHeight(window.innerHeight);
@@ -50,26 +50,26 @@ export default function LoginScreen() {
     <div
       style={{
         height: `${viewportHeight}px`,
+        width: '100%',
         backgroundColor: '#0b1120',
-        overflow: 'hidden',
         position: 'fixed',
         top: 0,
         left: 0,
-        width: '100%',
+        overflow: 'hidden',
         display: 'flex',
         justifyContent: 'center',
         alignItems: keyboardVisible ? 'flex-end' : 'center',
-        paddingBottom: keyboardVisible ? '5mm' : 0, // 0.5 см = 5 мм
-        transition: 'all 0.25s ease-out',
-        touchAction: 'none',
+        paddingBottom: keyboardVisible ? '3mm' : 0, // 🔹 отступ 3 мм от клавиатуры
+        transition: 'all 0.2s ease-in-out',
         overscrollBehavior: 'none',
+        touchAction: 'none',
       }}
     >
       <div
-        className="w-[90%] max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md"
+        className="w-[88%] max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md"
         style={{
-          transform: keyboardVisible ? 'scale(0.94)' : 'scale(0.96)',
-          transition: 'transform 0.25s ease-out',
+          transform: keyboardVisible ? 'scale(0.95)' : 'scale(0.96)',
+          transition: 'transform 0.2s ease-in-out',
         }}
       >
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
