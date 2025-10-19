@@ -19,7 +19,6 @@ export default function LoginScreen() {
   });
 
   const containerRef = useRef(null);
-
   // фиксируем высоту экрана при первой загрузке
   const [screenHeight] = useState(window.innerHeight);
 
@@ -28,33 +27,26 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Отключаем скролл при появлении клавиатуры
+  // Скролл к инпуту при фокусе
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerHeight < screenHeight) {
-        // Клавиатура открыта — фиксируем контейнер
-        if (containerRef.current) {
-          containerRef.current.style.height = `${screenHeight}px`;
-          containerRef.current.style.overflow = 'hidden';
-        }
-      } else {
-        // Клавиатура закрыта — возвращаем нормальный скролл
-        if (containerRef.current) {
-          containerRef.current.style.height = `${screenHeight}px`;
-          containerRef.current.style.overflow = 'hidden'; // можно оставить hidden, чтобы не скроллилось вообще
-        }
-      }
+    if (!containerRef.current) return;
+
+    const inputs = containerRef.current.querySelectorAll('input, textarea');
+    const focusHandler = (e) => {
+      setTimeout(() => {
+        e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [screenHeight]);
+    inputs.forEach(input => input.addEventListener('focus', focusHandler));
+    return () => inputs.forEach(input => input.removeEventListener('focus', focusHandler));
+  }, []);
 
   return (
     <div
       ref={containerRef}
       style={{ height: `${screenHeight}px` }}
-      className="w-full bg-[#0b1120] text-white flex justify-center items-center p-4"
+      className="w-full bg-[#0b1120] text-white overflow-y-auto flex justify-center items-center p-4"
     >
       <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#24304a] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
