@@ -14,7 +14,7 @@ body,
   overflow: hidden;
   overscroll-behavior: contain;
   background-color: #0f172a; /* фон по умолчанию */
-  -webkit-text-size-adjust: none;
+  /*-webkit-text-size-adjust: none;*/
 }
 body {
   touch-action: pan-x;

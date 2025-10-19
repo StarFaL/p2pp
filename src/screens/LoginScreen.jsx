@@ -20,6 +20,7 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
@@ -32,7 +33,10 @@ export default function LoginScreen() {
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
-      setKeyboardHeight(newKeyboardHeight); // Прямое обновление без порогов
+      if (newKeyboardHeight > 50 && !isExpanded) {
+        setIsExpanded(true); // Фиксируем увеличение при первом открытии
+      }
+      setKeyboardHeight(newKeyboardHeight);
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -43,7 +47,7 @@ export default function LoginScreen() {
       window.visualViewport?.removeEventListener('resize', updateHeight);
       window.removeEventListener('resize', updateHeight);
     };
-  }, []);
+  }, [isExpanded]);
 
   // Скролл к инпуту при фокусе
   useEffect(() => {
@@ -54,11 +58,11 @@ export default function LoginScreen() {
       setTimeout(() => {
         const input = e.target;
         const rect = input.getBoundingClientRect();
-        const minOffsetFromTop = 150; // Минимальный отступ от верха
+        const minOffsetFromTop = 150;
         const offset = Math.max(minOffsetFromTop, keyboardHeight + 20);
-        const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset; // Увеличен коэффициент
+        const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.4 + offset;
         window.scrollTo({ top: scrollY, behavior: 'smooth' });
-      }, 250); // Увеличенная задержка
+      }, 250);
     };
 
     inputs.forEach(input => input.addEventListener('focus', focusHandler));
@@ -93,9 +97,9 @@ export default function LoginScreen() {
     >
       <div
         style={{
-          position: keyboardHeight > 0 ? 'fixed' : 'relative', // fixed при открытой клавиатуре
-          bottom: keyboardHeight > 0 ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
-          maxHeight: keyboardHeight > 0 ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
+          position: isExpanded ? 'fixed' : 'relative', // Фиксируем после первого расширения
+          bottom: isExpanded ? `${Math.max(20, keyboardHeight + 20)}px` : 'auto',
+          maxHeight: isExpanded ? `calc(100vh - ${Math.max(60, keyboardHeight + 20)}px)` : 'auto',
           width: '100%',
           maxWidth: 'sm:max-w-sm',
           transition: 'bottom 0.5s ease', // Только bottom анимируется
