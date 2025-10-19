@@ -8,6 +8,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+// Валидация формы
 const schema = yup.object({
   sell: yup.string().required(),
   currency: yup.string().required(),
@@ -17,16 +18,34 @@ const schema = yup.object({
   comments: yup.string(),
 });
 
+// Хук для реальной высоты экрана
+function useViewportHeight() {
+  const [height, setHeight] = useState(window.innerHeight);
+
+  useEffect(() => {
+    const handleResize = () => setHeight(window.innerHeight);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return height;
+}
+
 export default function CreateOfferScreen() {
   const { state, dispatch } = useContext(AppContext);
   const navigate = useNavigate();
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({ resolver: yupResolver(schema) });
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+    resolver: yupResolver(schema)
+  });
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState('Select payment');
   const dropdownRef = useRef(null);
   const paymentMethods = ['PayPal', 'Bank'];
 
+  const viewportHeight = useViewportHeight();
+
+  // Закрытие дропдауна при клике вне
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -54,14 +73,13 @@ export default function CreateOfferScreen() {
   };
 
   return (
-    // Используем inline style для реальной высоты экрана (vh меняется при клавиатуре)
     <div
-      style={{ height: '100svh' }}
+      style={{ height: viewportHeight }}
       className="bg-gradient-to-b from-[#0b1120] to-[#151b2c] text-white flex flex-col items-center"
     >
-      {/* Контент с overflow-auto */}
+      {/* Контент с прокруткой */}
       <div className="w-full max-w-sm flex-1 overflow-auto px-6 py-6">
-        
+
         {/* Заголовок */}
         <div className="flex items-center justify-center mb-6">
           <h1 className="text-lg font-bold text-center">Create Offer</h1>
@@ -97,6 +115,7 @@ export default function CreateOfferScreen() {
             <ErrorMessage message={errors.limits?.message} />
           </div>
 
+          {/* Payment Method */}
           <div className="relative" ref={dropdownRef}>
             <label className="block text-sm font-medium mb-1">Payment Method</label>
             <button type="button" onClick={() => setOpen(!open)} className="w-full bg-[#24304a] p-3 rounded-xl text-left flex justify-between items-center text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition">
