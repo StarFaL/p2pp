@@ -33,7 +33,7 @@ export default function LoginScreen() {
       const viewportHeight = window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.innerHeight;
       setScreenHeight(viewportHeight);
-      setIsKeyboardOpen(windowHeight < viewportHeight); // Проверяем, открыта ли клавиатура
+      setIsKeyboardOpen(windowHeight < viewportHeight);
     };
 
     window.visualViewport?.addEventListener('resize', updateHeight);
@@ -46,7 +46,7 @@ export default function LoginScreen() {
     };
   }, []);
 
-  // Скролл к инпуту при фокусе
+  // Скролл к инпуту при фокусе с увеличенным смещением
   useEffect(() => {
     if (!containerRef.current) return;
 
@@ -56,7 +56,8 @@ export default function LoginScreen() {
         const input = e.target;
         const rect = input.getBoundingClientRect();
         const keyboardHeight = window.innerHeight - (window.visualViewport?.height || window.innerHeight);
-        const offset = Math.max(100, keyboardHeight + 20);
+        const minOffsetFromTop = 150; // Минимальный отступ от верха экрана (в пикселях)
+        const offset = Math.max(minOffsetFromTop, keyboardHeight + 20); // Большее из двух значений
         const scrollY = window.scrollY + rect.top - (window.visualViewport?.height || window.innerHeight) * 0.3 + offset;
         window.scrollTo({ top: scrollY, behavior: 'smooth' });
       }, 150);
