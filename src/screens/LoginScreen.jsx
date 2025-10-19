@@ -20,7 +20,7 @@ export default function LoginScreen() {
 
   const containerRef = useRef(null);
 
-  // фиксируем высоту экрана при первой загрузке
+  // Фиксируем высоту экрана при первой загрузке
   const [screenHeight] = useState(window.innerHeight);
 
   const onSubmit = (data) => {
@@ -28,35 +28,25 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Отключаем скролл при появлении клавиатуры
+  // Центрируем контейнер и отключаем скролл полностью
   useEffect(() => {
-    const handleResize = () => {
-      if (window.innerHeight < screenHeight) {
-        // Клавиатура открыта — фиксируем контейнер
-        if (containerRef.current) {
-          containerRef.current.style.height = `${screenHeight}px`;
-          containerRef.current.style.overflow = 'hidden';
-        }
-      } else {
-        // Клавиатура закрыта — возвращаем нормальный скролл
-        if (containerRef.current) {
-          containerRef.current.style.height = `${screenHeight}px`;
-          containerRef.current.style.overflow = 'hidden'; // можно оставить hidden, чтобы не скроллилось вообще
-        }
-      }
-    };
+    if (!containerRef.current) return;
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const container = containerRef.current;
+    container.style.height = `${screenHeight}px`;
+    container.style.overflow = 'hidden'; // полностью отключаем скролл
+    container.style.display = 'flex';
+    container.style.justifyContent = 'center';
+    container.style.alignItems = 'center';
+    container.style.flexDirection = 'column';
   }, [screenHeight]);
 
   return (
     <div
       ref={containerRef}
-      style={{ height: `${screenHeight}px` }}
-      className="w-full bg-[#0b1120] text-white flex justify-center items-center p-4"
+      className="w-full bg-[#0b1120] text-white p-4"
     >
-      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#24304a] p-6 rounded-2xl shadow-md">
+      <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
