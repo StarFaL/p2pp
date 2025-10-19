@@ -11,11 +11,9 @@ body,
   padding: 0;
   background-color: #0f172a;
   -webkit-text-size-adjust: none;
-  -webkit-user-select: none;
-  overscroll-behavior-y: contain;
-  overscroll-behavior-x: none;
-  touch-action: manipulation; /* разрешаем естественное взаимодействие */
-  height: 100vh;
+   overscroll-behavior: none;
+   touch-action: manipulation; /* разрешаем естественное взаимодействие */
+
 }
 
 * {
