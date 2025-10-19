@@ -58,13 +58,13 @@ body {
 
   button,
   .btn {
-    @apply w-full py-3 text-base rounded-xl;
+    @apply w-full py-2 text-sm rounded-xl; /* Обновлено для компактности */
   }
 
   input,
   select,
   textarea {
-    @apply w-full text-base py-2 px-3 rounded-lg;
+    @apply w-full text-sm py-2 px-3 rounded-lg; /* Обновлено для компактности */
   }
 
   .card {
@@ -78,18 +78,6 @@ body {
 
 /* --- 🎯 Стили для формы в Mini App --- */
 .form-container {
-  @apply bg-[#24304a] p-6 rounded-2xl shadow-md w-full max-w-sm;
-  transition: bottom 0.7s ease, max-height 0.7s ease; /* Плавные переходы */
-}
-
-/* Убираем фиксированные классы, полагаемся на JS */
-.form-container.fixed,
-.form-container.expanded {
-  /* Эти классы будут управляться динамически через JS */
-}
-
-/* Убираем дергание при фокусе */
-input:focus {
-  outline: none; /* Убираем стандартный контур */
-  @apply ring-2 ring-[#00a968]; /* Заменяем на кастомный */
+  @apply bg-[#24304a] p-4 rounded-2xl shadow-md w-full max-w-sm; /* Уменьшен p-6 до p-4 */
+  transition: bottom 0.8s ease; /* Синхронизировано с JS */
 }

@@ -27,7 +27,7 @@ export default function LoginScreen() {
     navigate('/market');
   };
 
-  // Обновление высоты клавиатуры с debounce и адаптацией под плотность
+  // Обновление высоты клавиатуры с увеличенным debounce
   useEffect(() => {
     let timeoutId;
     const updateHeight = () => {
@@ -36,11 +36,9 @@ export default function LoginScreen() {
       const windowHeight = window.innerHeight;
       const newKeyboardHeight = Math.max(0, windowHeight - viewportHeight);
       setIsKeyboardOpen(newKeyboardHeight > 50);
-      // Адаптация под плотность экрана (0.5 см = 18.9px для 1x, 37.8px для 2x)
-      const pixelRatio = window.devicePixelRatio || 1;
-      const halfCmOffset = 18.9 * pixelRatio;
-      if (Math.abs(newKeyboardHeight - keyboardHeight) > 20) {
-        timeoutId = setTimeout(() => setKeyboardHeight(newKeyboardHeight), 100);
+      // Обновляем только при значительных изменениях с увеличенным порогом
+      if (Math.abs(newKeyboardHeight - keyboardHeight) > 30) {
+        timeoutId = setTimeout(() => setKeyboardHeight(newKeyboardHeight), 200);
       }
     };
 
@@ -87,20 +85,20 @@ export default function LoginScreen() {
           bottom: isKeyboardOpen ? `${Math.max(0, keyboardHeight + 18.9 * (window.devicePixelRatio || 1))}px` : 'auto', // 0.5 см
           maxHeight: isKeyboardOpen ? `calc(100vh - ${Math.max(0, keyboardHeight + 18.9 * (window.devicePixelRatio || 1))}px)` : 'auto',
           width: '100%',
-          maxWidth: 'sm:max-w-sm',
-          transition: 'bottom 0.7s ease, max-height 0.7s ease', // Синхронизировано с CSS
+          maxWidth: 'sm:max-w-sm', // Оставляем адаптивность
+          transition: 'bottom 0.8s ease', // Увеличенная задержка для сглаживания
         }}
-        className="bg-[#24304a] p-6 rounded-2xl shadow-md"
+        className="bg-[#24304a] p-4 rounded-2xl shadow-md" // Уменьшен p-6 до p-4
       >
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
+        <h1 className="text-xl sm:text-2xl font-bold mb-4 text-center">Вход</h1> {/* Уменьшен размер и отступ */}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4"> {/* Уменьшен space-y-6 до space-y-4 */}
           <div>
             <label className="block text-sm font-medium text-gray-300">Email</label>
             <input
               name="email"
               {...register('email')}
-              className="mt-1 w-full bg-[#1a2338] p-3 rounded-xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="mt-1 w-full bg-[#1a2338] p-2 rounded-xl text-sm text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition" // Уменьшен p-3 до p-2, text-base до text-sm
               placeholder="Введите email"
             />
             <ErrorMessage message={errors.email?.message} />
@@ -112,7 +110,7 @@ export default function LoginScreen() {
               name="password"
               type="password"
               {...register('password')}
-              className="mt-1 w-full bg-[#1a2338] p-3 rounded-xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="mt-1 w-full bg-[#1a2338] p-2 rounded-xl text-sm text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition" // Уменьшен p-3 до p-2, text-base до text-sm
               placeholder="Введите пароль"
             />
             <ErrorMessage message={errors.password?.message} />
@@ -120,17 +118,17 @@ export default function LoginScreen() {
 
           <button
             type="submit"
-            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-white text-base"
+            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-2 rounded-xl font-semibold text-sm text-white" // Уменьшен py-3 до py-2, text-base до text-sm
           >
             Войти
           </button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-gray-400">
+        <p className="text-center mt-3 text-xs text-gray-400"> {/* Уменьшен mt-4 до mt-3, text-sm до text-xs */}
           Нет аккаунта?{' '}
           <a
             href="/register"
-            className="text-[#00a968] hover:text-[#00c57a] transition inline-block mt-1"
+            className="text-[#00a968] hover:text-[#00c57a] transition inline-block"
           >
             Регистрация
           </a>
