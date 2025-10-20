@@ -13,16 +13,19 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
-  // фиксируем реальную высоту экрана
+  // Устанавливаем реальную высоту экрана для Telegram WebView
   useEffect(() => {
     document.documentElement.classList.add('dark');
+
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
+
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
+
     return () => {
       window.removeEventListener('resize', setAppHeight);
       window.removeEventListener('orientationchange', setAppHeight);
@@ -32,7 +35,7 @@ function App() {
   return (
     <AppProvider>
       <Router>
-        <div className="app-wrapper bg-primary text-white font-sans">
+        <div className="app-wrapper flex flex-col bg-primary text-white font-sans">
           <Routes>
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
@@ -43,7 +46,7 @@ function App() {
             <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
           </Routes>
 
-          {/* BottomNav только для авторизованных и не на логине/регистрации */}
+          {/* BottomNav только на защищённых экранах */}
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&

@@ -11,9 +11,9 @@ body,
 .app-wrapper {
   margin: 0;
   padding: 0;
-  height: calc(var(--vh, 1vh) * 100); /* фиксируем реальную высоту экрана */
+  height: calc(var(--vh, 1vh) * 100);
   width: 100%;
-  overflow: hidden; /* убираем скролл */
+  overflow: hidden; /* фиксируем отсутствие скролла */
   background-color: #0f172a;
   -webkit-text-size-adjust: none;
 }
@@ -33,11 +33,14 @@ body {
     @apply text-sm leading-relaxed;
   }
 
-  input, select, textarea {
+  input,
+  select,
+  textarea {
     @apply w-full text-base py-2 px-3 rounded-lg;
   }
 
-  button, .btn {
+  button,
+  .btn {
     @apply w-full py-3 text-base rounded-xl;
   }
 }

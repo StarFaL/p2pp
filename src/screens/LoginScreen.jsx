@@ -24,7 +24,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="w-full min-h-screen flex flex-col justify-center items-center p-4">
+    <div className="w-full flex-1 flex flex-col justify-center items-center p-4">
       <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
