@@ -5,12 +5,7 @@ import BottomNav from './components/BottomNav';
 import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import MarketScreen from './screens/MarketScreen';
-import CreateOfferScreen from './screens/CreateOfferScreen';
-import TradeDetailsScreen from './screens/TradeDetailsScreen';
 import ProfileScreen from './screens/ProfileScreen';
-import DashboardScreen from './screens/DashboardScreen';
-import MyAssetsScreen from './screens/MyAssetsScreen';
-import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
@@ -18,19 +13,16 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
-  // Устанавливаем реальную высоту экрана (чтобы не прыгало при клавиатуре)
+  // фиксируем реальную высоту экрана
   useEffect(() => {
     document.documentElement.classList.add('dark');
-
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
-
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
-
     return () => {
       window.removeEventListener('resize', setAppHeight);
       window.removeEventListener('orientationchange', setAppHeight);
@@ -40,27 +32,23 @@ function App() {
   return (
     <AppProvider>
       <Router>
-        <div className="app-wrapper bg-primary text-white font-sans" style={{ height: 'calc(var(--vh, 1vh) * 100)', overflow: 'hidden' }}>
+        <div className="app-wrapper bg-primary text-white font-sans">
           <Routes>
-            {/* Экран входа и регистрации без BottomNav */}
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
-            {/* Защищённые экраны с BottomNav */}
+            {/* Защищённые экраны */}
             <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
-            <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
-            <Route path="/trade-details/:id" element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
-            <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
-            <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
           </Routes>
 
-          {/* BottomNav только для авторизованных пользователей и не на экранах Login/Register */}
+          {/* BottomNav только для авторизованных и не на логине/регистрации */}
           <AppContext.Consumer>
             {({ state }) =>
-              state.isAuthenticated && !['/login', '/register'].includes(window.location.pathname) && <BottomNav />
+              state.isAuthenticated &&
+              !['/login', '/register'].includes(window.location.pathname) &&
+              <BottomNav />
             }
           </AppContext.Consumer>
         </div>
