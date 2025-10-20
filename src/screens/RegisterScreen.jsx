@@ -21,7 +21,7 @@ export default function RegisterScreen() {
 
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { username: data.username, email: data.email } });
-    navigate('/market');
+    navigate('/my-assets');
   };
 
   // Подстройка высоты под WebView Telegram
