@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
@@ -18,60 +18,14 @@ export default function LoginScreen() {
     resolver: yupResolver(schema)
   });
 
-  const containerRef = useRef(null);
-  const [viewportHeight, setViewportHeight] = useState(window.innerHeight);
-
   const onSubmit = (data) => {
     dispatch({ type: 'LOGIN', payload: { email: data.email } });
     navigate('/market');
   };
 
-  // Реагируем на изменение размера окна (например, при появлении клавиатуры)
-  useEffect(() => {
-    const handleResize = () => {
-      // небольшая задержка нужна для корректного измерения на Android
-      setTimeout(() => setViewportHeight(window.innerHeight), 150);
-    };
-
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('orientationchange', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('orientationchange', handleResize);
-    };
-  }, []);
-
-  // Мягкая прокрутка к активному инпуту при фокусе
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const handleFocus = (e) => {
-      setTimeout(() => {
-        e.target.scrollIntoView({
-          behavior: 'smooth',
-          block: 'center',
-        });
-      }, 200);
-    };
-
-    const inputs = container.querySelectorAll('input, textarea');
-    inputs.forEach((input) => input.addEventListener('focus', handleFocus));
-
-    return () => inputs.forEach((input) => input.removeEventListener('focus', handleFocus));
-  }, []);
-
   return (
-    <div
-      ref={containerRef}
-      style={{
-        height: `${viewportHeight}px`,
-        overflowY: 'auto',
-        WebkitOverflowScrolling: 'touch',
-      }}
-      className="w-full bg-[#0b1120] text-white flex justify-center items-center p-4 transition-all duration-200"
-    >
-      <div className="w-full sm:max-w-sm bg-[#24304a] p-6 rounded-2xl shadow-md">
+    <div className="w-full min-h-screen bg-[#0b1120] text-white flex flex-col justify-center items-center p-4">
+      <div className="w-full sm:max-w-sm mt-6 mb-6 bg-[#24304a] p-6 rounded-2xl shadow-md">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">Вход</h1>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

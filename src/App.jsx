@@ -10,7 +10,7 @@ import TradeDetailsScreen from './screens/TradeDetailsScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
-import TransactionHistoryScreen from './screens/TransactionHistoryScreen'; 
+import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
@@ -40,11 +40,14 @@ function App() {
   return (
     <AppProvider>
       <Router>
-        <div className="app-wrapper bg-primary text-white font-sans">
+        <div className="app-wrapper bg-primary text-white font-sans" style={{ height: 'calc(var(--vh, 1vh) * 100)', overflow: 'hidden' }}>
           <Routes>
+            {/* Экран входа и регистрации без BottomNav */}
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
+
+            {/* Защищённые экраны с BottomNav */}
             <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
             <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
             <Route path="/trade-details/:id" element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>} />
@@ -53,8 +56,12 @@ function App() {
             <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
             <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
           </Routes>
+
+          {/* BottomNav только для авторизованных пользователей и не на экранах Login/Register */}
           <AppContext.Consumer>
-            {({ state }) => state.isAuthenticated && <BottomNav />}
+            {({ state }) =>
+              state.isAuthenticated && !['/login', '/register'].includes(window.location.pathname) && <BottomNav />
+            }
           </AppContext.Consumer>
         </div>
       </Router>
