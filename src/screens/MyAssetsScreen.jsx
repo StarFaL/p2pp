@@ -6,7 +6,6 @@ export default function MyAssetsScreen() {
   const { state } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
 
-  // Загрузка данных (симуляция)
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -44,7 +43,10 @@ export default function MyAssetsScreen() {
   );
 
   return (
-    <div className="fixed inset-0 flex justify-center items-start bg-[#0b1120] text-white px-4 pt-[calc(2cm+var(--vh,1vh)*1px)] pb-[calc(env(safe-area-inset-bottom)+80px)]">
+    <div
+      className="fixed inset-0 flex justify-center items-start bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]"
+      style={{ paddingTop: '2cm' }} // ← смещаем весь контент на 2 см
+    >
       <div className="w-full max-w-lg flex flex-col flex-grow">
         {/* Заголовок */}
         <h1 className="text-xl sm:text-2xl font-bold text-center mb-6 tracking-wide">My Assets</h1>
