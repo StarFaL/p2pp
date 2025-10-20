@@ -1,51 +1,57 @@
-/* stylelint-disable at-rule-no-unknown */
 /* Tailwind directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* --- 🌗 Базовые стили приложения --- */
+/* 🌗 Базовые стили */
 html,
 body,
 #root {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+  height: 100%;
   width: 100%;
   overscroll-behavior: none;
   touch-action: manipulation;
-  background-color: #0f172a; /* фон по умолчанию */
+  background-color: #0f172a;
   -webkit-text-size-adjust: none;
 }
 
-* {
-  -webkit-tap-highlight-color: transparent; /* убирает синюю подсветку при тапе */
+:root {
+  --vh: 100%;
 }
 
-/* --- 🌙 Тёмная тема --- */
-body {
-  @apply dark:bg-primary dark:text-white;
+/* Основной контейнер приложения */
+.app-container {
+  height: calc(var(--vh, 1vh) * 100);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  transition: transform 0.25s ease, height 0.25s ease;
 }
 
-/* --- 🧩 Переключатель темы --- */
-.toggle-checkbox:checked {
-  @apply right-0 border-accent;
-}
-.toggle-checkbox:checked + .toggle-label {
-  @apply bg-accent;
-}
-.toggle-checkbox:checked:focus + .toggle-label {
-  @apply shadow-lg;
+/* Когда клавиатура открыта */
+.app-container.keyboard-open {
+  transform: translateY(-8px);
+  transition: transform 0.25s ease;
 }
 
-/* --- 📱 Адаптация под мобильные экраны --- */
+/* Плавное поведение для формы и инпутов */
+form,
+input,
+textarea,
+button {
+  transition: all 0.25s ease;
+}
+
+/* Для мобильных устройств */
 @media (max-width: 768px) {
   html,
   body,
   #root {
-    min-height: 100vh;
-    width: 100%;
+    height: 100%;
+    overflow: hidden;
   }
+
   body {
     @apply text-sm leading-relaxed;
   }
@@ -62,18 +68,20 @@ body {
     @apply text-base font-medium;
   }
 
-  button,
   .btn {
     @apply w-full py-3 text-base rounded-xl;
   }
+
   input,
   select,
   textarea {
     @apply w-full text-base py-2 px-3 rounded-lg;
   }
+
   .card {
     @apply w-full max-w-md mx-auto p-4 rounded-2xl;
   }
+
   .container {
     @apply w-full px-4;
   }
