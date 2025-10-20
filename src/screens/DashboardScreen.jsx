@@ -8,7 +8,8 @@ export default function DashboardScreen() {
   // Подстройка под Telegram WebView и мобильные экраны
   useEffect(() => {
     const resizeHandler = () => {
-      document.body.style.height = `${window.innerHeight}px`;
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
@@ -18,17 +19,19 @@ export default function DashboardScreen() {
   if (state.loading) return <Loader />;
 
   return (
-    <div className="min-h-screen bg-[#0b1120]  text-white flex justify-center items-start px-3 pt-4 pb-[calc(env(safe-area-inset-bottom)+70px)] sm:pt-6 sm:px-4">
-      <div className="w-full max-w-md flex flex-col flex-grow">
-
+    <div
+      className="fixed inset-0 bg-[#0b1120] text-white px-3 pb-[calc(env(safe-area-inset-bottom)+70px)] overflow-hidden flex justify-center"
+      style={{ paddingTop: '2cm' }} // смещаем контент от верхнего края
+    >
+      <div className="w-full max-w-md flex flex-col flex-grow overflow-y-auto">
         {/* Заголовок */}
         <h1 className="text-lg sm:text-xl font-semibold text-center mb-4 sm:mb-6 tracking-wide">
           Dashboard
         </h1>
 
-        {/* Подложка */}
-        <div className="flex-grow bg-[#1a2338] p-4 sm:p-5 rounded-2xl shadow-md space-y-3 sm:space-y-4 overflow-y-auto max-h-[calc(100vh-150px)] sm:max-h-[calc(100vh-180px)] transition-all">
-
+        {/* Контейнер с активными трейдами и офферами */}
+        <div className="flex-grow bg-[#1a2338] p-4 sm:p-5 rounded-2xl shadow-md space-y-3 sm:space-y-4 overflow-y-auto max-h-[calc(100vh-140px)] sm:max-h-[calc(100vh-180px)] transition-all">
+          
           {/* Активные трейды */}
           <div className="bg-[#151b2c] p-4 sm:p-5 rounded-2xl flex items-center justify-between shadow-md hover:bg-[#24304a] active:scale-[0.98] transition-all">
             <div>

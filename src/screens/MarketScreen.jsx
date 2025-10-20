@@ -14,7 +14,8 @@ export default function MarketScreen() {
 
   useEffect(() => {
     const resizeHandler = () => {
-      document.body.style.height = `${window.innerHeight}px`;
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
@@ -24,13 +25,16 @@ export default function MarketScreen() {
   if (state.loading) return <Loader />;
 
   return (
-    <div className="min-h-screen flex justify-center items-start bg-[#0b1120]  text-white px-4 pt-6 pb-[calc(env(safe-area-inset-bottom)+80px)]">
-      <div className="w-full max-w-lg flex flex-col flex-grow">
+    <div
+      className="fixed inset-0 bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden flex justify-center"
+      style={{ paddingTop: '2cm' }} // контент смещён вниз
+    >
+      <div className="w-full max-w-lg flex flex-col flex-grow overflow-y-auto">
         {/* Заголовок */}
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Market</h1>
 
-        {/* Подложка */}
-        <div className="flex-grow bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col space-y-5 overflow-y-auto max-h-[calc(100vh-140px)] sm:max-h-[calc(100vh-180px)]">
+        {/* Контейнер с данными */}
+        <div className="flex-grow bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col space-y-5 overflow-y-auto">
           
           {/* Поиск */}
           <input

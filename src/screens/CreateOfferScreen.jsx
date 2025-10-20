@@ -55,16 +55,30 @@ export default function CreateOfferScreen() {
     }
   };
 
+  // Подстройка под Telegram WebView
+  useEffect(() => {
+    const resizeHandler = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
+    window.addEventListener('resize', resizeHandler);
+    resizeHandler();
+    return () => window.removeEventListener('resize', resizeHandler);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-[#0b1120]  text-white overflow-y-auto flex justify-center items-start sm:items-center p-4">
-      <div className="w-full max-w-md sm:max-w-sm mt-6 mb-6">
+    <div
+      className="fixed inset-0 bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden flex justify-center"
+      style={{ paddingTop: '2cm' }} // смещаем весь контент на 2 см
+    >
+      <div className="w-full max-w-md flex flex-col flex-grow overflow-y-auto">
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
           Create Offer
         </h1>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4"
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4 flex-shrink-0"
         >
           {/* Sell / Currency */}
           <div className="grid grid-cols-2 gap-3">

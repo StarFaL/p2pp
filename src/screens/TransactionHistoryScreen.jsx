@@ -16,7 +16,7 @@ export default function TransactionHistoryScreen() {
   const [openId, setOpenId] = useState(null);
   const toggleDetails = (id) => setOpenId(openId === id ? null : id);
 
-  // Подстройка высоты под Telegram WebView
+  // WebView-friendly высота
   useEffect(() => {
     const resizeHandler = () => {
       document.body.style.height = `${window.innerHeight}px`;
@@ -27,7 +27,10 @@ export default function TransactionHistoryScreen() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0b1120]  text-white flex justify-center items-start px-3 pt-4 pb-[calc(env(safe-area-inset-bottom)+70px)] sm:px-4 sm:pt-6">
+    <div
+      className="fixed inset-0 bg-[#0b1120] text-white flex justify-center overflow-hidden"
+      style={{ paddingTop: '2cm', paddingBottom: 'calc(env(safe-area-inset-bottom)+70px)', paddingLeft: '1rem', paddingRight: '1rem' }}
+    >
       <div className="w-full max-w-md flex flex-col flex-grow">
 
         {/* Заголовок */}
@@ -41,8 +44,8 @@ export default function TransactionHistoryScreen() {
           </h1>
         </div>
 
-        {/* Подложка */}
-        <div className="bg-[#1a2338] p-4 sm:p-5 rounded-2xl shadow-md flex flex-col flex-grow overflow-y-auto space-y-3 sm:space-y-4 max-h-[calc(100vh-150px)] sm:max-h-[calc(100vh-180px)] transition-all">
+        {/* Подложка с транзакциями */}
+        <div className="bg-[#1a2338] p-4 sm:p-5 rounded-2xl shadow-md flex flex-col flex-grow overflow-y-auto space-y-3 sm:space-y-4">
 
           {transactions.length === 0 && (
             <p className="text-gray-400 text-center text-sm sm:text-base mt-6">No transactions found</p>
@@ -59,18 +62,14 @@ export default function TransactionHistoryScreen() {
                 className="flex justify-between items-center p-4 cursor-pointer select-none"
               >
                 <span className="font-semibold text-[#00a968] text-sm sm:text-base">{tx.type}</span>
-                <div
-                  className={`transition-transform duration-300 ${openId === tx.id ? 'rotate-180' : ''}`}
-                >
+                <div className={`transition-transform duration-300 ${openId === tx.id ? 'rotate-180' : ''}`}>
                   <ChevronDownIcon className="h-5 w-5 sm:h-6 sm:w-6 text-gray-400" />
                 </div>
               </div>
 
               {/* Детали */}
               <div
-                className={`px-4 pb-4 text-gray-400 text-xs sm:text-sm transition-all duration-500 ease-in-out overflow-hidden ${
-                  openId === tx.id ? 'max-h-72 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'
-                }`}
+                className={`px-4 pb-4 text-gray-400 text-xs sm:text-sm transition-all duration-500 ease-in-out overflow-hidden ${openId === tx.id ? 'max-h-72 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'}`}
               >
                 {openId === tx.id && (
                   <div className="mt-2">

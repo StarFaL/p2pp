@@ -42,16 +42,18 @@ export default function TradeDetailsScreen() {
     }
   };
 
-  // Авто-прокрутка вниз при новых сообщениях
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [trade?.messages]);
 
-  // WebView-friendly высота
+  // Подстройка под WebView и мобильные экраны
   useEffect(() => {
-    const resizeHandler = () => { document.body.style.height = `${window.innerHeight}px`; };
+    const resizeHandler = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
     window.addEventListener('resize', resizeHandler);
     resizeHandler();
     return () => window.removeEventListener('resize', resizeHandler);
@@ -60,15 +62,13 @@ export default function TradeDetailsScreen() {
   if (!trade) return <p className="text-[#00a968] text-center text-lg font-bold mt-[10vh]">Trade Loading...</p>;
 
   return (
-    <div className="min-h-screen bg-[#0b1120]  flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]">
+    <div className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden"
+         style={{ paddingTop: '2cm' }}>
 
-      {/* Карточка-подложка */}
-      <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-5 mt-5">
+      <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-5 flex flex-col flex-grow overflow-y-auto">
 
-        {/* Заголовок */}
         <h1 className="text-xl font-bold text-center">Trade Details</h1>
 
-        {/* Информация о трейде */}
         <div className="space-y-4">
           <div className="flex items-center">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-600" />
@@ -105,7 +105,7 @@ export default function TradeDetailsScreen() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Ввод нового сообщения с кнопкой внутри поля */}
+        {/* Ввод сообщения */}
         <div className="mt-4 relative w-full">
           <input
             type="text"
@@ -113,7 +113,7 @@ export default function TradeDetailsScreen() {
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            className="w-full bg-[#24304a] p-3 rounded-2xl text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00a968] focus:ring-offset-0 transition pr-12"
+            className="w-full bg-[#24304a] p-3 rounded-2xl text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#00a968] transition pr-12"
           />
           <button
             onClick={handleSend}
