@@ -1,72 +1,57 @@
-import { useContext } from 'react';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as yup from 'yup';
+import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
-import ErrorMessage from '../components/ErrorMessage';
-
-const schema = yup.object({
-  email: yup.string().email('Неверный email').required('Обязательно'),
-  password: yup.string().min(6, 'Минимум 6 символов').required('Обязательно'),
-});
 
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
   const navigate = useNavigate();
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
-  });
+  const [tgReady, setTgReady] = useState(false);
 
-  const onSubmit = (data) => {
-    dispatch({ type: 'LOGIN', payload: { email: data.email } });
-    navigate('/market');
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      setTgReady(true);
+    }
+  }, []);
+
+  const handleTelegramLogin = () => {
+    if (!tgReady) return;
+
+    const user = window.Telegram.WebApp.initDataUnsafe?.user;
+
+    if (user) {
+      // Авторизация и переход на MyAssetsScreen
+      dispatch({ type: 'LOGIN', payload: { email: user.username || user.id } });
+      navigate('/my-assets');
+    } else {
+      alert('Не удалось получить данные Telegram');
+    }
+  };
+
+  const handleRegister = () => {
+    navigate('/register');
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0b1120] w-full h-full">
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full sm:max-w-sm p-6 bg-[#24304a] rounded-2xl shadow-md">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center text-white">Вход</h1>
+    <div className="fixed inset-0 bg-[#0b1120] w-full h-full flex justify-center items-center">
+      <div className="w-full sm:max-w-sm p-6 bg-[#24304a] rounded-2xl shadow-md text-center">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-white">
+          Вход через Telegram
+        </h1>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300">Email</label>
-            <input
-              {...register('email')}
-              className="mt-1 w-full bg-[#1a2338] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
-              placeholder="Введите email"
-            />
-            <ErrorMessage message={errors.email?.message} />
-          </div>
+        <button
+          onClick={handleTelegramLogin}
+          className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-4 rounded-2xl font-bold text-white text-base mb-4"
+        >
+          Войти через Telegram
+        </button>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300">Пароль</label>
-            <input
-              type="password"
-              {...register('password')}
-              className="mt-1 w-full bg-[#1a2338] p-4 rounded-2xl text-base text-white placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
-              placeholder="Введите пароль"
-            />
-            <ErrorMessage message={errors.password?.message} />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-4 rounded-2xl font-bold text-white text-base"
-          >
-            Войти
-          </button>
-        </form>
-
-        <p className="text-center mt-4 text-sm text-gray-400">
-          Нет аккаунта?{' '}
-          <a
-            href="/register"
-            className="text-[#00a968] hover:text-[#00c57a] transition"
-          >
-            Регистрация
-          </a>
-        </p>
+        <button
+          onClick={handleRegister}
+          className="w-full bg-gray-700 hover:bg-gray-600 transition py-3 rounded-2xl font-semibold text-white text-base"
+        >
+          Зарегистрироваться
+        </button>
       </div>
     </div>
   );
