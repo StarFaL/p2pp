@@ -29,7 +29,7 @@ function AppContent() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ ПРОСТАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP
+    // ✅ УСИЛЕННАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       setIsTelegramWebApp(true);
@@ -39,33 +39,51 @@ function AppContent() {
       // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
       tg.disableVerticalSwipes();
       
-      // Полноэкранный режим
+      // 🔒 МНОГОКРАТНОЕ РАЗВОРАЧИВАНИЕ НА ВЕСЬ ЭКРАН
       tg.expand();
       tg.ready();
       
-      // 🔒 Дополнительная защита - подтверждение закрытия
+      // 🔒 ДОПОЛНИТЕЛЬНЫЕ РАЗВОРАЧИВАНИЯ С ЗАДЕРЖКОЙ
+      setTimeout(() => tg.expand(), 100);
+      setTimeout(() => tg.expand(), 500);
+      setTimeout(() => tg.expand(), 1000);
+      
+      // 🔒 Подтверждение закрытия
       tg.enableClosingConfirmation();
       
+      // 🔒 ПОСТОЯННАЯ ПРОВЕРКА И РАЗВОРАЧИВАНИЕ
+      const expandInterval = setInterval(() => {
+        if (!tg.isExpanded) {
+          tg.expand();
+        }
+      }, 2000);
+
       // Обработка кнопки "Назад"
       tg.BackButton.show();
       tg.BackButton.onClick(() => {
         if (window.history.length > 1) {
           window.history.back();
         } else {
-          // Показываем подтверждение при попытке закрыть
           if (confirm('Вы уверены, что хотите закрыть приложение?')) {
             tg.close();
           }
         }
       });
 
-      // 🔒 Дополнительная защита от изменения размера
+      // 🔒 Защита от изменения размера
       tg.onEvent('viewportChanged', (event) => {
+        console.log('Viewport changed:', event);
         if (!event.isExpanded) {
-          // Если попытались свернуть - сразу разворачиваем обратно
-          setTimeout(() => tg.expand(), 100);
+          setTimeout(() => {
+            tg.expand();
+            tg.disableVerticalSwipes();
+          }, 50);
         }
       });
+
+      return () => {
+        clearInterval(expandInterval);
+      };
     }
 
     // ✅ Функция установки высоты
@@ -90,8 +108,22 @@ function AppContent() {
       // Обновляем защиту после авторизации
       tg.disableVerticalSwipes();
       tg.expand();
+      
+      // Дополнительное разворачивание
+      setTimeout(() => tg.expand(), 300);
     }
   }, [state.isAuthenticated]);
+
+  // 🔒 Защита при смене маршрутов
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      setTimeout(() => {
+        tg.expand();
+        tg.disableVerticalSwipes();
+      }, 100);
+    }
+  }, [window.location.pathname]);
 
   return (
     <Router>
