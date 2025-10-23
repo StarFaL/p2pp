@@ -23,42 +23,43 @@ function App() {
 
     const tg = window.Telegram?.WebApp;
 
+    const expandFullScreen = () => {
+      try {
+        tg?.expand();
+        tg?.disableVerticalSwipes?.();
+        document.body.style.overflow = 'hidden';
+      } catch (err) {
+        console.warn('Telegram expand() error:', err);
+      }
+    };
+
     if (tg) {
       tg.ready();
 
-      // ⬇️ Автоматически разворачиваем мини-приложение на весь экран
-      const expandFullScreen = () => {
-        try {
-          tg.expand(); // Разворачивает во весь экран
-          tg.disableVerticalSwipes?.(); // Блокирует свайпы
-          document.body.style.overflow = 'hidden'; // фикс без скролла
-        } catch (err) {
-          console.warn('Telegram expand() error:', err);
-        }
-      };
-
-      // Telegram иногда игнорирует expand, если вызвать слишком рано
-      setTimeout(expandFullScreen, 300);
-
-      // повторяем через пару секунд — защита от глюков клиента
+      // Форсируем expand несколько раз — Telegram иногда игнорирует первый вызов
+      setTimeout(expandFullScreen, 200);
       setTimeout(expandFullScreen, 1000);
+      setTimeout(expandFullScreen, 2000);
     }
 
-    // высота viewport для iOS/Android
+    // Принудительно выставляем высоту viewport
     const setAppHeight = () => {
-      const vh = (window.visualViewport?.height || window.innerHeight) * 0.01;
+      const realHeight =
+        window.Telegram?.WebApp?.viewportHeight ||
+        window.visualViewport?.height ||
+        window.innerHeight;
+      const vh = realHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
+      document.body.style.height = `${realHeight}px`;
     };
 
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
     window.visualViewport?.addEventListener('resize', setAppHeight);
-    window.addEventListener('orientationchange', setAppHeight);
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
       window.visualViewport?.removeEventListener('resize', setAppHeight);
-      window.removeEventListener('orientationchange', setAppHeight);
     };
   }, []);
 
@@ -72,7 +73,7 @@ function App() {
             height: 'calc(var(--vh, 1vh) * 100)',
             width: '100%',
             overflow: 'hidden',
-            position: 'fixed',
+            position: 'absolute',
             inset: 0,
             backgroundColor: '#0b1120',
           }}
@@ -82,36 +83,16 @@ function App() {
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
-            <Route
-              path="/my-assets"
-              element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/market"
-              element={<ProtectedRoute><MarketScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/create-offer"
-              element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/trade-details/:id"
-              element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/profile"
-              element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/dashboard"
-              element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/transaction-history"
-              element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>}
-            />
+            <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
+            <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
+            <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
+            <Route path="/trade-details/:id" element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
+            <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
           </Routes>
 
+          {/* BottomNav только для авторизованных */}
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&
