@@ -25,34 +25,32 @@ function App() {
 
     if (tg) {
       tg.ready();
-      tg.expand(); // просим Telegram развернуть WebApp во весь экран
-      tg.MainButton.hide();
-
-      // если доступно — отключаем свайпы
-      if (tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+      setTimeout(() => {
+        try {
+          tg.expand(); // Разворачивает приложение во весь экран
+          tg.disableVerticalSwipes?.(); // Запрещает свайпы
+        } catch (err) {
+          console.warn('Telegram expand() error:', err);
+        }
+      }, 100);
     }
 
     const setAppHeight = () => {
-      const vh = window.visualViewport
-        ? window.visualViewport.height * 0.01
-        : window.innerHeight * 0.01;
+      const vh =
+        (window.visualViewport?.height || window.innerHeight) * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
 
     setAppHeight();
 
     window.addEventListener('resize', setAppHeight);
+    window.visualViewport?.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', setAppHeight);
-    }
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
+      window.visualViewport?.removeEventListener('resize', setAppHeight);
       window.removeEventListener('orientationchange', setAppHeight);
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', setAppHeight);
-      }
     };
   }, []);
 
@@ -60,11 +58,18 @@ function App() {
     <AppProvider>
       <Router>
         <div
+          id="app-container"
           className="app-wrapper bg-[#0b1120] text-white font-sans flex flex-col"
           style={{
-            height: 'calc(var(--vh, 1vh) * 100)',
+            height:
+              'var(--tg-viewport-height, calc(var(--vh, 1vh) * 100))',
             minHeight: '100dvh',
             overflow: 'hidden',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
           }}
         >
           <Routes>
@@ -73,66 +78,38 @@ function App() {
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
-            {/* Защищённые экраны с BottomNav */}
+            {/* Защищённые экраны */}
             <Route
               path="/my-assets"
-              element={
-                <ProtectedRoute>
-                  <MyAssetsScreen />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>}
             />
             <Route
               path="/market"
-              element={
-                <ProtectedRoute>
-                  <MarketScreen />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><MarketScreen /></ProtectedRoute>}
             />
             <Route
               path="/create-offer"
-              element={
-                <ProtectedRoute>
-                  <CreateOfferScreen />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>}
             />
             <Route
               path="/trade-details/:id"
-              element={
-                <ProtectedRoute>
-                  <TradeDetailsScreen />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>}
             />
             <Route
               path="/profile"
-              element={
-                <ProtectedRoute>
-                  <ProfileScreen />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>}
             />
             <Route
               path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardScreen />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>}
             />
             <Route
               path="/transaction-history"
-              element={
-                <ProtectedRoute>
-                  <TransactionHistoryScreen />
-                </ProtectedRoute>
-              }
+              element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>}
             />
           </Routes>
 
-          {/* BottomNav только для авторизованных пользователей */}
+          {/* BottomNav только для авторизованных */}
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&
