@@ -17,22 +17,15 @@ function StartAppHandler() {
   const { state } = useContext(AppContext);
 
   useEffect(() => {
-    // ✅ ОБРАБОТКА STARTAPP ПАРАМЕТРА ДЛЯ КНОПКИ "WALLET"
+    // Обработка startapp параметра
     const urlParams = new URLSearchParams(window.location.search);
     const startAppParam = urlParams.get('startapp');
     
-    if (startAppParam) {
-      console.log('StartApp parameter:', startAppParam);
-      
-      // Если параметр содержит "wallet" - перенаправляем на соответствующий экран
-      if (startAppParam.includes('wallet')) {
-        if (state.isAuthenticated) {
-          // Если пользователь авторизован - открываем кошелек
-          navigate('/my-assets');
-        } else {
-          // Если не авторизован - на логин
-          navigate('/login');
-        }
+    if (startAppParam && startAppParam.includes('wallet')) {
+      if (state.isAuthenticated) {
+        navigate('/my-assets');
+      } else {
+        navigate('/login');
       }
     }
   }, [navigate, state.isAuthenticated]);
@@ -57,90 +50,140 @@ function AppContent() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ УСИЛЕННАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-      setIsTelegramWebApp(true);
-      
-      console.log('Telegram WebApp initialized');
-      console.log('Start parameters:', tg.initData);
-      
-      // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
-      tg.disableVerticalSwipes();
-      
-      // 🔒 МНОГОКРАТНОЕ РАЗВОРАЧИВАНИЕ НА ВЕСЬ ЭКРАН
-      tg.expand();
-      tg.ready();
-      
-      setTimeout(() => tg.expand(), 100);
-      setTimeout(() => tg.expand(), 500);
-      setTimeout(() => tg.expand(), 1000);
-      
-      // 🔒 Подтверждение закрытия
-      tg.enableClosingConfirmation();
-      
-      // 🔒 ПОСТОЯННАЯ ПРОВЕРКА И РАЗВОРАЧИВАНИЕ
-      const expandInterval = setInterval(() => {
-        if (!tg.isExpanded) {
-          tg.expand();
-        }
-      }, 2000);
-
-      // Кнопка "Назад"
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => {
-        if (window.history.length > 1) {
-          window.history.back();
-        } else {
-          if (confirm('Вы уверены, что хотите закрыть приложение?')) {
-            tg.close();
-          }
-        }
-      });
-
-      // Защита от изменения размера
-      tg.onEvent('viewportChanged', (event) => {
-        console.log('Viewport changed:', event);
-        if (!event.isExpanded) {
+    // ✅ УСИЛЕННАЯ ЗАЩИТА ОТ СВОРАЧИВАНИЯ
+    const initTelegramApp = () => {
+      if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp;
+        setIsTelegramWebApp(true);
+        
+        console.log('🟢 Telegram WebApp инициализирован');
+        console.log('📊 Статус:', {
+          isExpanded: tg.isExpanded,
+          platform: tg.platform,
+          viewportHeight: tg.viewportHeight
+        });
+        
+        // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
+        tg.disableVerticalSwipes();
+        
+        // 🔒 АГРЕССИВНОЕ РАЗВОРАЧИВАНИЕ
+        tg.ready();
+        tg.expand(); // Основное разворачивание
+        
+        // Многократное разворачивание с разными задержками
+        const expandAttempts = [100, 200, 300, 500, 800, 1000, 1500, 2000];
+        expandAttempts.forEach(delay => {
           setTimeout(() => {
             tg.expand();
+            console.log(`🔄 Разворачивание попытка через ${delay}ms`);
+          }, delay);
+        });
+        
+        // 🔒 Подтверждение закрытия
+        tg.enableClosingConfirmation();
+        
+        // 🔒 ПОСТОЯННЫЙ КОНТРОЛЬ РАЗВОРАЧИВАНИЯ
+        const expandInterval = setInterval(() => {
+          if (!tg.isExpanded) {
+            console.log('⚠️ Обнаружено сворачивание - разворачиваю обратно');
+            tg.expand();
             tg.disableVerticalSwipes();
-          }, 50);
-        }
-      });
+          }
+        }, 1000);
 
-      return () => {
-        clearInterval(expandInterval);
-      };
-    }
+        // Кнопка "Назад"
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            if (confirm('Вы уверены, что хотите закрыть приложение?')) {
+              tg.close();
+            }
+          }
+        });
 
-    // Функция установки высоты
+        // 🔒 СИЛЬНАЯ ЗАЩИТА ОТ ИЗМЕНЕНИЯ РАЗМЕРА
+        tg.onEvent('viewportChanged', (event) => {
+          console.log('🔄 Viewport изменен:', event);
+          if (!event.isExpanded) {
+            console.log('⚠️ Попытка сворачивания - блокирую');
+            setTimeout(() => {
+              tg.expand();
+              tg.disableVerticalSwipes();
+            }, 10);
+          }
+        });
+
+        // 🔒 ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА ПРИ КЛИКАХ
+        const handleUserInteraction = () => {
+          if (!tg.isExpanded) {
+            tg.expand();
+          }
+        };
+        
+        document.addEventListener('click', handleUserInteraction);
+        document.addEventListener('touchstart', handleUserInteraction);
+
+        return () => {
+          clearInterval(expandInterval);
+          document.removeEventListener('click', handleUserInteraction);
+          document.removeEventListener('touchstart', handleUserInteraction);
+        };
+      } else {
+        console.log('🔴 Telegram WebApp не обнаружен - работаем в браузере');
+      }
+    };
+
+    // Запускаем инициализацию
+    initTelegramApp();
+
+    // ✅ Настройка высоты для мобильных устройств
     const setAppHeight = () => {
+      const docEl = document.documentElement;
       const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      docEl.style.setProperty('--vh', `${vh}px`);
+      // Принудительно устанавливаем высоту
+      docEl.style.height = `${window.innerHeight}px`;
     };
 
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
+      window.removeEventListener('orientationchange', setAppHeight);
     };
   }, []);
 
-  // 🔒 Отслеживаем изменения авторизации для обновления защиты
+  // 🔒 Усиленная защита при авторизации
   useEffect(() => {
     if (window.Telegram?.WebApp && state.isAuthenticated) {
       const tg = window.Telegram.WebApp;
+      console.log('🔒 Обновление защиты после авторизации');
       tg.disableVerticalSwipes();
       tg.expand();
-      setTimeout(() => tg.expand(), 300);
+      
+      // Дополнительные разворачивания
+      setTimeout(() => tg.expand(), 100);
+      setTimeout(() => tg.expand(), 500);
     }
   }, [state.isAuthenticated]);
 
+  // 🔒 Защита при смене маршрутов
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      setTimeout(() => {
+        tg.expand();
+        tg.disableVerticalSwipes();
+      }, 50);
+    }
+  }, [window.location.pathname]);
+
   return (
     <Router>
-      {/* ✅ Обработчик startapp параметров */}
       <StartAppHandler />
       
       <div className="app-wrapper bg-primary text-white font-sans min-h-screen w-full">
