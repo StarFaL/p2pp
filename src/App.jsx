@@ -12,6 +12,36 @@ import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
+// ✅ КОМПОНЕНТ КНОПКИ ДЛЯ ОТКРЫТИЯ В TELEGRAM
+function TelegramLauncher() {
+  const openInTelegram = () => {
+    // Пытаемся открыть через Telegram
+    window.location.href = "tg://resolve?startapp=wallet";
+    
+    // Фолбэк на обычную ссылку
+    setTimeout(() => {
+      window.location.href = "https://p2pp-2.vercel.app";
+    }, 1500);
+  };
+
+  // Показываем кнопку только если НЕ в Telegram WebApp
+  if (window.Telegram?.WebApp) {
+    return null;
+  }
+
+  return (
+    <div className="fixed top-4 right-4 z-50">
+      <button
+        onClick={openInTelegram}
+        className="bg-[#0088cc] hover:bg-[#0077bb] text-white px-4 py-2 rounded-lg font-semibold text-sm shadow-lg flex items-center gap-2 transition-all"
+      >
+        <span>📱</span>
+        Open in Telegram
+      </button>
+    </div>
+  );
+}
+
 function StartAppHandler() {
   const navigate = useNavigate();
   const { state } = useContext(AppContext);
@@ -61,12 +91,7 @@ function AppContent() {
       if (isInTelegram && window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp;
         setIsTelegramWebApp(true);
-        
-        console.log('🟢 Telegram WebApp обнаружен');
-        console.log('📊 Платформа:', tg.platform);
-        console.log('📊 Init Data:', tg.initData ? 'Есть' : 'Нет');
-        console.log('📊 Init Data Unsafe:', tg.initDataUnsafe ? 'Есть' : 'Нет');
-
+    
         // ✅ ВАЖНО: Проверяем что это действительно WebApp а не просто чат
         const isRealWebApp = tg.initData || tg.initDataUnsafe;
         
@@ -91,19 +116,6 @@ function AppContent() {
           // 3. ✅ МГНОВЕННО ВКЛЮЧАЕМ ЗАЩИТУ
           enableProtection();
 
-          // 4. ✅ АГРЕССИВНАЯ ЗАЩИТА - МНОГОКРАТНО ВЫЗЫВАЕМ
-          const protectionDelays = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
-                                   150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000,
-                                   1500, 2000, 2500, 3000, 4000, 5000];
-          
-          protectionDelays.forEach(delay => {
-            setTimeout(enableProtection, delay);
-          });
-
-          // 5. ✅ ПОСТОЯННЫЙ КОНТРОЛЬ КАЖДЫЕ 100ms
-          const protectionInterval = setInterval(() => {
-            enableProtection();
-          }, 100);
 
           // 6. ✅ ЗАЩИТА ПРИ ЛЮБОМ ВЗАИМОДЕЙСТВИИ
           const handleInteraction = () => {
@@ -185,6 +197,9 @@ function AppContent() {
   return (
     <Router>
       <StartAppHandler />
+      
+      {/* ✅ КНОПКА ДЛЯ ОТКРЫТИЯ В TELEGRAM */}
+      <TelegramLauncher />
       
       <div 
         className="app-wrapper bg-primary text-white font-sans w-full"
