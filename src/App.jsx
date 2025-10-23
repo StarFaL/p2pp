@@ -24,22 +24,17 @@ function App() {
 
     if (tg) {
       tg.ready();
-
-      const setupTelegram = () => {
-        try {
-          tg.expand();                 // Разворачиваем на весь экран
-          tg.disableSwipeGesture();     // Запрет сворачивания сверху
-          tg.disableVerticalSwipes?.(); // Блокировка вертикальных свайпов
-          document.body.style.overflow = 'hidden';
-        } catch (err) {
-          console.warn('Telegram WebApp setup error:', err);
-        }
-      };
-
-      // Форсируем несколько раз, чтобы Telegram точно применил
-      setTimeout(setupTelegram, 200);
-      setTimeout(setupTelegram, 1000);
-      setTimeout(setupTelegram, 2000);
+      tg.expand(); // Сразу
+      
+      // Повтор для inline-кнопки
+      const expand = () => tg.expand();
+      setTimeout(expand, 100);
+      setTimeout(expand, 500);
+      setTimeout(expand, 1000);
+      
+      tg.disableSwipeGesture();
+      tg.disableVerticalSwipes?.();
+      document.body.style.overflow = 'hidden';
     }
 
     const setAppHeight = () => {
