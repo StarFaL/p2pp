@@ -19,27 +19,28 @@ function ProtectedRoute({ children }) {
 
 function App() {
   useEffect(() => {
-    document.documentElement.classList.add('dark');
-
     const tg = window.Telegram?.WebApp;
-
-    const expandFullScreen = () => {
-      try {
-        tg?.expand();
-        tg?.disableVerticalSwipes?.();
-        document.body.style.overflow = 'hidden';
-      } catch (err) {
-        console.warn('Telegram expand() error:', err);
-      }
-    };
+    document.documentElement.classList.add('dark');
 
     if (tg) {
       tg.ready();
 
-      // Форсируем expand несколько раз — Telegram иногда игнорирует первый вызов
-      setTimeout(expandFullScreen, 200);
-      setTimeout(expandFullScreen, 1000);
-      setTimeout(expandFullScreen, 2000);
+      const forceFullScreen = () => {
+        try {
+          tg.expand(); // Разворачиваем на весь экран
+          tg.disableSwipeGesture(); // Запрещаем сворачивание сверху
+          tg.disableVerticalSwipes?.(); // Запрещаем вертикальные свайпы контента
+          document.body.style.overflow = 'hidden';
+          console.log('✅ Telegram WebApp expanded and swipes disabled');
+        } catch (err) {
+          console.warn('Telegram WebApp expand/disable error:', err);
+        }
+      };
+
+      // Telegram может игнорировать первый вызов — повторяем несколько раз
+      setTimeout(forceFullScreen, 200);
+      setTimeout(forceFullScreen, 1000);
+      setTimeout(forceFullScreen, 2000);
     }
 
     // Принудительно выставляем высоту viewport
@@ -92,7 +93,6 @@ function App() {
             <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
           </Routes>
 
-          {/* BottomNav только для авторизованных */}
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&
