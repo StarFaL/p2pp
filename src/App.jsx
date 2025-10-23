@@ -25,24 +25,32 @@ function App() {
 
     if (tg) {
       tg.ready();
-      setTimeout(() => {
+
+      // ⬇️ Автоматически разворачиваем мини-приложение на весь экран
+      const expandFullScreen = () => {
         try {
-          tg.expand(); // Разворачивает приложение во весь экран
-          tg.disableVerticalSwipes?.(); // Запрещает свайпы
+          tg.expand(); // Разворачивает во весь экран
+          tg.disableVerticalSwipes?.(); // Блокирует свайпы
+          document.body.style.overflow = 'hidden'; // фикс без скролла
         } catch (err) {
           console.warn('Telegram expand() error:', err);
         }
-      }, 100);
+      };
+
+      // Telegram иногда игнорирует expand, если вызвать слишком рано
+      setTimeout(expandFullScreen, 300);
+
+      // повторяем через пару секунд — защита от глюков клиента
+      setTimeout(expandFullScreen, 1000);
     }
 
+    // высота viewport для iOS/Android
     const setAppHeight = () => {
-      const vh =
-        (window.visualViewport?.height || window.innerHeight) * 0.01;
+      const vh = (window.visualViewport?.height || window.innerHeight) * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
 
     setAppHeight();
-
     window.addEventListener('resize', setAppHeight);
     window.visualViewport?.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
@@ -61,24 +69,19 @@ function App() {
           id="app-container"
           className="app-wrapper bg-[#0b1120] text-white font-sans flex flex-col"
           style={{
-            height:
-              'var(--tg-viewport-height, calc(var(--vh, 1vh) * 100))',
-            minHeight: '100dvh',
+            height: 'calc(var(--vh, 1vh) * 100)',
+            width: '100%',
             overflow: 'hidden',
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            inset: 0,
+            backgroundColor: '#0b1120',
           }}
         >
           <Routes>
-            {/* Экран входа и регистрации без BottomNav */}
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
-            {/* Защищённые экраны */}
             <Route
               path="/my-assets"
               element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>}
@@ -109,7 +112,6 @@ function App() {
             />
           </Routes>
 
-          {/* BottomNav только для авторизованных */}
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&
