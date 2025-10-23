@@ -49,139 +49,136 @@ function AppContent() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ РАЗНЫЕ НАСТРОЙКИ ДЛЯ iOS И ДРУГИХ ПЛАТФОРМ
+    // ✅ УЛУЧШЕННАЯ ПРОВЕРКА TELEGRAM CONTEXT
     const initTelegramApp = () => {
-      if (window.Telegram?.WebApp) {
+      // Проверяем несколько способов определения Telegram WebApp
+      const isInTelegram = (
+        window.Telegram?.WebApp || 
+        window.TelegramWebviewProxy || 
+        navigator.userAgent.includes('Telegram')
+      );
+
+      if (isInTelegram && window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp;
         setIsTelegramWebApp(true);
         
-        const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+        console.log('🟢 Telegram WebApp обнаружен');
+        console.log('📊 Платформа:', tg.platform);
+        console.log('📊 Init Data:', tg.initData ? 'Есть' : 'Нет');
+        console.log('📊 Init Data Unsafe:', tg.initDataUnsafe ? 'Есть' : 'Нет');
+
+        // ✅ ВАЖНО: Проверяем что это действительно WebApp а не просто чат
+        const isRealWebApp = tg.initData || tg.initDataUnsafe;
         
-        console.log('📱 Платформа:', tg.platform);
-        console.log('🍎 iOS:', isIOS);
-        console.log('📊 Версия:', tg.version);
-
-        // Готовим приложение
-        tg.ready();
-
-        // ✅ ОБЩИЕ НАСТРОЙКИ ДЛЯ ВСЕХ ПЛАТФОРМ
-        const forceExpand = () => {
-          tg.expand();
-          tg.disableVerticalSwipes();
-        };
-
-        // Мгновенное разворачивание
-        forceExpand();
-
-        // ✅ НАСТРОЙКИ ДЛЯ WINDOWS/ANDROID/WEB
-        if (!isIOS) {
-          console.log('🖥️ Настройка для Windows/Android');
+        if (isRealWebApp) {
+          console.log('🚀 Это настоящий WebApp - включаем защиту');
           
-          // Скрываем шапку (работает на Windows/Android)
-          tg.setHeaderColor('bg_color');
+          // 1. Готовим приложение
+          tg.ready();
+
+          // 2. ✅ СИЛЬНАЯ ЗАЩИТА ОТ СВАЙПА
+          const enableProtection = () => {
+            tg.expand();
+            tg.disableVerticalSwipes(); // Блокируем свайп вниз
+            tg.enableClosingConfirmation(); // Подтверждение закрытия
+            
+            // Скрываем шапку если не iOS
+            if (!/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+              tg.setHeaderColor('bg_color');
+            }
+          };
+
+          // 3. ✅ МГНОВЕННО ВКЛЮЧАЕМ ЗАЩИТУ
+          enableProtection();
+
+          // 4. ✅ АГРЕССИВНАЯ ЗАЩИТА - МНОГОКРАТНО ВЫЗЫВАЕМ
+          const protectionDelays = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+                                   150, 200, 250, 300, 400, 500, 600, 700, 800, 900, 1000,
+                                   1500, 2000, 2500, 3000, 4000, 5000];
           
-          // Агрессивное разворачивание
-          const expandDelays = [10, 50, 100, 200, 300, 500, 800, 1000];
-          expandDelays.forEach(delay => {
-            setTimeout(forceExpand, delay);
+          protectionDelays.forEach(delay => {
+            setTimeout(enableProtection, delay);
           });
-        } 
-        // ✅ НАСТРОЙКИ ДЛЯ iOS
-        else {
-          console.log('🍎 Настройка для iOS');
-          
-          // На iOS сворачивание нельзя полностью отключить
-          // Но можно минимизировать эффект
-          
-          // На iOS чаще вызываем разворачивание
-          const iosExpandDelays = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
-                                  150, 200, 250, 300, 350, 400, 450, 500,
-                                  600, 700, 800, 900, 1000, 1500, 2000];
-          
-          iosExpandDelays.forEach(delay => {
-            setTimeout(forceExpand, delay);
-          });
-          
-          // На iOS интервал короче
-          const expandInterval = setInterval(() => {
-            forceExpand();
-          }, 300);
 
-          // Дополнительная защита для iOS
-          const handleIOSInteraction = () => {
-            setTimeout(forceExpand, 10);
+          // 5. ✅ ПОСТОЯННЫЙ КОНТРОЛЬ КАЖДЫЕ 100ms
+          const protectionInterval = setInterval(() => {
+            enableProtection();
+          }, 100);
+
+          // 6. ✅ ЗАЩИТА ПРИ ЛЮБОМ ВЗАИМОДЕЙСТВИИ
+          const handleInteraction = () => {
+            setTimeout(enableProtection, 10);
           };
           
-          document.addEventListener('touchstart', handleIOSInteraction);
-          document.addEventListener('click', handleIOSInteraction);
+          document.addEventListener('click', handleInteraction);
+          document.addEventListener('touchstart', handleInteraction);
+          document.addEventListener('scroll', handleInteraction);
+          document.addEventListener('mousedown', handleInteraction);
+
+          // 7. ✅ КНОПКА НАЗАД
+          tg.BackButton.show();
+          tg.BackButton.onClick(() => {
+            if (window.history.length > 1) {
+              window.history.back();
+            } else {
+              if (confirm('Вы уверены, что хотите закрыть приложение?')) {
+                tg.close();
+              }
+            }
+          });
+
+          // 8. ✅ ЗАЩИТА ОТ ИЗМЕНЕНИЯ РАЗМЕРА
+          tg.onEvent('viewportChanged', (event) => {
+            console.log('🔄 Viewport изменен:', event);
+            if (!event.isExpanded) {
+              setTimeout(enableProtection, 10);
+            }
+          });
 
           return () => {
-            clearInterval(expandInterval);
-            document.removeEventListener('touchstart', handleIOSInteraction);
-            document.removeEventListener('click', handleIOSInteraction);
+            clearInterval(protectionInterval);
+            document.removeEventListener('click', handleInteraction);
+            document.removeEventListener('touchstart', handleInteraction);
+            document.removeEventListener('scroll', handleInteraction);
+            document.removeEventListener('mousedown', handleInteraction);
           };
+        } else {
+          console.log('⚠️ Это чат с ботом, а не WebApp - защита не активирована');
         }
-
-        // ✅ ОБЩИЕ НАСТРОЙКИ ДЛЯ ВСЕХ
-        tg.enableClosingConfirmation();
-
-        tg.BackButton.show();
-        tg.BackButton.onClick(() => {
-          if (window.history.length > 1) {
-            window.history.back();
-          } else {
-            if (confirm('Вы уверены, что хотите закрыть приложение?')) {
-              tg.close();
-            }
-          }
-        });
-
-        tg.onEvent('viewportChanged', (event) => {
-          if (!event.isExpanded) {
-            setTimeout(forceExpand, 10);
-          }
-        });
-
       } else {
-        console.log('🔴 Telegram WebApp не обнаружен');
+        console.log('🔴 Telegram не обнаружен - работаем в браузере');
       }
     };
 
     initTelegramApp();
 
-    // ✅ ОСОБЫЕ СТИЛИ ДЛЯ iOS
+    // ✅ НАСТРОЙКА ВЫСОТЫ
     const setAppHeight = () => {
       const docEl = document.documentElement;
-      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-      
-      if (isIOS) {
-        // Для iOS специальные стили
-        docEl.style.height = '100vh';
-        docEl.style.minHeight = '-webkit-fill-available';
-      } else {
-        // Для других платформ
-        docEl.style.height = '100vh';
-        docEl.style.minHeight = '100vh';
-      }
+      docEl.style.height = '100vh';
+      docEl.style.minHeight = '100vh';
+      docEl.style.overflow = 'hidden';
     };
 
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
-    window.addEventListener('orientationchange', setAppHeight);
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
-      window.removeEventListener('orientationchange', setAppHeight);
     };
   }, []);
 
+  // ✅ ЗАЩИТА ПРИ СМЕНЕ СТРАНИЦ
   useEffect(() => {
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
-      setTimeout(() => {
-        tg.expand();
-        tg.disableVerticalSwipes();
-      }, 50);
+      // Проверяем что это WebApp а не чат
+      if (tg.initData || tg.initDataUnsafe) {
+        setTimeout(() => {
+          tg.expand();
+          tg.disableVerticalSwipes();
+        }, 50);
+      }
     }
   }, [window.location.pathname]);
 
@@ -189,24 +186,18 @@ function AppContent() {
     <Router>
       <StartAppHandler />
       
-      {/* ✅ РАЗНЫЕ СТИЛИ ДЛЯ iOS И ДРУГИХ */}
       <div 
         className="app-wrapper bg-primary text-white font-sans w-full"
         style={{
           height: '100vh',
-          minHeight: /iPhone|iPad|iPod/.test(navigator.userAgent) ? '-webkit-fill-available' : '100vh',
+          minHeight: '100vh',
           overflow: 'hidden',
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: '#0b1120',
-          // ✅ Дополнительные стили для iOS чтобы скрыть шапку
-          ...(/iPhone|iPad|iPod/.test(navigator.userAgent) && {
-            paddingTop: 'env(safe-area-inset-top)',
-            paddingBottom: 'env(safe-area-inset-bottom)'
-          })
+          backgroundColor: '#0b1120'
         }}
       >
         <div 
