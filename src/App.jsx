@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useContext } from 'react';
 import { AppProvider, AppContext } from './contexts/AppContext';
 import BottomNav from './components/BottomNav';
@@ -11,6 +11,34 @@ import ProfileScreen from './screens/ProfileScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
+
+function StartAppHandler() {
+  const navigate = useNavigate();
+  const { state } = useContext(AppContext);
+
+  useEffect(() => {
+    // ✅ ОБРАБОТКА STARTAPP ПАРАМЕТРА ДЛЯ КНОПКИ "WALLET"
+    const urlParams = new URLSearchParams(window.location.search);
+    const startAppParam = urlParams.get('startapp');
+    
+    if (startAppParam) {
+      console.log('StartApp parameter:', startAppParam);
+      
+      // Если параметр содержит "wallet" - перенаправляем на соответствующий экран
+      if (startAppParam.includes('wallet')) {
+        if (state.isAuthenticated) {
+          // Если пользователь авторизован - открываем кошелек
+          navigate('/my-assets');
+        } else {
+          // Если не авторизован - на логин
+          navigate('/login');
+        }
+      }
+    }
+  }, [navigate, state.isAuthenticated]);
+
+  return null;
+}
 
 function ProtectedRoute({ children }) {
   return (
@@ -35,6 +63,7 @@ function AppContent() {
       setIsTelegramWebApp(true);
       
       console.log('Telegram WebApp initialized');
+      console.log('Start parameters:', tg.initData);
       
       // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
       tg.disableVerticalSwipes();
@@ -43,7 +72,6 @@ function AppContent() {
       tg.expand();
       tg.ready();
       
-      // 🔒 ДОПОЛНИТЕЛЬНЫЕ РАЗВОРАЧИВАНИЯ С ЗАДЕРЖКОЙ
       setTimeout(() => tg.expand(), 100);
       setTimeout(() => tg.expand(), 500);
       setTimeout(() => tg.expand(), 1000);
@@ -58,7 +86,7 @@ function AppContent() {
         }
       }, 2000);
 
-      // Обработка кнопки "Назад"
+      // Кнопка "Назад"
       tg.BackButton.show();
       tg.BackButton.onClick(() => {
         if (window.history.length > 1) {
@@ -70,7 +98,7 @@ function AppContent() {
         }
       });
 
-      // 🔒 Защита от изменения размера
+      // Защита от изменения размера
       tg.onEvent('viewportChanged', (event) => {
         console.log('Viewport changed:', event);
         if (!event.isExpanded) {
@@ -86,7 +114,7 @@ function AppContent() {
       };
     }
 
-    // ✅ Функция установки высоты
+    // Функция установки высоты
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -104,29 +132,17 @@ function AppContent() {
   useEffect(() => {
     if (window.Telegram?.WebApp && state.isAuthenticated) {
       const tg = window.Telegram.WebApp;
-      
-      // Обновляем защиту после авторизации
       tg.disableVerticalSwipes();
       tg.expand();
-      
-      // Дополнительное разворачивание
       setTimeout(() => tg.expand(), 300);
     }
   }, [state.isAuthenticated]);
 
-  // 🔒 Защита при смене маршрутов
-  useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-      setTimeout(() => {
-        tg.expand();
-        tg.disableVerticalSwipes();
-      }, 100);
-    }
-  }, [window.location.pathname]);
-
   return (
     <Router>
+      {/* ✅ Обработчик startapp параметров */}
+      <StartAppHandler />
+      
       <div className="app-wrapper bg-primary text-white font-sans min-h-screen w-full">
         <div className="content-area min-h-screen pb-16">
           <Routes>
