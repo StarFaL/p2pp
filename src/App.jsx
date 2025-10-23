@@ -50,7 +50,7 @@ function AppContent() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ УСИЛЕННАЯ ЗАЩИТА ОТ СВОРАЧИВАНИЯ
+    // ✅ УСИЛЕННАЯ ЗАЩИТА ОТ СВОРАЧИВАНИЯ И ШАПКИ
     const initTelegramApp = () => {
       if (window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp;
@@ -66,15 +66,20 @@ function AppContent() {
         // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
         tg.disableVerticalSwipes();
         
+        // 🔒 СКРЫВАЕМ ШАПКУ TELEGRAM
+        tg.setHeaderColor('bg_color'); // Скрываем шапку
+        tg.setBackgroundColor('#0b1120'); // Цвет как у твоего фона
+        
         // 🔒 АГРЕССИВНОЕ РАЗВОРАЧИВАНИЕ
         tg.ready();
         tg.expand(); // Основное разворачивание
         
-        // Многократное разворачивание с разными задержками
-        const expandAttempts = [100, 200, 300, 500, 800, 1000, 1500, 2000];
+        // 🔒 МНОГОКРАТНОЕ РАЗВОРАЧИВАНИЕ С РАЗНЫМИ ЗАДЕРЖКАМИ
+        const expandAttempts = [50, 100, 150, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000];
         expandAttempts.forEach(delay => {
           setTimeout(() => {
             tg.expand();
+            tg.disableVerticalSwipes();
             console.log(`🔄 Разворачивание попытка через ${delay}ms`);
           }, delay);
         });
@@ -89,7 +94,7 @@ function AppContent() {
             tg.expand();
             tg.disableVerticalSwipes();
           }
-        }, 1000);
+        }, 500); // Проверяем каждые 500ms
 
         // Кнопка "Назад"
         tg.BackButton.show();
@@ -118,7 +123,7 @@ function AppContent() {
         // 🔒 ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА ПРИ КЛИКАХ
         const handleUserInteraction = () => {
           if (!tg.isExpanded) {
-            tg.expand();
+            setTimeout(() => tg.expand(), 10);
           }
         };
         
@@ -145,6 +150,7 @@ function AppContent() {
       docEl.style.setProperty('--vh', `${vh}px`);
       // Принудительно устанавливаем высоту
       docEl.style.height = `${window.innerHeight}px`;
+      docEl.style.overflow = 'hidden';
     };
 
     setAppHeight();
@@ -164,6 +170,7 @@ function AppContent() {
       console.log('🔒 Обновление защиты после авторизации');
       tg.disableVerticalSwipes();
       tg.expand();
+      tg.setHeaderColor('bg_color');
       
       // Дополнительные разворачивания
       setTimeout(() => tg.expand(), 100);
@@ -186,8 +193,21 @@ function AppContent() {
     <Router>
       <StartAppHandler />
       
-      <div className="app-wrapper bg-primary text-white font-sans min-h-screen w-full">
-        <div className="content-area min-h-screen pb-16">
+      <div 
+        className="app-wrapper bg-primary text-white font-sans w-full"
+        style={{
+          height: '100vh',
+          minHeight: '100vh',
+          overflow: 'hidden'
+        }}
+      >
+        <div 
+          className="content-area w-full overflow-auto"
+          style={{
+            height: 'calc(100vh - 4rem)',
+            paddingBottom: '4rem'
+          }}
+        >
           <Routes>
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
