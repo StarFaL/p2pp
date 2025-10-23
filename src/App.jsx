@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useEffect, useState, useContext } from 'react'; // ✅ Добавили useContext
+import { useEffect, useState, useContext } from 'react';
 import { AppProvider, AppContext } from './contexts/AppContext';
 import BottomNav from './components/BottomNav';
 import LoginScreen from './screens/LoginScreen';
@@ -12,7 +12,6 @@ import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
-// 🔧 ProtectedRoute с использованием Consumer
 function ProtectedRoute({ children }) {
   return (
     <AppContext.Consumer>
@@ -23,78 +22,122 @@ function ProtectedRoute({ children }) {
   );
 }
 
-// 🔧 Основной контент приложения
 function AppContent() {
   const [isTelegramWebApp, setIsTelegramWebApp] = useState(false);
-  const { state } = useContext(AppContext); // ✅ Теперь useContext импортирован
+  const { state } = useContext(AppContext);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ Инициализация Telegram WebApp с защитой от сворачивания
+    // ✅ ПРАВИЛЬНАЯ инициализация Telegram WebApp
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       setIsTelegramWebApp(true);
       
-      console.log('Telegram WebApp initialized');
+      console.log('Telegram WebApp initialized:', {
+        platform: tg.platform,
+        viewportHeight: tg.viewportHeight,
+        viewportStableHeight: tg.viewportStableHeight,
+        isExpanded: tg.isExpanded
+      });
+
+      // 🔴 ВАЖНО: Сначала ready(), потом expand()
+      tg.ready(); // Сообщаем Telegram что приложение готово
       
-      // 🔒 ЗАПРЕТ СВОРАЧИВАНИЯ СВАЙПОМ ВНИЗ
-      tg.disableVerticalSwipes();
+      // 🔴 ОСНОВНОЕ: Принудительно разворачиваем на весь экран
+      tg.expand(); // Разворачиваем на весь экран
       
-      // Полноэкранный режим
-      tg.expand();
-      tg.ready();
+      // 🔴 ЗАПРЕТ СВОРАЧИВАНИЯ
+      tg.disableVerticalSwipes(); // Блокируем свайп вниз
       
-      // 🔒 Дополнительная защита
-      tg.enableClosingConfirmation();
-      
-      // Кнопка "Назад"
-      tg.BackButton.show();
-      tg.BackButton.onClick(() => {
-        if (window.history.length > 1) {
-          window.history.back();
-        } else {
-          if (confirm('Вы уверены, что хотите закрыть приложение?')) {
-            tg.close();
-          }
+      // 🔴 Подтверждение закрытия
+      tg.enableClosingConfirmation(); // Запрос подтверждения при закрытии
+
+      // 🔴 Скрываем кнопку назад если не нужно
+      // tg.BackButton.hide(); // Раскомментируйте если не нужна кнопка назад
+
+      // 🔴 Обработка изменений размера окна
+      tg.onEvent('viewportChanged', (event) => {
+        console.log('Viewport changed:', event);
+        if (!event.isExpanded) {
+          // Если окно свернули - немедленно разворачиваем обратно
+          setTimeout(() => {
+            tg.expand();
+          }, 50);
         }
       });
 
-      // Защита от изменения размера
-      tg.onEvent('viewportChanged', (event) => {
-        if (!event.isExpanded) {
-          setTimeout(() => tg.expand(), 100);
+      // 🔴 Дополнительная защита - периодическая проверка
+      const checkViewport = setInterval(() => {
+        if (!tg.isExpanded) {
+          tg.expand();
+        }
+      }, 1000);
+
+      // 🔴 Настройка основной кнопки для закрытия
+      tg.MainButton.setText('ЗАКРЫТЬ');
+      tg.MainButton.onClick(() => {
+        if (confirm('Точно закрыть приложение?')) {
+          tg.close();
         }
       });
+
+      return () => {
+        clearInterval(checkViewport);
+      };
     }
 
-    // ✅ Установка высоты окна
+    // ✅ Настройка высоты для мобильных устройств
     const setAppHeight = () => {
+      const docEl = document.documentElement;
       const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
+      docEl.style.setProperty('--vh', `${vh}px`);
+      
+      // Принудительно устанавливаем высоту
+      docEl.style.height = `${window.innerHeight}px`;
     };
 
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
+      window.removeEventListener('orientationchange', setAppHeight);
     };
   }, []);
 
-  // 🔒 Обновление защиты после авторизации
+  // 🔴 Повторная активация защиты при смене маршрутов
   useEffect(() => {
-    if (window.Telegram?.WebApp && state.isAuthenticated) {
+    if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
-      tg.disableVerticalSwipes();
-      tg.expand();
+      
+      // Всегда разворачиваем и блокируем свайпы
+      setTimeout(() => {
+        tg.expand();
+        tg.disableVerticalSwipes();
+      }, 100);
     }
-  }, [state.isAuthenticated]);
+  }, [window.location.pathname]); // Срабатывает при смене страниц
 
   return (
     <Router>
-      <div className="app-wrapper bg-primary text-white font-sans min-h-screen w-full">
-        <div className="content-area min-h-screen pb-16">
+      {/* ✅ Принудительно устанавливаем высоту */}
+      <div 
+        className="app-wrapper bg-primary text-white font-sans w-full"
+        style={{ 
+          minHeight: '100vh',
+          height: '100vh',
+          overflow: 'hidden'
+        }}
+      >
+        <div 
+          className="content-area w-full overflow-auto"
+          style={{ 
+            height: 'calc(100vh - 4rem)',
+            paddingBottom: '4rem'
+          }}
+        >
           <Routes>
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
@@ -131,7 +174,7 @@ function AppContent() {
           </Routes>
         </div>
 
-        {/* BottomNav только для авторизованных пользователей */}
+        {/* BottomNav */}
         {state.isAuthenticated &&
           !['/login', '/register'].includes(window.location.pathname) && (
             <BottomNav />
@@ -141,7 +184,6 @@ function AppContent() {
   );
 }
 
-// 🔧 Главный компонент App
 function App() {
   return (
     <AppProvider>
