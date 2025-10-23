@@ -17,7 +17,6 @@ function StartAppHandler() {
   const { state } = useContext(AppContext);
 
   useEffect(() => {
-    // Обработка startapp параметра
     const urlParams = new URLSearchParams(window.location.search);
     const startAppParam = urlParams.get('startapp');
     
@@ -50,53 +49,82 @@ function AppContent() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ УСИЛЕННАЯ ЗАЩИТА ОТ СВОРАЧИВАНИЯ И ШАПКИ
+    // ✅ РАЗНЫЕ НАСТРОЙКИ ДЛЯ iOS И ДРУГИХ ПЛАТФОРМ
     const initTelegramApp = () => {
       if (window.Telegram?.WebApp) {
         const tg = window.Telegram.WebApp;
         setIsTelegramWebApp(true);
         
-        console.log('🟢 Telegram WebApp инициализирован');
-        console.log('📊 Статус:', {
-          isExpanded: tg.isExpanded,
-          platform: tg.platform,
-          viewportHeight: tg.viewportHeight
-        });
+        const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
         
-        // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
-        tg.disableVerticalSwipes();
-        
-        // 🔒 СКРЫВАЕМ ШАПКУ TELEGRAM
-        tg.setHeaderColor('bg_color'); // Скрываем шапку
-        tg.setBackgroundColor('#0b1120'); // Цвет как у твоего фона
-        
-        // 🔒 АГРЕССИВНОЕ РАЗВОРАЧИВАНИЕ
-        tg.ready();
-        tg.expand(); // Основное разворачивание
-        
-        // 🔒 МНОГОКРАТНОЕ РАЗВОРАЧИВАНИЕ С РАЗНЫМИ ЗАДЕРЖКАМИ
-        const expandAttempts = [50, 100, 150, 200, 300, 500, 800, 1000, 1500, 2000, 3000, 5000];
-        expandAttempts.forEach(delay => {
-          setTimeout(() => {
-            tg.expand();
-            tg.disableVerticalSwipes();
-            console.log(`🔄 Разворачивание попытка через ${delay}ms`);
-          }, delay);
-        });
-        
-        // 🔒 Подтверждение закрытия
-        tg.enableClosingConfirmation();
-        
-        // 🔒 ПОСТОЯННЫЙ КОНТРОЛЬ РАЗВОРАЧИВАНИЯ
-        const expandInterval = setInterval(() => {
-          if (!tg.isExpanded) {
-            console.log('⚠️ Обнаружено сворачивание - разворачиваю обратно');
-            tg.expand();
-            tg.disableVerticalSwipes();
-          }
-        }, 500); // Проверяем каждые 500ms
+        console.log('📱 Платформа:', tg.platform);
+        console.log('🍎 iOS:', isIOS);
+        console.log('📊 Версия:', tg.version);
 
-        // Кнопка "Назад"
+        // Готовим приложение
+        tg.ready();
+
+        // ✅ ОБЩИЕ НАСТРОЙКИ ДЛЯ ВСЕХ ПЛАТФОРМ
+        const forceExpand = () => {
+          tg.expand();
+          tg.disableVerticalSwipes();
+        };
+
+        // Мгновенное разворачивание
+        forceExpand();
+
+        // ✅ НАСТРОЙКИ ДЛЯ WINDOWS/ANDROID/WEB
+        if (!isIOS) {
+          console.log('🖥️ Настройка для Windows/Android');
+          
+          // Скрываем шапку (работает на Windows/Android)
+          tg.setHeaderColor('bg_color');
+          
+          // Агрессивное разворачивание
+          const expandDelays = [10, 50, 100, 200, 300, 500, 800, 1000];
+          expandDelays.forEach(delay => {
+            setTimeout(forceExpand, delay);
+          });
+        } 
+        // ✅ НАСТРОЙКИ ДЛЯ iOS
+        else {
+          console.log('🍎 Настройка для iOS');
+          
+          // На iOS сворачивание нельзя полностью отключить
+          // Но можно минимизировать эффект
+          
+          // На iOS чаще вызываем разворачивание
+          const iosExpandDelays = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+                                  150, 200, 250, 300, 350, 400, 450, 500,
+                                  600, 700, 800, 900, 1000, 1500, 2000];
+          
+          iosExpandDelays.forEach(delay => {
+            setTimeout(forceExpand, delay);
+          });
+          
+          // На iOS интервал короче
+          const expandInterval = setInterval(() => {
+            forceExpand();
+          }, 300);
+
+          // Дополнительная защита для iOS
+          const handleIOSInteraction = () => {
+            setTimeout(forceExpand, 10);
+          };
+          
+          document.addEventListener('touchstart', handleIOSInteraction);
+          document.addEventListener('click', handleIOSInteraction);
+
+          return () => {
+            clearInterval(expandInterval);
+            document.removeEventListener('touchstart', handleIOSInteraction);
+            document.removeEventListener('click', handleIOSInteraction);
+          };
+        }
+
+        // ✅ ОБЩИЕ НАСТРОЙКИ ДЛЯ ВСЕХ
+        tg.enableClosingConfirmation();
+
         tg.BackButton.show();
         tg.BackButton.onClick(() => {
           if (window.history.length > 1) {
@@ -108,49 +136,33 @@ function AppContent() {
           }
         });
 
-        // 🔒 СИЛЬНАЯ ЗАЩИТА ОТ ИЗМЕНЕНИЯ РАЗМЕРА
         tg.onEvent('viewportChanged', (event) => {
-          console.log('🔄 Viewport изменен:', event);
           if (!event.isExpanded) {
-            console.log('⚠️ Попытка сворачивания - блокирую');
-            setTimeout(() => {
-              tg.expand();
-              tg.disableVerticalSwipes();
-            }, 10);
+            setTimeout(forceExpand, 10);
           }
         });
 
-        // 🔒 ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА ПРИ КЛИКАХ
-        const handleUserInteraction = () => {
-          if (!tg.isExpanded) {
-            setTimeout(() => tg.expand(), 10);
-          }
-        };
-        
-        document.addEventListener('click', handleUserInteraction);
-        document.addEventListener('touchstart', handleUserInteraction);
-
-        return () => {
-          clearInterval(expandInterval);
-          document.removeEventListener('click', handleUserInteraction);
-          document.removeEventListener('touchstart', handleUserInteraction);
-        };
       } else {
-        console.log('🔴 Telegram WebApp не обнаружен - работаем в браузере');
+        console.log('🔴 Telegram WebApp не обнаружен');
       }
     };
 
-    // Запускаем инициализацию
     initTelegramApp();
 
-    // ✅ Настройка высоты для мобильных устройств
+    // ✅ ОСОБЫЕ СТИЛИ ДЛЯ iOS
     const setAppHeight = () => {
       const docEl = document.documentElement;
-      const vh = window.innerHeight * 0.01;
-      docEl.style.setProperty('--vh', `${vh}px`);
-      // Принудительно устанавливаем высоту
-      docEl.style.height = `${window.innerHeight}px`;
-      docEl.style.overflow = 'hidden';
+      const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
+      
+      if (isIOS) {
+        // Для iOS специальные стили
+        docEl.style.height = '100vh';
+        docEl.style.minHeight = '-webkit-fill-available';
+      } else {
+        // Для других платформ
+        docEl.style.height = '100vh';
+        docEl.style.minHeight = '100vh';
+      }
     };
 
     setAppHeight();
@@ -163,22 +175,6 @@ function AppContent() {
     };
   }, []);
 
-  // 🔒 Усиленная защита при авторизации
-  useEffect(() => {
-    if (window.Telegram?.WebApp && state.isAuthenticated) {
-      const tg = window.Telegram.WebApp;
-      console.log('🔒 Обновление защиты после авторизации');
-      tg.disableVerticalSwipes();
-      tg.expand();
-      tg.setHeaderColor('bg_color');
-      
-      // Дополнительные разворачивания
-      setTimeout(() => tg.expand(), 100);
-      setTimeout(() => tg.expand(), 500);
-    }
-  }, [state.isAuthenticated]);
-
-  // 🔒 Защита при смене маршрутов
   useEffect(() => {
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
@@ -193,18 +189,30 @@ function AppContent() {
     <Router>
       <StartAppHandler />
       
+      {/* ✅ РАЗНЫЕ СТИЛИ ДЛЯ iOS И ДРУГИХ */}
       <div 
         className="app-wrapper bg-primary text-white font-sans w-full"
         style={{
           height: '100vh',
-          minHeight: '100vh',
-          overflow: 'hidden'
+          minHeight: /iPhone|iPad|iPod/.test(navigator.userAgent) ? '-webkit-fill-available' : '100vh',
+          overflow: 'hidden',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: '#0b1120',
+          // ✅ Дополнительные стили для iOS чтобы скрыть шапку
+          ...(/iPhone|iPad|iPod/.test(navigator.userAgent) && {
+            paddingTop: 'env(safe-area-inset-top)',
+            paddingBottom: 'env(safe-area-inset-bottom)'
+          })
         }}
       >
         <div 
           className="content-area w-full overflow-auto"
           style={{
-            height: 'calc(100vh - 4rem)',
+            height: '100%',
             paddingBottom: '4rem'
           }}
         >
@@ -244,7 +252,6 @@ function AppContent() {
           </Routes>
         </div>
 
-        {/* BottomNav только для авторизованных пользователей */}
         {state.isAuthenticated &&
           !['/login', '/register'].includes(window.location.pathname) && (
             <BottomNav />
