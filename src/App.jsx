@@ -25,25 +25,23 @@ function App() {
     if (tg) {
       tg.ready();
 
-      const forceFullScreen = () => {
+      const setupTelegram = () => {
         try {
-          tg.expand(); // Разворачиваем на весь экран
-          tg.disableSwipeGesture(); // Запрещаем сворачивание сверху
-          tg.disableVerticalSwipes?.(); // Запрещаем вертикальные свайпы контента
+          tg.expand();                 // Разворачиваем на весь экран
+          tg.disableSwipeGesture();     // Запрет сворачивания сверху
+          tg.disableVerticalSwipes?.(); // Блокировка вертикальных свайпов
           document.body.style.overflow = 'hidden';
-          console.log('✅ Telegram WebApp expanded and swipes disabled');
         } catch (err) {
-          console.warn('Telegram WebApp expand/disable error:', err);
+          console.warn('Telegram WebApp setup error:', err);
         }
       };
 
-      // Telegram может игнорировать первый вызов — повторяем несколько раз
-      setTimeout(forceFullScreen, 200);
-      setTimeout(forceFullScreen, 1000);
-      setTimeout(forceFullScreen, 2000);
+      // Форсируем несколько раз, чтобы Telegram точно применил
+      setTimeout(setupTelegram, 200);
+      setTimeout(setupTelegram, 1000);
+      setTimeout(setupTelegram, 2000);
     }
 
-    // Принудительно выставляем высоту viewport
     const setAppHeight = () => {
       const realHeight =
         window.Telegram?.WebApp?.viewportHeight ||
