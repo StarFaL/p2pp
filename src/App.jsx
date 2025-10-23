@@ -29,115 +29,74 @@ function AppContent() {
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ ПРАВИЛЬНАЯ инициализация Telegram WebApp
+    // ✅ ПРОСТАЯ ИНИЦИАЛИЗАЦИЯ TELEGRAM WEBAPP
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       setIsTelegramWebApp(true);
       
-      console.log('Telegram WebApp initialized:', {
-        platform: tg.platform,
-        viewportHeight: tg.viewportHeight,
-        viewportStableHeight: tg.viewportStableHeight,
-        isExpanded: tg.isExpanded
+      console.log('Telegram WebApp initialized');
+      
+      // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
+      tg.disableVerticalSwipes();
+      
+      // Полноэкранный режим
+      tg.expand();
+      tg.ready();
+      
+      // 🔒 Дополнительная защита - подтверждение закрытия
+      tg.enableClosingConfirmation();
+      
+      // Обработка кнопки "Назад"
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          // Показываем подтверждение при попытке закрыть
+          if (confirm('Вы уверены, что хотите закрыть приложение?')) {
+            tg.close();
+          }
+        }
       });
 
-      // 🔴 ВАЖНО: Сначала ready(), потом expand()
-      tg.ready(); // Сообщаем Telegram что приложение готово
-      
-      // 🔴 ОСНОВНОЕ: Принудительно разворачиваем на весь экран
-      tg.expand(); // Разворачиваем на весь экран
-      
-      // 🔴 ЗАПРЕТ СВОРАЧИВАНИЯ
-      tg.disableVerticalSwipes(); // Блокируем свайп вниз
-      
-      // 🔴 Подтверждение закрытия
-      tg.enableClosingConfirmation(); // Запрос подтверждения при закрытии
-
-      // 🔴 Скрываем кнопку назад если не нужно
-      // tg.BackButton.hide(); // Раскомментируйте если не нужна кнопка назад
-
-      // 🔴 Обработка изменений размера окна
+      // 🔒 Дополнительная защита от изменения размера
       tg.onEvent('viewportChanged', (event) => {
-        console.log('Viewport changed:', event);
         if (!event.isExpanded) {
-          // Если окно свернули - немедленно разворачиваем обратно
-          setTimeout(() => {
-            tg.expand();
-          }, 50);
+          // Если попытались свернуть - сразу разворачиваем обратно
+          setTimeout(() => tg.expand(), 100);
         }
       });
-
-      // 🔴 Дополнительная защита - периодическая проверка
-      const checkViewport = setInterval(() => {
-        if (!tg.isExpanded) {
-          tg.expand();
-        }
-      }, 1000);
-
-      // 🔴 Настройка основной кнопки для закрытия
-      tg.MainButton.setText('ЗАКРЫТЬ');
-      tg.MainButton.onClick(() => {
-        if (confirm('Точно закрыть приложение?')) {
-          tg.close();
-        }
-      });
-
-      return () => {
-        clearInterval(checkViewport);
-      };
     }
 
-    // ✅ Настройка высоты для мобильных устройств
+    // ✅ Функция установки высоты
     const setAppHeight = () => {
-      const docEl = document.documentElement;
       const vh = window.innerHeight * 0.01;
-      docEl.style.setProperty('--vh', `${vh}px`);
-      
-      // Принудительно устанавливаем высоту
-      docEl.style.height = `${window.innerHeight}px`;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
 
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
-    window.addEventListener('orientationchange', setAppHeight);
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
-      window.removeEventListener('orientationchange', setAppHeight);
     };
   }, []);
 
-  // 🔴 Повторная активация защиты при смене маршрутов
+  // 🔒 Отслеживаем изменения авторизации для обновления защиты
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
+    if (window.Telegram?.WebApp && state.isAuthenticated) {
       const tg = window.Telegram.WebApp;
       
-      // Всегда разворачиваем и блокируем свайпы
-      setTimeout(() => {
-        tg.expand();
-        tg.disableVerticalSwipes();
-      }, 100);
+      // Обновляем защиту после авторизации
+      tg.disableVerticalSwipes();
+      tg.expand();
     }
-  }, [window.location.pathname]); // Срабатывает при смене страниц
+  }, [state.isAuthenticated]);
 
   return (
     <Router>
-      {/* ✅ Принудительно устанавливаем высоту */}
-      <div 
-        className="app-wrapper bg-primary text-white font-sans w-full"
-        style={{ 
-          minHeight: '100vh',
-          height: '100vh',
-          overflow: 'hidden'
-        }}
-      >
-        <div 
-          className="content-area w-full overflow-auto"
-          style={{ 
-            height: 'calc(100vh - 4rem)',
-            paddingBottom: '4rem'
-          }}
-        >
+      <div className="app-wrapper bg-primary text-white font-sans min-h-screen w-full">
+        <div className="content-area min-h-screen pb-16">
           <Routes>
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
@@ -174,7 +133,7 @@ function AppContent() {
           </Routes>
         </div>
 
-        {/* BottomNav */}
+        {/* BottomNav только для авторизованных пользователей */}
         {state.isAuthenticated &&
           !['/login', '/register'].includes(window.location.pathname) && (
             <BottomNav />
