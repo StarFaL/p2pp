@@ -18,65 +18,36 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
+  // Устанавливаем реальную высоту экрана (чтобы не прыгало при клавиатуре)
   useEffect(() => {
-    const tg = window.Telegram?.WebApp;
     document.documentElement.classList.add('dark');
 
-    if (tg) {
-      tg.ready();
-      tg.expand(); // Сразу
-      
-      // Повтор для inline-кнопки
-      const expand = () => tg.expand();
-      setTimeout(expand, 100);
-      setTimeout(expand, 500);
-      setTimeout(expand, 1000);
-      
-      tg.disableSwipeGesture();
-      tg.disableVerticalSwipes?.();
-      document.body.style.overflow = 'hidden';
-    }
-
     const setAppHeight = () => {
-      const realHeight =
-        window.Telegram?.WebApp?.viewportHeight ||
-        window.visualViewport?.height ||
-        window.innerHeight;
-      const vh = realHeight * 0.01;
+      const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
-      document.body.style.height = `${realHeight}px`;
     };
 
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
-    window.visualViewport?.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
-      window.visualViewport?.removeEventListener('resize', setAppHeight);
+      window.removeEventListener('orientationchange', setAppHeight);
     };
   }, []);
 
   return (
     <AppProvider>
       <Router>
-        <div
-          id="app-container"
-          className="app-wrapper bg-[#0b1120] text-white font-sans flex flex-col"
-          style={{
-            height: 'calc(var(--vh, 1vh) * 100)',
-            width: '100%',
-            overflow: 'hidden',
-            position: 'absolute',
-            inset: 0,
-            backgroundColor: '#0b1120',
-          }}
-        >
+        <div className="app-wrapper bg-primary text-white font-sans" style={{ height: 'calc(var(--vh, 1vh) * 100)', overflow: 'hidden' }}>
           <Routes>
+            {/* Экран входа и регистрации без BottomNav */}
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
+            {/* Защищённые экраны с BottomNav */}
             <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
             <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
             <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
@@ -86,12 +57,10 @@ function App() {
             <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
           </Routes>
 
+          {/* BottomNav только для авторизованных пользователей и не на экранах Login/Register */}
           <AppContext.Consumer>
             {({ state }) =>
-              state.isAuthenticated &&
-              !['/login', '/register'].includes(window.location.pathname) && (
-                <BottomNav />
-              )
+              state.isAuthenticated && !['/login', '/register'].includes(window.location.pathname) && <BottomNav />
             }
           </AppContext.Consumer>
         </div>

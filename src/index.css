@@ -11,38 +11,23 @@ body,
 .app-wrapper {
   margin: 0;
   padding: 0;
+  height: calc(var(--vh, 1vh) * 100);
   width: 100%;
-
-  /* Telegram WebApp full height priority */
-  height: var(--tg-viewport-height, 100dvh);
-  overflow: hidden;
+  overflow: hidden; /* фиксируем отсутствие скролла */
   background-color: #0f172a;
   -webkit-text-size-adjust: none;
-  touch-action: manipulation;
 }
 
-/* Фиксируем контейнер на весь экран */
-body,
-.app-wrapper {
-  position: absolute; /* вместо fixed — чтобы Telegram корректно растягивал */
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-/* Убираем выделение */
 * {
   -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
 }
 
-/* Тёмная тема */
+/* --- 🌙 Тёмная тема --- */
 body {
   @apply dark:bg-primary dark:text-white;
 }
 
-/* Мобильная адаптация */
+/* --- 📱 Адаптация под мобильные экраны --- */
 @media (max-width: 768px) {
   body {
     @apply text-sm leading-relaxed;
@@ -54,15 +39,4 @@ body {
   textarea {
     @apply w-full text-base py-3 px-3 rounded-xl;
   }
-}
-
-/* Telegram клавиатура fix */
-:root {
-  --vh: 100%;
-}
-
-/* Убираем серые полосы при focus */
-input,
-textarea {
-  background-clip: padding-box;
 }
