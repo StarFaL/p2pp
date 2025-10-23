@@ -20,7 +20,6 @@ export default function LoginScreen() {
     const user = window.Telegram.WebApp.initDataUnsafe?.user;
 
     if (user) {
-      // Авторизация и переход на MyAssetsScreen
       dispatch({ type: 'LOGIN', payload: { email: user.username || user.id } });
       navigate('/my-assets');
     } else {
@@ -33,8 +32,10 @@ export default function LoginScreen() {
   };
 
   return (
-    <div className="fixed inset-0 bg-[#0b1120] w-full h-full flex justify-center items-center">
-      <div className="w-full sm:max-w-sm p-6 bg-[#24304a] rounded-2xl shadow-md text-center">
+    <div className="fixed inset-0 bg-[#0b1120] w-full h-full flex justify-center items-center px-4 sm:px-6 md:px-8">
+      {/* адаптивные отступы по бокам ↑ */}
+
+      <div className="w-full max-w-sm p-6 sm:p-8 bg-[#24304a] rounded-2xl shadow-md text-center">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-white">
           Вход через Telegram
         </h1>

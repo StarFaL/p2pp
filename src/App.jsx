@@ -21,6 +21,13 @@ function App() {
   // Устанавливаем реальную высоту экрана (чтобы не прыгало при клавиатуре)
   useEffect(() => {
     document.documentElement.classList.add('dark');
+     // Проверяем, запущено ли приложение внутри Telegram
+  const tg = window.Telegram?.WebApp;
+
+  if (tg) {
+    tg.ready(); // Сообщаем Telegram, что приложение загружено
+    setTimeout(() => tg.expand(), 300); // Просим Telegram развернуть WebApp во весь экран
+  };
 
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
