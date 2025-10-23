@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AppProvider, AppContext } from './contexts/AppContext';
 import BottomNav from './components/BottomNav';
 import LoginScreen from './screens/LoginScreen';
@@ -18,82 +18,88 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
- useEffect(() => {
-  document.documentElement.classList.add('dark');
+  const [isTelegramWebApp, setIsTelegramWebApp] = useState(false);
 
-  // ✅ Telegram Mini App — полноэкранный режим
-  if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp;
-    tg.ready();
-    tg.expand(); // принудительно делает fullscreen
-  }
+  useEffect(() => {
+    document.documentElement.classList.add('dark');
 
-  // ✅ Правильная высота экрана под клавиатуру / разные устройства
-  const setAppHeight = () => {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-  };
+    // ✅ Упрощенная инициализация Telegram WebApp
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+      setIsTelegramWebApp(true);
+      
+      console.log('Telegram WebApp initialized');
+      
+      // Минимальные настройки для полноэкранного режима
+      tg.expand();
+      tg.ready();
+      
+      // Простая настройка кнопки "Назад"
+      tg.BackButton.show();
+      tg.BackButton.onClick(() => {
+        if (window.history.length > 1) {
+          window.history.back();
+        } else {
+          tg.close();
+        }
+      });
+    }
 
-  setAppHeight();
-  window.addEventListener('resize', setAppHeight);
-  window.addEventListener('orientationchange', setAppHeight);
+    // ✅ Простая функция установки высоты
+    const setAppHeight = () => {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    };
 
-  return () => {
-    window.removeEventListener('resize', setAppHeight);
-    window.removeEventListener('orientationchange', setAppHeight);
-  };
-}, []);
+    setAppHeight();
+    window.addEventListener('resize', setAppHeight);
 
+    return () => {
+      window.removeEventListener('resize', setAppHeight);
+    };
+  }, []);
 
   return (
     <AppProvider>
       <Router>
-        <div
-  className="app-wrapper bg-primary text-white font-sans flex flex-col"
-  style={{
-    minHeight: 'calc(var(--vh, 1vh) * 100)',
-    width: '100%',
-    overflowX: 'hidden',
-    overflowY: 'auto',
-    touchAction: 'manipulation',
-  }}
->
-          <Routes>
-            {/* Экран входа и регистрации без BottomNav */}
-            <Route path="/login" element={<LoginScreen />} />
-            <Route path="/register" element={<RegisterScreen />} />
-            <Route path="/" element={<Navigate to="/login" />} />
+        {/* Упрощенный контейнер без сложных стилей */}
+        <div className="app-wrapper bg-primary text-white font-sans min-h-screen w-full">
+          <div className="content-area min-h-screen pb-16"> {/* Добавляем отступ для BottomNav */}
+            <Routes>
+              <Route path="/login" element={<LoginScreen />} />
+              <Route path="/register" element={<RegisterScreen />} />
+              <Route path="/" element={<Navigate to="/login" />} />
 
-            {/* Защищённые экраны с BottomNav */}
-            <Route
-              path="/my-assets"
-              element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/market"
-              element={<ProtectedRoute><MarketScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/create-offer"
-              element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/trade-details/:id"
-              element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/profile"
-              element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/dashboard"
-              element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/transaction-history"
-              element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>}
-            />
-          </Routes>
+              <Route
+                path="/my-assets"
+                element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>}
+              />
+              <Route
+                path="/market"
+                element={<ProtectedRoute><MarketScreen /></ProtectedRoute>}
+              />
+              <Route
+                path="/create-offer"
+                element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>}
+              />
+              <Route
+                path="/trade-details/:id"
+                element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>}
+              />
+              <Route
+                path="/profile"
+                element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard"
+                element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>}
+              />
+              <Route
+                path="/transaction-history"
+                element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>}
+              />
+            </Routes>
+          </div>
 
           {/* BottomNav только для авторизованных пользователей */}
           <AppContext.Consumer>
