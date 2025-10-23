@@ -19,33 +19,51 @@ function ProtectedRoute({ children }) {
 
 function App() {
   const [isTelegramWebApp, setIsTelegramWebApp] = useState(false);
+  const { state } = useContext(AppContext);
 
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ Упрощенная инициализация Telegram WebApp
+    // ✅ Улучшенная инициализация Telegram WebApp с защитой от сворачивания
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp;
       setIsTelegramWebApp(true);
       
       console.log('Telegram WebApp initialized');
       
-      // Минимальные настройки для полноэкранного режима
+      // 🔒 ОСНОВНОЕ: Запрещаем сворачивание жестом вниз
+      tg.disableVerticalSwipes();
+      
+      // Полноэкранный режим
       tg.expand();
       tg.ready();
       
-      // Простая настройка кнопки "Назад"
+      // 🔒 Дополнительная защита - подтверждение закрытия
+      tg.enableClosingConfirmation();
+      
+      // Обработка кнопки "Назад"
       tg.BackButton.show();
       tg.BackButton.onClick(() => {
         if (window.history.length > 1) {
           window.history.back();
         } else {
-          tg.close();
+          // Показываем подтверждение при попытке закрыть
+          if (confirm('Вы уверены, что хотите закрыть приложение?')) {
+            tg.close();
+          }
+        }
+      });
+
+      // 🔒 Дополнительная защита от изменения размера
+      tg.onEvent('viewportChanged', (event) => {
+        if (!event.isExpanded) {
+          // Если попытались свернуть - сразу разворачиваем обратно
+          setTimeout(() => tg.expand(), 100);
         }
       });
     }
 
-    // ✅ Простая функция установки высоты
+    // ✅ Функция установки высоты
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -59,12 +77,22 @@ function App() {
     };
   }, []);
 
+  // 🔒 Отслеживаем изменения авторизации для обновления защиты
+  useEffect(() => {
+    if (window.Telegram?.WebApp && state.isAuthenticated) {
+      const tg = window.Telegram.WebApp;
+      
+      // Обновляем защиту после авторизации
+      tg.disableVerticalSwipes();
+      tg.expand();
+    }
+  }, [state.isAuthenticated]);
+
   return (
     <AppProvider>
       <Router>
-        {/* Упрощенный контейнер без сложных стилей */}
         <div className="app-wrapper bg-primary text-white font-sans min-h-screen w-full">
-          <div className="content-area min-h-screen pb-16"> {/* Добавляем отступ для BottomNav */}
+          <div className="content-area min-h-screen pb-16">
             <Routes>
               <Route path="/login" element={<LoginScreen />} />
               <Route path="/register" element={<RegisterScreen />} />
