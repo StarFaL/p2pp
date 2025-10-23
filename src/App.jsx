@@ -18,42 +18,46 @@ function ProtectedRoute({ children }) {
 }
 
 function App() {
-  useEffect(() => {
-    document.documentElement.classList.add('dark');
+ useEffect(() => {
+  document.documentElement.classList.add('dark');
 
-    // ✅ Telegram Mini App fullscreen init
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand(); // принудительно открывает на весь экран
-    }
+  // ✅ Telegram Mini App — полноэкранный режим
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand(); // принудительно делает fullscreen
+  }
 
-    // ✅ фикс высоты (для клавиатуры и разных устройств)
-    const setAppHeight = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
+  // ✅ Правильная высота экрана под клавиатуру / разные устройства
+  const setAppHeight = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
 
-    setAppHeight();
-    window.addEventListener('resize', setAppHeight);
-    window.addEventListener('orientationchange', setAppHeight);
+  setAppHeight();
+  window.addEventListener('resize', setAppHeight);
+  window.addEventListener('orientationchange', setAppHeight);
 
-    return () => {
-      window.removeEventListener('resize', setAppHeight);
-      window.removeEventListener('orientationchange', setAppHeight);
-    };
-  }, []);
+  return () => {
+    window.removeEventListener('resize', setAppHeight);
+    window.removeEventListener('orientationchange', setAppHeight);
+  };
+}, []);
+
 
   return (
     <AppProvider>
       <Router>
         <div
-          className="app-wrapper bg-primary text-white font-sans"
-          style={{
-            height: 'calc(var(--vh, 1vh) * 100)',
-            overflow: 'hidden',
-          }}
-        >
+  className="app-wrapper bg-primary text-white font-sans flex flex-col"
+  style={{
+    minHeight: 'calc(var(--vh, 1vh) * 100)',
+    width: '100%',
+    overflowX: 'hidden',
+    overflowY: 'auto',
+    touchAction: 'manipulation',
+  }}
+>
           <Routes>
             {/* Экран входа и регистрации без BottomNav */}
             <Route path="/login" element={<LoginScreen />} />
