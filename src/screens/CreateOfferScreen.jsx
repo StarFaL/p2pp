@@ -64,7 +64,7 @@ export default function CreateOfferScreen() {
     }
   };
 
-  // Адаптивная высота для мобильных (Telegram WebView)
+  // Фикс динамической высоты при фокусе на input
   useEffect(() => {
     const resizeHandler = () => {
       const vh = window.innerHeight * 0.01;
@@ -78,19 +78,30 @@ export default function CreateOfferScreen() {
   return (
     <div
       className="fixed inset-0 bg-[#0b1120] text-white flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]"
-      style={{ height: 'calc(var(--vh, 1vh) * 100)' }}
+      style={{
+        height: 'calc(var(--vh, 1vh) * 100)',
+        overscrollBehavior: 'none',
+      }}
     >
-      <div className="w-full max-w-md flex flex-col flex-grow overflow-hidden pt-8">
+      <div
+        className="w-full max-w-md flex flex-col flex-grow overflow-hidden pb-4"
+        style={{
+          paddingTop: 'calc(3cm)', // было 2см, теперь добавлено ещё 2см
+        }}
+      >
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Create Offer</h1>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4 flex-shrink-0 overflow-y-auto scroll-hide"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', maxHeight: 'calc(100vh - 10rem)' }}
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4 flex-shrink-0 overflow-y-auto hide-scrollbar"
+          style={{
+            maxHeight: 'calc(var(--vh, 1vh) * 100 - 14rem)',
+          }}
         >
           <style>
             {`
-              .scroll-hide::-webkit-scrollbar { display: none; }
+              .hide-scrollbar::-webkit-scrollbar { display: none; }
+              .hide-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
             `}
           </style>
 
@@ -101,7 +112,7 @@ export default function CreateOfferScreen() {
               <input
                 {...register('sell')}
                 defaultValue="BTC"
-                className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
+                className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
               />
               <ErrorMessage message={errors.sell?.message} />
             </div>
@@ -111,7 +122,7 @@ export default function CreateOfferScreen() {
               <input
                 {...register('currency')}
                 defaultValue="USD"
-                className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
+                className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
               />
               <ErrorMessage message={errors.currency?.message} />
             </div>
@@ -124,7 +135,7 @@ export default function CreateOfferScreen() {
               {...register('rate')}
               defaultValue="36782.32"
               inputMode="decimal"
-              className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
             />
             <ErrorMessage message={errors.rate?.message} />
           </div>
@@ -135,7 +146,7 @@ export default function CreateOfferScreen() {
             <input
               {...register('limits')}
               defaultValue="50-1000"
-              className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
             />
             <ErrorMessage message={errors.limits?.message} />
           </div>
@@ -146,12 +157,13 @@ export default function CreateOfferScreen() {
             <button
               type="button"
               onClick={() => setOpen(!open)}
-              aria-expanded={open}
               className="w-full bg-[#24304a] p-3 rounded-xl flex justify-between items-center text-sm text-gray-300 focus:ring-2 focus:ring-[#00a968] outline-none transition"
             >
               <span>{selected}</span>
               <ChevronDownIcon
-                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 will-change-transform ${open ? 'rotate-180' : ''}`}
+                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${
+                  open ? 'rotate-180' : ''
+                }`}
               />
             </button>
 
@@ -178,9 +190,9 @@ export default function CreateOfferScreen() {
             <label className="block text-xs font-medium mb-1">Comments</label>
             <textarea
               {...register('comments')}
-              className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition resize-none overflow-hidden"
+              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition resize-none"
               rows="4"
-            ></textarea>
+            />
           </div>
 
           {/* Submit */}
