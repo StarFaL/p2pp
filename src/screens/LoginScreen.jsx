@@ -1,7 +1,14 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
-import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';
+import {
+  viewport,
+  isTMA,
+  init,
+  swipeBehavior,
+  backButton,
+  closeButton,
+} from '@telegram-apps/sdk';
 
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
@@ -26,6 +33,25 @@ export default function LoginScreen() {
       }
     };
 
+    const setupCloseConfirmation = async () => {
+      try {
+        // Проверяем наличие кнопки "Закрыть"
+        if (closeButton && closeButton.isAvailable()) {
+          await closeButton.show();
+
+          // Добавляем обработчик нажатия
+          closeButton.onClick(async () => {
+            const confirmed = window.confirm('Вы действительно хотите закрыть приложение?');
+            if (confirmed) {
+              window.Telegram.WebApp.close(); // Закрываем Mini App
+            }
+          });
+        }
+      } catch (error) {
+        console.warn('Ошибка при настройке кнопки закрытия:', error);
+      }
+    };
+
     const initializeApp = async () => {
       if (await isTMA()) {
         init(); // Инициализация Telegram Mini App
@@ -40,6 +66,7 @@ export default function LoginScreen() {
         }
 
         await disableVerticalSwipe(); // 🔒 Блокируем свайп вниз
+        await setupCloseConfirmation(); // 🧩 Настраиваем подтверждение закрытия
 
         setTgReady(true); // Telegram готов
       }
