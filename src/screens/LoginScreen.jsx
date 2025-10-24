@@ -64,6 +64,7 @@ export default function LoginScreen() {
         </h1>
 
         <button
+          id="loginBtn"
           onClick={handleTelegramLogin}
           disabled={!tgReady}
           className={`w-full ${
