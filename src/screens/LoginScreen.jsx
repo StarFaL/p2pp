@@ -1,6 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
+import { viewport } from '@telegram-apps/sdk';
 
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
@@ -19,8 +20,17 @@ export default function LoginScreen() {
     }
   }, []);
 
-  const handleTelegramLogin = () => {
+  const handleTelegramLogin = async () => {
     if (!tgReady) return alert('Telegram WebApp еще не готов');
+
+    // Разворачиваем WebApp на весь экран после клика
+    try {
+      if (viewport.expand?.isAvailable()) {
+        await viewport.expand();
+      }
+    } catch (err) {
+      console.error('Cannot expand Telegram WebApp:', err);
+    }
 
     const user = window.Telegram.WebApp.initDataUnsafe?.user;
     if (!user) return alert('Не удалось получить данные Telegram.');
