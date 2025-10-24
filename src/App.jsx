@@ -12,43 +12,35 @@ import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
-// Импортируем SDK Telegram Apps
-import { viewport } from '@telegram-apps/sdk';
+// SDK Telegram Apps
+import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';
 
-// --- Хук для инициализации fullscreen ---
-function useTelegramFullscreen() {
-  useEffect(() => {
-    const enableFullscreen = async () => {
-      try {
-        if (viewport.mount?.isAvailable) {
-          await viewport.mount();
-          await viewport.expand(); // разворачиваем на весь экран
-        }
-        if (viewport.requestFullscreen?.isAvailable) {
-          await viewport.requestFullscreen(); // запрос fullscreen
-        }
-      } catch (err) {
-        console.error('Telegram fullscreen error:', err);
-      }
-    };
-
-    enableFullscreen();
-  }, []);
-}
-
-// --- ProtectedRoute без отдельного файла ---
+// --- ProtectedRoute ---
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
   return state.isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
 function App() {
-  useTelegramFullscreen(); // инициализация fullscreen
-
   useEffect(() => {
-    document.documentElement.classList.add('dark');
+    // --- Инициализация fullscreen ---
+    const fullscreen = async () => {
+      try {
+        if (viewport.mount?.isAvailable) {
+          await viewport.mount();
+          await viewport.expand(); // разворачиваем на весь экран
+        }
+        if (viewport.requestFullscreen?.isAvailable) {
+          await viewport.requestFullscreen();
+        }
+      } catch (err) {
+        console.error('Telegram fullscreen error:', err);
+      }
+    };
 
-    // фикс высоты для мобильных и клавиатуры
+    fullscreen(); // вызываем сразу при старте приложения
+
+    // --- Установка высоты для мобильных и клавиатуры ---
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -57,6 +49,9 @@ function App() {
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
+
+    // Добавим класс dark для стилей
+    document.documentElement.classList.add('dark');
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
