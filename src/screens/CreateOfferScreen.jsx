@@ -86,7 +86,7 @@ export default function CreateOfferScreen() {
       <div
         className="w-full max-w-md flex flex-col flex-grow overflow-hidden pb-4"
         style={{
-          paddingTop: 'calc(3cm)', // было 2см, теперь добавлено ещё 2см
+          paddingTop: 'calc(2cm)', // было 2см, теперь добавлено ещё 2см
         }}
       >
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Create Offer</h1>
