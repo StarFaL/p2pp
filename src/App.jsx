@@ -22,19 +22,15 @@ function ProtectedRoute({ children }) {
 function App() {
   useEffect(() => {
     // --- Рабочий fullscreen как в примере ---
-    const fullscreen = async () => {
-      try {
-        if (viewport.mount?.isAvailable) {
-          await viewport.mount();
-          await viewport.expand(); // разворачиваем на весь экран
-        }
-        if (viewport.requestFullscreen?.isAvailable) {
-          await viewport.requestFullscreen();
-        }
-      } catch (err) {
-        console.error('Telegram fullscreen error:', err);
+    const fullscreen = async () =>{ 
+      if (viewport.mount.isAvailable()) {
+        await viewport.mount();
+        viewport.expand();
+      } 
+      if (viewport.requestFullscreen.isAvailable()) {
+        await viewport.requestFullscreen();
       }
-    };
+    }
 
     fullscreen(); // вызываем сразу при старте
   }, []);
