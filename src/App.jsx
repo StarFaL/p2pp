@@ -11,9 +11,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
-
-// SDK Telegram Apps
-import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';;
+import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';
 
 // ProtectedRoute
 function ProtectedRoute({ children }) {
