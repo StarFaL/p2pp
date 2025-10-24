@@ -11,7 +11,11 @@ import axios from 'axios';
 const schema = yup.object({
   sell: yup.string().required(),
   currency: yup.string().required(),
-  rate: yup.number().positive().required(),
+  rate: yup
+    .number()
+    .typeError('Must be a number')
+    .positive('Must be positive')
+    .required(),
   limits: yup.string().required(),
   paymentMethod: yup.string().required(),
   comments: yup.string(),
@@ -28,7 +32,9 @@ export default function CreateOfferScreen() {
   const [selected, setSelected] = useState('Select payment');
   const dropdownRef = useRef(null);
   const paymentMethods = ['PayPal', 'Bank'];
+  const [submitting, setSubmitting] = useState(false);
 
+  // Закрытие dropdown при клике вне
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -47,15 +53,18 @@ export default function CreateOfferScreen() {
 
   const onSubmit = async (data) => {
     try {
+      setSubmitting(true);
       const response = await axios.post('http://localhost:5000/api/offers', data);
       dispatch({ type: 'SET_OFFERS', payload: [...state.offers, response.data] });
       navigate('/market');
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to create offer' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Подстройка под Telegram WebView
+  // Адаптивная высота для мобильных (Telegram WebView)
   useEffect(() => {
     const resizeHandler = () => {
       const vh = window.innerHeight * 0.01;
@@ -68,18 +77,23 @@ export default function CreateOfferScreen() {
 
   return (
     <div
-      className="fixed inset-0 bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden flex justify-center"
-      style={{ paddingTop: '2cm' }} // смещаем весь контент на 2 см
+      className="fixed inset-0 bg-[#0b1120] text-white flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]"
+      style={{ height: 'calc(var(--vh, 1vh) * 100)' }}
     >
-      <div className="w-full max-w-md flex flex-col flex-grow overflow-y-auto">
-        <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">
-          Create Offer
-        </h1>
+      <div className="w-full max-w-md flex flex-col flex-grow overflow-hidden pt-8">
+        <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Create Offer</h1>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4 flex-shrink-0"
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-4 flex-shrink-0 overflow-y-auto scroll-hide"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', maxHeight: 'calc(100vh - 10rem)' }}
         >
+          <style>
+            {`
+              .scroll-hide::-webkit-scrollbar { display: none; }
+            `}
+          </style>
+
           {/* Sell / Currency */}
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -87,7 +101,7 @@ export default function CreateOfferScreen() {
               <input
                 {...register('sell')}
                 defaultValue="BTC"
-                className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+                className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
               />
               <ErrorMessage message={errors.sell?.message} />
             </div>
@@ -97,7 +111,7 @@ export default function CreateOfferScreen() {
               <input
                 {...register('currency')}
                 defaultValue="USD"
-                className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+                className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
               />
               <ErrorMessage message={errors.currency?.message} />
             </div>
@@ -110,7 +124,7 @@ export default function CreateOfferScreen() {
               {...register('rate')}
               defaultValue="36782.32"
               inputMode="decimal"
-              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
             />
             <ErrorMessage message={errors.rate?.message} />
           </div>
@@ -121,7 +135,7 @@ export default function CreateOfferScreen() {
             <input
               {...register('limits')}
               defaultValue="50-1000"
-              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition"
+              className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition overflow-hidden text-overflow-clip"
             />
             <ErrorMessage message={errors.limits?.message} />
           </div>
@@ -132,11 +146,12 @@ export default function CreateOfferScreen() {
             <button
               type="button"
               onClick={() => setOpen(!open)}
+              aria-expanded={open}
               className="w-full bg-[#24304a] p-3 rounded-xl flex justify-between items-center text-sm text-gray-300 focus:ring-2 focus:ring-[#00a968] outline-none transition"
             >
               <span>{selected}</span>
               <ChevronDownIcon
-                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 will-change-transform ${open ? 'rotate-180' : ''}`}
               />
             </button>
 
@@ -163,7 +178,7 @@ export default function CreateOfferScreen() {
             <label className="block text-xs font-medium mb-1">Comments</label>
             <textarea
               {...register('comments')}
-              className="w-full bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition resize-none"
+              className="w-full box-border min-w-0 bg-[#24304a] p-3 rounded-xl text-sm placeholder-gray-400 focus:ring-2 focus:ring-[#00a968] outline-none transition resize-none overflow-hidden"
               rows="4"
             ></textarea>
           </div>
@@ -171,7 +186,8 @@ export default function CreateOfferScreen() {
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-sm active:scale-[0.98]"
+            disabled={submitting}
+            className="w-full bg-[#00a968] hover:bg-[#00c67a] transition py-3 rounded-xl font-bold text-sm active:scale-[0.98] disabled:opacity-50"
           >
             Create
           </button>
