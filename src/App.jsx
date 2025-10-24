@@ -12,23 +12,43 @@ import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
+// Импортируем SDK Telegram Apps
+import { viewport } from '@telegram-apps/sdk';
+
+// --- Хук для инициализации fullscreen ---
+function useTelegramFullscreen() {
+  useEffect(() => {
+    const enableFullscreen = async () => {
+      try {
+        if (viewport.mount?.isAvailable) {
+          await viewport.mount();
+          await viewport.expand(); // разворачиваем на весь экран
+        }
+        if (viewport.requestFullscreen?.isAvailable) {
+          await viewport.requestFullscreen(); // запрос fullscreen
+        }
+      } catch (err) {
+        console.error('Telegram fullscreen error:', err);
+      }
+    };
+
+    enableFullscreen();
+  }, []);
+}
+
+// --- ProtectedRoute без отдельного файла ---
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
-  return state.isAuthenticated ? children : <Navigate to="/login" />;
+  return state.isAuthenticated ? children : <Navigate to="/login" replace />;
 }
 
 function App() {
+  useTelegramFullscreen(); // инициализация fullscreen
+
   useEffect(() => {
     document.documentElement.classList.add('dark');
 
-    // ✅ Telegram Mini App fullscreen init
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand(); // принудительно открывает на весь экран
-    }
-
-    // ✅ фикс высоты (для клавиатуры и разных устройств)
+    // фикс высоты для мобильных и клавиатуры
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
@@ -55,49 +75,26 @@ function App() {
           }}
         >
           <Routes>
-            {/* Экран входа и регистрации без BottomNav */}
+            {/* Экран входа и регистрации */}
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
-            {/* Защищённые экраны с BottomNav */}
-            <Route
-              path="/my-assets"
-              element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/market"
-              element={<ProtectedRoute><MarketScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/create-offer"
-              element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/trade-details/:id"
-              element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/profile"
-              element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/dashboard"
-              element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>}
-            />
-            <Route
-              path="/transaction-history"
-              element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>}
-            />
+            {/* Защищённые экраны */}
+            <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
+            <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
+            <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
+            <Route path="/trade-details/:id" element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
+            <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
           </Routes>
 
           {/* BottomNav только для авторизованных пользователей */}
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&
-              !['/login', '/register'].includes(window.location.pathname) && (
-                <BottomNav />
-              )
+              !['/login', '/register'].includes(window.location.pathname) && <BottomNav />
             }
           </AppContext.Consumer>
         </div>
