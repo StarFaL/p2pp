@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
-import { viewport, isTMA, init } from '@telegram-apps/sdk';
+import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';
 
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
@@ -9,6 +9,23 @@ export default function LoginScreen() {
   const [tgReady, setTgReady] = useState(false);
 
   useEffect(() => {
+    const disableVerticalSwipe = async () => {
+      try {
+        if (swipeBehavior.mount && swipeBehavior.mount.isAvailable()) {
+          await swipeBehavior.mount();
+        }
+
+        if (
+          swipeBehavior.disableVerticalSwipe &&
+          swipeBehavior.disableVerticalSwipe.isAvailable()
+        ) {
+          await swipeBehavior.disableVerticalSwipe();
+        }
+      } catch (error) {
+        console.warn('Ошибка при отключении свайпа:', error);
+      }
+    };
+
     const initializeApp = async () => {
       if (await isTMA()) {
         init(); // Инициализация Telegram Mini App
@@ -21,6 +38,8 @@ export default function LoginScreen() {
         if (viewport.requestFullscreen.isAvailable()) {
           await viewport.requestFullscreen(); // Запрашиваем полноэкранный режим
         }
+
+        await disableVerticalSwipe(); // 🔒 Блокируем свайп вниз
 
         setTgReady(true); // Telegram готов
       }
