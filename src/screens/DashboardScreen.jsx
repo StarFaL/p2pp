@@ -6,15 +6,10 @@ import { motion } from 'framer-motion';
 export default function DashboardScreen() {
   const { state } = useContext(AppContext);
 
-  // Подстройка под Telegram WebView и мобильные экраны
+  // Устанавливаем адаптивный vh один раз
   useEffect(() => {
-    const resizeHandler = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-    window.addEventListener('resize', resizeHandler);
-    resizeHandler();
-    return () => window.removeEventListener('resize', resizeHandler);
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
   }, []);
 
   if (state.loading) return <Loader />;
@@ -24,20 +19,20 @@ export default function DashboardScreen() {
       className="fixed inset-0 bg-[#0b1120] text-white px-3 overflow-hidden flex justify-center"
       style={{
         height: 'calc(var(--vh, 1vh) * 100)',
-        paddingTop: '2cm',
-        paddingBottom: '1.5cm',
+        paddingTop: '2cm', // отступ сверху
+        paddingBottom: '2cm', // отступ снизу
       }}
     >
       <motion.div
-        className="w-full max-w-md flex flex-col flex-grow overflow-hidden"
-        initial={{ opacity: 0, y: 30 }}
+        className="w-full max-w-md flex flex-col overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         {/* Заголовок */}
         <motion.h1
           className="text-lg sm:text-xl font-semibold text-center mb-6 tracking-wide select-none"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6, ease: 'easeOut' }}
         >
@@ -46,21 +41,19 @@ export default function DashboardScreen() {
 
         {/* Контейнер с карточками */}
         <motion.div
-          className="bg-[#1a2338] p-4 sm:p-5 rounded-2xl shadow-md space-y-4 overflow-y-auto scroll-hide transition-all flex-grow"
+          className="bg-[#1a2338] p-4 sm:p-5 rounded-2xl shadow-md space-y-4 overflow-y-auto scroll-hide"
           style={{
-            maxHeight: 'calc(100vh - 22rem)', // уменьшенный контейнер
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none',
+            maxHeight: 'calc(100vh - 20rem)', // фиксированная высота
           }}
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7, ease: 'easeOut' }}
+          transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
         >
           <style>{`.scroll-hide::-webkit-scrollbar { display: none; }`}</style>
 
           {/* Активные трейды */}
           <motion.div
-            className="bg-[#151b2c] p-4 sm:p-5 rounded-2xl flex items-center justify-between shadow-md hover:bg-[#24304a] active:scale-[0.98] transition-all"
+            className="bg-[#151b2c] p-4 sm:p-5 rounded-2xl flex items-center justify-between shadow-md hover:bg-[#24304a] transition-all"
             whileHover={{ scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           >
@@ -81,7 +74,7 @@ export default function DashboardScreen() {
 
           {/* Офферы */}
           <motion.div
-            className="bg-[#151b2c] p-4 sm:p-5 rounded-2xl flex items-center justify-between shadow-md hover:bg-[#24304a] active:scale-[0.98] transition-all"
+            className="bg-[#151b2c] p-4 sm:p-5 rounded-2xl flex items-center justify-between shadow-md hover:bg-[#24304a] transition-all"
             whileHover={{ scale: 1.02 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15 }}
           >
