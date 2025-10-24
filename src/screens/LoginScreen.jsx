@@ -13,13 +13,24 @@ export default function LoginScreen() {
       if (await isTMA()) {
         init(); // Инициализация Telegram Mini App
 
+        // Монтируем и разворачиваем WebApp
         if (viewport.mount.isAvailable()) {
           await viewport.mount();
-          viewport.expand(); // Разворачиваем на весь экран
         }
 
+        // Разворачиваем на весь экран
+        if (viewport.expand.isAvailable()) {
+          await viewport.expand();
+        }
+
+        // Полноэкранный режим (новый API)
         if (viewport.requestFullscreen.isAvailable()) {
-          await viewport.requestFullscreen(); // Запрашиваем полноэкранный режим
+          await viewport.requestFullscreen();
+        }
+
+        // 🚫 Запрещаем сворачивание свайпом вниз
+        if (viewport.disableVerticalSwipes.isAvailable()) {
+          viewport.disableVerticalSwipes();
         }
 
         setTgReady(true); // Telegram готов
