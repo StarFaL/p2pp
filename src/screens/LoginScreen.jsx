@@ -7,7 +7,17 @@ export default function LoginScreen() {
   const navigate = useNavigate();
   const [tgReady, setTgReady] = useState(false);
 
-  
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp;
+
+      tg.ready(); // готовим WebApp
+      tg.disableVerticalSwipes(); // блокируем свайпы вниз
+      tg.enableClosingConfirmation(); // подтверждение закрытия
+
+      setTgReady(true); // Telegram готов
+    }
+  }, []);
 
   const handleTelegramLogin = () => {
     if (!tgReady) return alert('Telegram WebApp еще не готов');
