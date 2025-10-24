@@ -1,14 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
-import {
-  viewport,
-  isTMA,
-  init,
-  swipeBehavior,
-  backButton,
-  closeButton,
-} from '@telegram-apps/sdk';
+import { viewport, isTMA, init, swipeBehavior, webApp } from '@telegram-apps/sdk';
 
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
@@ -35,15 +28,14 @@ export default function LoginScreen() {
 
     const setupCloseConfirmation = async () => {
       try {
-        // Проверяем наличие кнопки "Закрыть"
+        const closeButton = webApp?.closeButton;
         if (closeButton && closeButton.isAvailable()) {
           await closeButton.show();
 
-          // Добавляем обработчик нажатия
           closeButton.onClick(async () => {
             const confirmed = window.confirm('Вы действительно хотите закрыть приложение?');
             if (confirmed) {
-              window.Telegram.WebApp.close(); // Закрываем Mini App
+              webApp.close(); // Закрываем Mini App
             }
           });
         }
@@ -58,17 +50,17 @@ export default function LoginScreen() {
 
         if (viewport.mount.isAvailable()) {
           await viewport.mount();
-          viewport.expand(); // Разворачиваем на весь экран
+          viewport.expand();
         }
 
         if (viewport.requestFullscreen.isAvailable()) {
-          await viewport.requestFullscreen(); // Запрашиваем полноэкранный режим
+          await viewport.requestFullscreen();
         }
 
-        await disableVerticalSwipe(); // 🔒 Блокируем свайп вниз
-        await setupCloseConfirmation(); // 🧩 Настраиваем подтверждение закрытия
+        await disableVerticalSwipe();
+        await setupCloseConfirmation();
 
-        setTgReady(true); // Telegram готов
+        setTgReady(true);
       }
     };
 
