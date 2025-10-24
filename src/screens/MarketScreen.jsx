@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect } from 'react';
+import { useContext, useState, useEffect, useRef } from 'react';
 import { AppContext } from '../contexts/AppContext';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,7 @@ export default function MarketScreen() {
   const { state = {} } = useContext(AppContext);
   const [search, setSearch] = useState('');
   const [offers, setOffers] = useState([]);
+  const containerRef = useRef(null);
 
   // Загружаем офферы с бэкенда
   useEffect(() => {
@@ -28,6 +29,7 @@ export default function MarketScreen() {
     (offer) => (offer?.username || '').toLowerCase().includes(searchLower)
   );
 
+  // Адаптивная переменная vh
   useEffect(() => {
     const resizeHandler = () => {
       const vh = window.innerHeight * 0.01;
@@ -45,8 +47,15 @@ export default function MarketScreen() {
       <div className="w-full max-w-lg mx-auto flex flex-col flex-grow pt-8">
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Market</h1>
 
-        <div className="flex-grow flex flex-col bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-5">
-          
+        {/* Растущий контейнер с анимацией */}
+        <div
+          ref={containerRef}
+          className="bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col space-y-5 transition-all duration-300 ease-out"
+          style={{
+            maxHeight: 'calc(100vh - 160px)', // максимальная высота контейнера
+            overflow: 'hidden',
+          }}
+        >
           {/* Поиск */}
           <input
             type="text"
@@ -54,7 +63,8 @@ export default function MarketScreen() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search offers by username"
-            className="w-full bg-[#24304a] text-gray-400 placeholder-gray-400 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#00a968] transition-colors duration-200 text-sm"
+            className="w-full max-w-full box-border overflow-hidden bg-[#24304a] text-gray-400 placeholder-gray-400 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#00a968] transition-colors duration-200 text-sm"
+            style={{ minWidth: 0 }}
           />
 
           {/* Кнопки фильтров */}
@@ -69,8 +79,22 @@ export default function MarketScreen() {
             ))}
           </div>
 
-          {/* Список предложений */}
-          <div className="flex-grow overflow-y-auto space-y-3 pr-1">
+          {/* Список предложений — скролл скрыт */}
+          <div
+            className="flex-grow overflow-y-auto space-y-3 pr-1 scroll-hide"
+            style={{
+              scrollbarWidth: 'none', // Firefox
+              msOverflowStyle: 'none', // IE 10+
+            }}
+          >
+            <style>
+              {`
+                .scroll-hide::-webkit-scrollbar {
+                  display: none;
+                }
+              `}
+            </style>
+
             {filteredOffers.length === 0 && (
               <p className="text-gray-400 text-center text-sm mt-2">No offers found</p>
             )}
