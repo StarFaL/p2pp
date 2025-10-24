@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
-import { viewport } from '@telegram-apps/sdk';
+import { viewport, isTMA, init } from '@telegram-apps/sdk';
 
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
@@ -9,28 +9,28 @@ export default function LoginScreen() {
   const [tgReady, setTgReady] = useState(false);
 
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
+    const initializeApp = async () => {
+      if (await isTMA()) {
+        init(); // Инициализация Telegram Mini App
 
-      tg.ready(); // готовим WebApp
-      tg.disableVerticalSwipes(); // блокируем свайпы вниз
-      tg.enableClosingConfirmation(); // подтверждение закрытия
+        if (viewport.mount.isAvailable()) {
+          await viewport.mount();
+          viewport.expand(); // Разворачиваем на весь экран
+        }
 
-      setTgReady(true); // Telegram готов
-    }
+        if (viewport.requestFullscreen.isAvailable()) {
+          await viewport.requestFullscreen(); // Запрашиваем полноэкранный режим
+        }
+
+        setTgReady(true); // Telegram готов
+      }
+    };
+
+    initializeApp();
   }, []);
 
-  const handleTelegramLogin = async () => {
-    if (!tgReady) return alert('Telegram WebApp еще не готов');
-
-    // Разворачиваем WebApp на весь экран после клика
-    try {
-      if (viewport.expand?.isAvailable()) {
-        await viewport.expand();
-      }
-    } catch (err) {
-      console.error('Cannot expand Telegram WebApp:', err);
-    }
+  const handleTelegramLogin = () => {
+    if (!tgReady) return alert('Telegram WebApp ещё не готов');
 
     const user = window.Telegram.WebApp.initDataUnsafe?.user;
     if (!user) return alert('Не удалось получить данные Telegram.');
@@ -64,7 +64,6 @@ export default function LoginScreen() {
         </h1>
 
         <button
-          id="loginBtn"
           onClick={handleTelegramLogin}
           disabled={!tgReady}
           className={`w-full ${
