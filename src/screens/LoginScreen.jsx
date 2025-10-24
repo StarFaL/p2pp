@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
-import { viewport, isTMA, init, swipeBehavior, webApp } from '@telegram-apps/sdk';
+import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';
 
 export default function LoginScreen() {
   const { dispatch } = useContext(AppContext);
@@ -28,14 +28,17 @@ export default function LoginScreen() {
 
     const setupCloseConfirmation = async () => {
       try {
-        const closeButton = webApp?.closeButton;
-        if (closeButton && closeButton.isAvailable()) {
-          await closeButton.show();
+        const webApp = window.Telegram?.WebApp;
+        if (!webApp) return;
 
-          closeButton.onClick(async () => {
+        const closeButton = webApp.closeButton;
+        if (closeButton) {
+          closeButton.show();
+
+          closeButton.onClick(() => {
             const confirmed = window.confirm('Вы действительно хотите закрыть приложение?');
             if (confirmed) {
-              webApp.close(); // Закрываем Mini App
+              webApp.close();
             }
           });
         }
