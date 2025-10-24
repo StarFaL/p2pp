@@ -3,8 +3,6 @@ import { AppContext } from '../contexts/AppContext';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { Link } from 'react-router-dom';
 import Loader from '../components/Loader';
-import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import './MarketScreen.css'; // CSS для анимации оферов
 
 export default function MarketScreen() {
   const { state = {} } = useContext(AppContext);
@@ -49,12 +47,12 @@ export default function MarketScreen() {
       <div className="w-full max-w-lg mx-auto flex flex-col flex-grow pt-8">
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Market</h1>
 
-        {/* Растущий контейнер с анимацией */}
+        {/* Растущий контейнер */}
         <div
           ref={containerRef}
           className="bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col space-y-5 transition-all duration-300 ease-out"
           style={{
-            maxHeight: 'calc(100vh - 160px)',
+            maxHeight: 'calc(100vh - 160px)', // макс. высота
             overflow: 'hidden',
           }}
         >
@@ -86,7 +84,7 @@ export default function MarketScreen() {
             ))}
           </div>
 
-          {/* Список предложений — скрытый скролл */}
+          {/* Список предложений */}
           <div
             className="flex-grow overflow-y-auto pr-1 scroll-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -94,6 +92,11 @@ export default function MarketScreen() {
             <style>
               {`
                 .scroll-hide::-webkit-scrollbar { display: none; }
+                @keyframes fadeIn {
+                  from { opacity: 0; transform: translateY(-10px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+                .fade-in { animation: fadeIn 0.3s ease-out forwards; }
               `}
             </style>
 
@@ -101,29 +104,30 @@ export default function MarketScreen() {
               <p className="text-gray-400 text-center text-sm mt-2">No offers found</p>
             )}
 
-            <TransitionGroup className="space-y-3">
+            <div className="space-y-3">
               {filteredOffers.map((offer) => (
-                <CSSTransition key={offer.id} timeout={300} classNames="fade">
-                  <div className="bg-[#24304a] p-4 rounded-xl flex justify-between items-center shadow-md hover:bg-[#2f3c5a] transition-colors duration-200">
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <UserCircleIcon className="h-6 w-6 text-[#00a968]" aria-hidden="true" />
-                        <span className="font-semibold text-[#00a968] text-lg">{offer.username}</span>
-                      </div>
-                      <p className="text-gray-400 text-xs mt-1">
-                        {offer.payment} · Low limit {offer.limit} BTC
-                      </p>
+                <div
+                  key={offer.id}
+                  className="fade-in bg-[#24304a] p-4 rounded-xl flex justify-between items-center shadow-md hover:bg-[#2f3c5a] transition-colors duration-200"
+                >
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <UserCircleIcon className="h-6 w-6 text-[#00a968]" aria-hidden="true" />
+                      <span className="font-semibold text-[#00a968] text-lg">{offer.username}</span>
                     </div>
-                    <Link
-                      to={`/trade-details/${offer.id}`}
-                      className="font-bold text-[#00a968] hover:text-[#02ff9e] transition-colors duration-200 text-base"
-                    >
-                      ${offer.price}
-                    </Link>
+                    <p className="text-gray-400 text-xs mt-1">
+                      {offer.payment} · Low limit {offer.limit} BTC
+                    </p>
                   </div>
-                </CSSTransition>
+                  <Link
+                    to={`/trade-details/${offer.id}`}
+                    className="font-bold text-[#00a968] hover:text-[#02ff9e] transition-colors duration-200 text-base"
+                  >
+                    ${offer.price}
+                  </Link>
+                </div>
               ))}
-            </TransitionGroup>
+            </div>
           </div>
         </div>
       </div>
