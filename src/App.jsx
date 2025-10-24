@@ -13,9 +13,9 @@ import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
 
 // SDK Telegram Apps
-import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';
+import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';;
 
-// --- ProtectedRoute ---
+// ProtectedRoute
 function ProtectedRoute({ children }) {
   const { state } = useContext(AppContext);
   return state.isAuthenticated ? children : <Navigate to="/login" replace />;
@@ -23,7 +23,7 @@ function ProtectedRoute({ children }) {
 
 function App() {
   useEffect(() => {
-    // --- Инициализация fullscreen ---
+    // --- Рабочий fullscreen как в примере ---
     const fullscreen = async () => {
       try {
         if (viewport.mount?.isAvailable) {
@@ -38,20 +38,18 @@ function App() {
       }
     };
 
-    fullscreen(); // вызываем сразу при старте приложения
+    fullscreen(); // вызываем сразу при старте
+  }, []);
 
-    // --- Установка высоты для мобильных и клавиатуры ---
+  // фикс высоты для мобильных
+  useEffect(() => {
     const setAppHeight = () => {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
     };
-
     setAppHeight();
     window.addEventListener('resize', setAppHeight);
     window.addEventListener('orientationchange', setAppHeight);
-
-    // Добавим класс dark для стилей
-    document.documentElement.classList.add('dark');
 
     return () => {
       window.removeEventListener('resize', setAppHeight);
@@ -70,12 +68,10 @@ function App() {
           }}
         >
           <Routes>
-            {/* Экран входа и регистрации */}
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
-            {/* Защищённые экраны */}
             <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
             <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
             <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
@@ -85,7 +81,6 @@ function App() {
             <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
           </Routes>
 
-          {/* BottomNav только для авторизованных пользователей */}
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&
