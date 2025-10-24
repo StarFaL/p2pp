@@ -14,6 +14,7 @@ export default function LoginScreen() {
         if (swipeBehavior.mount && swipeBehavior.mount.isAvailable()) {
           await swipeBehavior.mount();
         }
+
         if (
           swipeBehavior.disableVerticalSwipe &&
           swipeBehavior.disableVerticalSwipe.isAvailable()
@@ -30,33 +31,25 @@ export default function LoginScreen() {
         const webApp = window.Telegram?.WebApp;
         if (!webApp) return;
 
-        // Принудительно показываем кнопку "Закрыть"
-        webApp.enableClosingConfirmation();
+        const closeButton = webApp.closeButton;
+        if (closeButton) {
+          closeButton.show();
 
-        // Для надёжности вешаем собственный обработчик на "mainButton"
-        if (webApp.closeButton) {
-          webApp.closeButton.show();
-          webApp.closeButton.onClick(() => {
+          closeButton.onClick(() => {
             const confirmed = window.confirm('Вы действительно хотите закрыть приложение?');
             if (confirmed) {
               webApp.close();
             }
           });
-        } else {
-          // Если Telegram не отрисовал closeButton, показываем аналог вручную
-          const confirmed = window.confirm('Вы действительно хотите закрыть приложение?');
-          if (confirmed) {
-            webApp.close();
-          }
         }
       } catch (error) {
-        console.warn('Ошибка при настройке подтверждения закрытия:', error);
+        console.warn('Ошибка при настройке кнопки закрытия:', error);
       }
     };
 
     const initializeApp = async () => {
       if (await isTMA()) {
-        init();
+        init(); // Инициализация Telegram Mini App
 
         if (viewport.mount.isAvailable()) {
           await viewport.mount();
