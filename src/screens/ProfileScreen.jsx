@@ -1,6 +1,7 @@
 import { useContext, useRef, useState, useEffect } from 'react';
 import { AppContext } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export default function ProfileScreen() {
   const { state, dispatch } = useContext(AppContext);
@@ -46,16 +47,42 @@ export default function ProfileScreen() {
 
   return (
     <div
-      className="fixed inset-0 bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden flex justify-center"
-      style={{ paddingTop: '2cm' }} // смещаем весь контент вниз
+      className="fixed inset-0 bg-[#0b1120] text-white px-4 overflow-hidden flex justify-center items-center"
+      style={{ height: 'calc(var(--vh, 1vh) * 100)', paddingTop: '2cm', paddingBottom: '2cm' }}
     >
-      <div className="w-full max-w-md flex flex-col flex-grow overflow-y-auto">
-        <div className="bg-[#1a2338] rounded-2xl shadow-lg p-4 sm:p-5 flex flex-col items-center">
+      <motion.div
+        className="w-full max-w-md flex flex-col items-center overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: 'easeOut' }}
+      >
+        {/* Основной контейнер */}
+        <motion.div
+          className="bg-[#1a2338] rounded-2xl shadow-lg w-full flex flex-col items-center overflow-y-auto scroll-hide"
+          style={{ padding: '1.5rem', maxHeight: 'calc(100vh - 10rem)' }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6, ease: 'easeOut' }}
+        >
+          <style>{`.scroll-hide::-webkit-scrollbar { display: none; }`}</style>
+
           {/* Заголовок */}
-          <h1 className="text-lg sm:text-xl font-bold mb-5 text-center text-gray-200 w-full">Profile</h1>
+          <motion.h1
+            className="text-lg sm:text-xl font-bold mb-5 text-center text-gray-200 w-full select-none"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6, ease: 'easeOut' }}
+          >
+            Profile
+          </motion.h1>
 
           {/* Аватар */}
-          <div className="relative flex flex-col items-center mb-5">
+          <motion.div
+            className="relative flex flex-col items-center mb-5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6, ease: 'easeOut' }}
+          >
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-b from-gray-700 to-gray-800 flex items-center justify-center border-2 border-[#00a968] shadow-lg">
               <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" stroke="none" className="w-8 h-8 sm:w-10 sm:h-10">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 7.5a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a8.25 8.25 0 1 1 15 0v.75H4.5v-.75Z" />
@@ -65,12 +92,17 @@ export default function ProfileScreen() {
               <p className="font-semibold text-lg sm:text-xl text-[#00a968]">{state.user?.username || 'Tinyhole'}</p>
               <p className="text-gray-400 text-xs sm:text-sm mt-1 tracking-wide">Trade volume: $16,810.45</p>
             </div>
-          </div>
+          </motion.div>
 
           {/* Информационные блоки */}
-          <div className="w-full space-y-2 sm:space-y-3 mt-2">
+          <motion.div
+            className="w-full flex flex-col space-y-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6, ease: 'easeOut' }}
+          >
             {/* Rating */}
-            <div className="bg-[#151b2c] p-3 sm:p-4 rounded-xl flex justify-between items-center">
+            <div className="bg-[#151b2c] p-4 rounded-xl flex justify-between items-center">
               <span className="font-medium text-sm sm:text-base">Rating</span>
               <span className="font-semibold text-[#00a968] text-sm sm:text-base">4.6</span>
             </div>
@@ -78,14 +110,14 @@ export default function ProfileScreen() {
             {/* History */}
             <div
               onClick={openHistory}
-              className="bg-[#151b2c] p-3 sm:p-4 rounded-xl flex justify-between items-center cursor-pointer hover:bg-[#1a2338] transition"
+              className="bg-[#151b2c] p-4 rounded-xl flex justify-between items-center cursor-pointer hover:bg-[#1a2338] transition"
             >
               <span className="font-medium text-sm sm:text-base">History</span>
               <span className="text-gray-400 text-base sm:text-lg">&gt;</span>
             </div>
 
             {/* Conditions */}
-            <div className="bg-[#151b2c] p-3 sm:p-4 rounded-xl flex justify-between items-center">
+            <div className="bg-[#151b2c] p-4 rounded-xl flex justify-between items-center">
               <span className="font-medium text-sm sm:text-base">Conditions</span>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" defaultChecked className="sr-only peer" />
@@ -95,7 +127,7 @@ export default function ProfileScreen() {
             </div>
 
             {/* Logout */}
-            <div className="flex justify-center mt-3">
+            <div className="flex justify-center">
               <button
                 onClick={handleLogout}
                 className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 active:scale-95 text-white font-semibold px-5 py-2.5 rounded-2xl shadow-lg transition-all duration-200 text-sm sm:text-base"
@@ -103,9 +135,9 @@ export default function ProfileScreen() {
                 Logout
               </button>
             </div>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 }
