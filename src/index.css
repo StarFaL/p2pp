@@ -11,14 +11,11 @@ body,
 .app-wrapper {
   margin: 0;
   padding: 0;
-  height: calc(var(--vh, 1vh) * 100);
+  height: calc(var(--vh, 1vh) * 100); /* фиксируем высоту для мобильных */
   width: 100%;
-  overflow: hidden; /* фиксируем отсутствие скролла */
+  overflow: hidden; /* запрещаем скролл */
   background-color: #0f172a;
   -webkit-text-size-adjust: none;
-}
-
-* {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -39,4 +36,14 @@ body {
   textarea {
     @apply w-full text-base py-3 px-3 rounded-xl;
   }
+}
+
+/* --- ⚡ Дополнительно для Telegram WebApp --- */
+/* Обеспечиваем, что app-wrapper всегда занимает весь экран */
+.app-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }

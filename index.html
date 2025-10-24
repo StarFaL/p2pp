@@ -5,29 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#1a2338">
     <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MysteryDrop">
-    
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MysteryDrop">
+
     <title>P2P Crypto Exchange</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    
+
     <style>
-      /* Базовые стили для нормального отображения */
-      body {
+      /* Полностью убрать отступы и скролл */
+      html, body {
         margin: 0;
         padding: 0;
+        width: 100%;
+        height: 100%;
         background: #1a2338;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        overflow-x: hidden;
+        overflow: hidden;
       }
-      
-      /* Убедитесь, что корневой элемент виден */
+
+      /* Корневой элемент занимает весь экран */
       #root {
         width: 100%;
-        min-height: 100vh;
+        height: 100%;
       }
-      
-      /* Убираем синее выделение при тапе на мобильных */
+
+      /* Убираем выделение при тапе на мобильных */
       * {
         -webkit-tap-highlight-color: transparent;
       }
@@ -35,7 +37,11 @@
   </head>
   <body>
     <div id="root"></div>
+
+    <!-- Подключаем React entry point -->
     <script type="module" src="/src/main.jsx"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js?59"></script>
+
+    <!-- Telegram WebApp SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
   </body>
 </html>
