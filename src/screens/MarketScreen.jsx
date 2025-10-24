@@ -93,3 +93,4 @@ export default function MarketScreen() {
     </div>
   );
 }
+
