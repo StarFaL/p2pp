@@ -12,12 +12,6 @@ export default function LoginScreen() {
     const initializeApp = async () => {
       if (await isTMA()) {
         init(); // Инициализация Telegram Mini App
-        
-         // Блокируем свайп вниз (чтобы нельзя было свернуть мини-приложение)
-        if (swipeBehavior.disableVerticalSwipe?.isAvailable()) {
-          swipeBehavior.disableVerticalSwipe();
-        }
-
 
         if (viewport.mount.isAvailable()) {
           await viewport.mount();
