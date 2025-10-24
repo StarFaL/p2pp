@@ -14,7 +14,6 @@ export default function LoginScreen() {
         if (swipeBehavior.mount && swipeBehavior.mount.isAvailable()) {
           await swipeBehavior.mount();
         }
-
         if (
           swipeBehavior.disableVerticalSwipe &&
           swipeBehavior.disableVerticalSwipe.isAvailable()
@@ -26,16 +25,17 @@ export default function LoginScreen() {
       }
     };
 
-    const setupCloseConfirmation = async () => {
+    const setupCloseButton = async () => {
       try {
         const webApp = window.Telegram?.WebApp;
         if (!webApp) return;
 
-        const closeButton = webApp.closeButton;
-        if (closeButton) {
-          closeButton.show();
+        // Показываем стандартную кнопку закрытия
+        if (webApp.closeButton && webApp.closeButton.isAvailable()) {
+          await webApp.closeButton.show();
 
-          closeButton.onClick(() => {
+          // Перехватываем нажатие
+          webApp.closeButton.onClick(() => {
             const confirmed = window.confirm('Вы действительно хотите закрыть приложение?');
             if (confirmed) {
               webApp.close();
@@ -60,10 +60,10 @@ export default function LoginScreen() {
           await viewport.requestFullscreen();
         }
 
-        await disableVerticalSwipe();
-        await setupCloseConfirmation();
+        await disableVerticalSwipe();   // 🔒 Блокируем свайп вниз
+        await setupCloseButton();       // 🧩 Подтверждение при нажатии кнопки "Закрыть"
 
-        setTgReady(true);
+        setTgReady(true);               // Telegram WebApp готов
       }
     };
 
