@@ -11,7 +11,7 @@ import ProfileScreen from './screens/ProfileScreen';
 import DashboardScreen from './screens/DashboardScreen';
 import MyAssetsScreen from './screens/MyAssetsScreen';
 import TransactionHistoryScreen from './screens/TransactionHistoryScreen';
-import { viewport, isTMA, init, swipeBehavior } from '@telegram-apps/sdk';
+import { viewport, isTMA, init } from '@telegram-apps/sdk';
 
 // ProtectedRoute
 function ProtectedRoute({ children }) {
@@ -21,18 +21,27 @@ function ProtectedRoute({ children }) {
 
 function App() {
   useEffect(() => {
-    // --- Рабочий fullscreen как в примере ---
-    const fullscreen = async () =>{ 
-      if (viewport.mount.isAvailable()) {
-        await viewport.mount();
-        viewport.expand();
-      } 
-      if (viewport.requestFullscreen.isAvailable()) {
-        await viewport.requestFullscreen();
-      }
-    }
+    const fullscreen = async () => {
+      if (await isTMA()) {
+        init();
 
-    fullscreen(); // вызываем сразу при старте
+        if (viewport.mount.isAvailable()) {
+          await viewport.mount();
+          viewport.expand();
+        }
+
+        if (viewport.requestFullscreen.isAvailable()) {
+          await viewport.requestFullscreen();
+        }
+
+        // 🚫 Запрещаем сворачивание свайпом вниз
+        if (viewport.disableVerticalSwipes?.isAvailable()) {
+          viewport.disableVerticalSwipes();
+        }
+      }
+    };
+
+    fullscreen(); // вызываем при старте
   }, []);
 
   // фикс высоты для мобильных
@@ -66,19 +75,70 @@ function App() {
             <Route path="/register" element={<RegisterScreen />} />
             <Route path="/" element={<Navigate to="/login" />} />
 
-            <Route path="/my-assets" element={<ProtectedRoute><MyAssetsScreen /></ProtectedRoute>} />
-            <Route path="/market" element={<ProtectedRoute><MarketScreen /></ProtectedRoute>} />
-            <Route path="/create-offer" element={<ProtectedRoute><CreateOfferScreen /></ProtectedRoute>} />
-            <Route path="/trade-details/:id" element={<ProtectedRoute><TradeDetailsScreen /></ProtectedRoute>} />
-            <Route path="/profile" element={<ProtectedRoute><ProfileScreen /></ProtectedRoute>} />
-            <Route path="/dashboard" element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
-            <Route path="/transaction-history" element={<ProtectedRoute><TransactionHistoryScreen /></ProtectedRoute>} />
+            <Route
+              path="/my-assets"
+              element={
+                <ProtectedRoute>
+                  <MyAssetsScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/market"
+              element={
+                <ProtectedRoute>
+                  <MarketScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/create-offer"
+              element={
+                <ProtectedRoute>
+                  <CreateOfferScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/trade-details/:id"
+              element={
+                <ProtectedRoute>
+                  <TradeDetailsScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <ProfileScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardScreen />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/transaction-history"
+              element={
+                <ProtectedRoute>
+                  <TransactionHistoryScreen />
+                </ProtectedRoute>
+              }
+            />
           </Routes>
 
           <AppContext.Consumer>
             {({ state }) =>
               state.isAuthenticated &&
-              !['/login', '/register'].includes(window.location.pathname) && <BottomNav />
+              !['/login', '/register'].includes(window.location.pathname) && (
+                <BottomNav />
+              )
             }
           </AppContext.Consumer>
         </div>
