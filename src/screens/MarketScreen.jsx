@@ -44,15 +44,19 @@ export default function MarketScreen() {
 
   return (
     <div className="fixed inset-0 bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] flex flex-col">
-      <div className="w-full max-w-lg mx-auto flex flex-col flex-grow pt-8">
+      {/* Контейнер для сдвига вниз */}
+      <div
+        className="w-full max-w-lg mx-auto flex flex-col flex-grow"
+        style={{ paddingTop: '2cm' }} // сдвиг вниз на 2 см
+      >
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Market</h1>
 
-        {/* Растущий контейнер */}
+        {/* Растущий контейнер с оферами */}
         <div
           ref={containerRef}
           className="bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col space-y-5 transition-all duration-300 ease-out"
           style={{
-            maxHeight: 'calc(100vh - 160px)', // макс. высота
+            maxHeight: 'calc(100vh - 160px)',
             overflow: 'hidden',
           }}
         >
