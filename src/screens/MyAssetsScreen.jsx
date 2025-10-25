@@ -5,19 +5,19 @@ import Loader from '../components/Loader';
 export default function MyAssetsScreen() {
   const { state } = useContext(AppContext);
   const [loading, setLoading] = useState(true);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     setLoading(false);
+    setTimeout(() => setVisible(true), 50); // небольшая задержка для плавности
   }, []);
 
-  // Общий баланс
   const totalBalance = (
     (state.assets.find(a => a.symbol === 'UA')?.balance || 0) * (state.assets.find(a => a.symbol === 'UA')?.price || 0) +
     (state.assets.find(a => a.symbol === 'USDT')?.balance || 0) * (state.assets.find(a => a.symbol === 'USDT')?.price || 0) +
     (state.assets.find(a => a.symbol === 'USD')?.balance || 0) * (state.assets.find(a => a.symbol === 'USD')?.price || 0)
   ).toFixed(2);
 
-  // Подстройка под Telegram WebView
   useEffect(() => {
     const resizeHandler = () => {
       const vh = window.innerHeight * 0.01;
@@ -44,23 +44,20 @@ export default function MyAssetsScreen() {
 
   return (
     <div
-      className="fixed inset-0 flex justify-center items-start bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]"
-      style={{ paddingTop: '2cm' }} // ← смещаем весь контент на 2 см
+      className={`fixed inset-0 flex justify-center items-start bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] transition-all duration-700 ease-out transform ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+      style={{ paddingTop: '2cm' }}
     >
       <div className="w-full max-w-lg flex flex-col flex-grow">
-        {/* Заголовок */}
         <h1 className="text-xl sm:text-2xl font-bold text-center mb-6 tracking-wide">My Assets</h1>
 
-        {/* Контейнер с балансом и активами */}
         <div className="flex-grow bg-[#1a2338] p-5 sm:p-6 rounded-2xl shadow-md flex flex-col space-y-5 overflow-y-auto max-h-[calc(100vh-140px)] sm:max-h-[calc(100vh-180px)]">
-          
-          {/* Total Balance */}
           <div className="bg-gradient-to-r from-blue-800 to-green-800 p-8 sm:p-10 rounded-2xl text-center shadow-md">
             <p className="text-3xl sm:text-4xl font-bold text-gray-300">${totalBalance}</p>
             <p className="text-gray-400 text-sm mt-1">Total Balance</p>
           </div>
 
-          {/* Asset rows */}
           <div className="space-y-3 flex-grow overflow-y-auto pr-1">
             {renderAssetRow('UA', '/ua.svg')}
             {renderAssetRow('USDT', '/usdt.svg')}

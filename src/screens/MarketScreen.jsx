@@ -8,9 +8,9 @@ export default function MarketScreen() {
   const { state = {} } = useContext(AppContext);
   const [search, setSearch] = useState('');
   const [offers, setOffers] = useState([]);
+  const [visible, setVisible] = useState(false);
   const containerRef = useRef(null);
 
-  // Загружаем офферы с бэкенда
   useEffect(() => {
     async function fetchOffers() {
       try {
@@ -24,12 +24,15 @@ export default function MarketScreen() {
     fetchOffers();
   }, []);
 
+  useEffect(() => {
+    setTimeout(() => setVisible(true), 50);
+  }, []);
+
   const searchLower = search.toLowerCase();
   const filteredOffers = (offers || []).filter(
     (offer) => (offer?.username || '').toLowerCase().includes(searchLower)
   );
 
-  // Адаптивная переменная vh
   useEffect(() => {
     const resizeHandler = () => {
       const vh = window.innerHeight * 0.01;
@@ -43,15 +46,17 @@ export default function MarketScreen() {
   if (state.loading) return <Loader />;
 
   return (
-    <div className="fixed inset-0 bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] flex flex-col">
-      {/* Контейнер для сдвига вниз */}
+    <div
+      className={`fixed inset-0 bg-[#0b1120] text-white px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] flex flex-col transition-all duration-700 ease-out transform ${
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
+      }`}
+    >
       <div
         className="w-full max-w-lg mx-auto flex flex-col flex-grow"
-        style={{ paddingTop: '2cm' }} // сдвиг вниз на 2 см
+        style={{ paddingTop: '2cm' }}
       >
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Market</h1>
 
-        {/* Растущий контейнер с оферами */}
         <div
           ref={containerRef}
           className="bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col space-y-5 transition-all duration-300 ease-out"
@@ -60,7 +65,6 @@ export default function MarketScreen() {
             overflow: 'hidden',
           }}
         >
-          {/* Поиск с фиксированным курсором */}
           <input
             type="text"
             placeholder="Search by name..."
@@ -76,7 +80,6 @@ export default function MarketScreen() {
             }}
           />
 
-          {/* Кнопки фильтров */}
           <div className="flex justify-between gap-x-2">
             {['BTC', 'PayPal', 'Filters'].map((label) => (
               <button
@@ -88,7 +91,6 @@ export default function MarketScreen() {
             ))}
           </div>
 
-          {/* Список предложений */}
           <div
             className="flex-grow overflow-y-auto pr-1 scroll-hide"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}

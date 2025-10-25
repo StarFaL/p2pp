@@ -7,6 +7,7 @@ import { AppContext } from '../contexts/AppContext';
 import ErrorMessage from '../components/ErrorMessage';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { motion } from 'framer-motion';
 
 const schema = yup.object({
   sell: yup.string().required(),
@@ -76,17 +77,20 @@ export default function CreateOfferScreen() {
   }, []);
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 bg-[#0b1120] text-white flex justify-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)]"
       style={{
         height: 'calc(var(--vh, 1vh) * 100)',
         overscrollBehavior: 'none',
       }}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: 'easeOut' }}
     >
       <div
         className="w-full max-w-md flex flex-col flex-grow overflow-hidden pb-4"
         style={{
-          paddingTop: 'calc(2cm)', // было 2см, теперь добавлено ещё 2см
+          paddingTop: 'calc(2cm)',
         }}
       >
         <h1 className="text-xl font-semibold text-center mb-6 tracking-wide">Create Offer</h1>
@@ -161,9 +165,7 @@ export default function CreateOfferScreen() {
             >
               <span>{selected}</span>
               <ChevronDownIcon
-                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${
-                  open ? 'rotate-180' : ''
-                }`}
+                className={`h-5 w-5 text-gray-400 transform transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
               />
             </button>
 
@@ -205,6 +207,6 @@ export default function CreateOfferScreen() {
           </button>
         </form>
       </div>
-    </div>
+    </motion.div>
   );
 }
