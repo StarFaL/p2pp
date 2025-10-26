@@ -1,83 +1,76 @@
 import { useContext, useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
 import { AppContext } from '../contexts/AppContext';
-import axios from 'axios';
 
 export default function TradeDetailsScreen() {
-  const { id } = useParams();
   const { state, dispatch } = useContext(AppContext);
-  const [trade, setTrade] = useState(null);
+  const [trade, setTrade] = useState({
+    id: 1,
+    username: 'Alice',
+    status: 'Pending',
+    amount: '1200',
+    btc: '0.018',
+    messages: [
+      { text: 'Hi! Ready to trade?', time: '10:20' },
+      { text: 'Yes, sending payment now.', time: '10:22' },
+    ],
+  });
   const [message, setMessage] = useState('');
+  const [paymentSent, setPaymentSent] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const messagesEndRef = useRef(null);
-  const [messagesHeight, setMessagesHeight] = useState(100); // уменьшенная стартовая высота
+  const [messagesHeight, setMessagesHeight] = useState(100);
 
-  useEffect(() => {
-    const existingTrade = state.trades.find(t => t.id === parseInt(id) || t.id === id);
-    if (existingTrade) setTrade(existingTrade);
-    else {
-      axios.get(`http://localhost:5000/api/trades/${id}`)
-        .then(res => setTrade(res.data))
-        .catch(() => setTrade(null));
-    }
-  }, [id, state.trades]);
-
-  const handleSend = async () => {
-    if (!message.trim() || !trade) return;
-    const newMessage = { text: message, time: new Date().toLocaleTimeString() };
-    try {
-      await axios.post(`http://localhost:5000/api/trades/message`, { tradeId: trade.id, message: newMessage });
-
-      setTrade(prev => ({
-        ...prev,
-        messages: [...(prev?.messages || []), newMessage],
-      }));
-
-      dispatch({
-        type: 'SET_TRADES',
-        payload: state.trades.map(t => t.id === trade.id ? { ...t, messages: [...t.messages, newMessage] } : t)
-      });
-
-      setMessage('');
-    } catch {
-      dispatch({ type: 'SET_ERROR', payload: 'Failed to send message' });
-    }
+  const handleSend = () => {
+    if (!message.trim()) return;
+    const newMessage = { text: message, time: new Date().toLocaleTimeString().slice(0, 5) };
+    setTrade((prev) => ({
+      ...prev,
+      messages: [...prev.messages, newMessage],
+    }));
+    setMessage('');
   };
 
-  // Авто-подстройка высоты контейнера сообщений
+  const handlePay = () => {
+    setPaymentSent(true);
+    setShowConfirmation(true);
+
+    // Симуляция подтверждения через 2 секунды
+    setTimeout(() => {
+      // Добавляем запись в историю транзакций
+      const newTransaction = {
+        id: (state.transactions?.length || 0) + 1,
+        type: 'Buy BTC',
+        amount: `${trade.amount} USD / ${trade.btc} BTC`,
+        date: new Date().toLocaleDateString(),
+        details: `Paid by user ${trade.username}`,
+      };
+      dispatch({
+        type: 'ADD_TRANSACTION',
+        payload: newTransaction,
+      });
+
+      // Закрываем модальное окно ожидания
+      setShowConfirmation(false);
+    }, 2000);
+  };
+
+  // Автоподстройка высоты сообщений
   useEffect(() => {
     if (trade?.messages?.length) {
-      const baseHeight = 100; // стартовая высота меньше
-      const perMessage = 60;  // высота одной карточки сообщения
-      const maxHeight = window.innerHeight * 0.35; // максимум ~35% экрана
+      const baseHeight = 100;
+      const perMessage = 60;
+      const maxHeight = window.innerHeight * 0.35;
       setMessagesHeight(Math.min(baseHeight + trade.messages.length * perMessage, maxHeight));
     }
   }, [trade?.messages]);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [trade?.messages]);
 
-  // Подстройка под WebView
-  useEffect(() => {
-    const resizeHandler = () => {
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-    };
-    window.addEventListener('resize', resizeHandler);
-    resizeHandler();
-    return () => window.removeEventListener('resize', resizeHandler);
-  }, []);
-
-  if (!trade) return <p className="text-[#00a968] text-center text-lg font-bold mt-[10vh]">Trade Loading...</p>;
-
   return (
-    <div className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden"
-         style={{ paddingTop: '2cm' }}>
-
+    <div className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden" style={{ paddingTop: '2cm' }}>
       <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-5 flex flex-col flex-grow overflow-hidden">
-
         <h1 className="text-xl font-bold text-center">Trade Details</h1>
 
         <div className="space-y-4">
@@ -92,21 +85,26 @@ export default function TradeDetailsScreen() {
             <p className="text-gray-400 text-sm">{trade.btc} BTC</p>
           </div>
 
-          <div className="bg-[#24304a] p-4 rounded-2xl text-center">
-            <p className="font-medium text-base">Waiting for the buyer to pay</p>
-            <p className="text-gray-400 text-xs mt-1">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-          </div>
-
-          <button className="w-full bg-[#00613c] hover:bg-[#00a968] transition py-3 rounded-2xl font-bold text-base">
-            Pay
-          </button>
+          {!paymentSent ? (
+            <button
+              onClick={handlePay}
+              className="w-full bg-[#00613c] hover:bg-[#00a968] transition py-3 rounded-2xl font-bold text-base"
+            >
+              Pay
+            </button>
+          ) : (
+            <div
+              className={`w-full p-4 rounded-2xl text-center bg-[#24304a] transition-all duration-500 ${
+                showConfirmation ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+              }`}
+            >
+              <p className="font-medium text-base">Waiting for partner's confirmation...</p>
+            </div>
+          )}
         </div>
 
         {/* Контейнер сообщений */}
-        <div
-          className="flex flex-col gap-3 mt-4 overflow-y-auto scroll-hide transition-all duration-500 ease-out"
-          style={{ maxHeight: `${messagesHeight}px`, scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
+        <div className="flex flex-col gap-3 mt-4 overflow-y-auto scroll-hide" style={{ maxHeight: `${messagesHeight}px` }}>
           <style>
             {`
               .scroll-hide::-webkit-scrollbar { display: none; }
@@ -115,12 +113,8 @@ export default function TradeDetailsScreen() {
             `}
           </style>
 
-          {trade.messages?.map((msg, idx) => (
-            <div
-              key={idx}
-              className="flex items-start fade-in-msg"
-              style={{ animationDelay: `${idx * 0.1}s` }}
-            >
+          {trade.messages.map((msg, idx) => (
+            <div key={idx} className="flex items-start fade-in-msg" style={{ animationDelay: `${idx * 0.1}s` }}>
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-600" />
               <div className="ml-2 bg-[#1a2338] p-3 sm:p-4 rounded-2xl flex-1">
                 <p className="text-base">{msg.text}</p>
@@ -149,7 +143,6 @@ export default function TradeDetailsScreen() {
             <img src="/mesage.svg" alt="send" className="h-4 w-4 sm:h-5 sm:w-5" />
           </button>
         </div>
-
       </div>
     </div>
   );

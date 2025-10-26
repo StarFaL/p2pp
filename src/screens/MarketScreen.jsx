@@ -15,12 +15,23 @@ export default function MarketScreen() {
     async function fetchOffers() {
       try {
         const res = await fetch('http://localhost:5000/api/offers');
+        if (!res.ok) throw new Error('Server not available');
         const data = await res.json();
         setOffers(data);
       } catch (error) {
-        console.error('Failed to fetch offers:', error);
+        console.warn('⚠️ Failed to fetch offers, using mock data:', error);
+
+        // 👉 Тестовые данные
+        const mockOffers = [
+          { id: 1, username: 'CryptoKing', payment: 'PayPal', limit: 0.01, price: 68000 },
+          { id: 2, username: 'BTC_Baron', payment: 'Revolut', limit: 0.05, price: 68250 },
+          { id: 3, username: 'Satoshi', payment: 'Binance Pay', limit: 0.02, price: 68100 },
+        ];
+
+        setOffers(mockOffers);
       }
     }
+
     fetchOffers();
   }, []);
 
@@ -29,8 +40,8 @@ export default function MarketScreen() {
   }, []);
 
   const searchLower = search.toLowerCase();
-  const filteredOffers = (offers || []).filter(
-    (offer) => (offer?.username || '').toLowerCase().includes(searchLower)
+  const filteredOffers = (offers || []).filter((offer) =>
+    (offer?.username || '').toLowerCase().includes(searchLower)
   );
 
   useEffect(() => {
@@ -61,7 +72,7 @@ export default function MarketScreen() {
           ref={containerRef}
           className="bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col space-y-5 transition-all duration-300 ease-out"
           style={{
-            maxHeight: 'calc(100vh - 160px)',
+            maxHeight: 'calc(82vh - 160px)',
             overflow: 'hidden',
           }}
         >
@@ -71,13 +82,7 @@ export default function MarketScreen() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search offers by username"
-            className="w-full max-w-full box-border overflow-hidden bg-[#24304a] text-gray-400 placeholder-gray-400 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#00a968] transition-colors duration-200 text-sm"
-            style={{
-              minWidth: 0,
-              whiteSpace: 'nowrap',
-              wordBreak: 'normal',
-              textOverflow: 'clip',
-            }}
+            className="w-full bg-[#24304a] text-gray-400 placeholder-gray-400 p-3 rounded-xl outline-none focus:ring-2 focus:ring-[#00a968] transition-colors duration-200 text-sm"
           />
 
           <div className="flex justify-between gap-x-2">
