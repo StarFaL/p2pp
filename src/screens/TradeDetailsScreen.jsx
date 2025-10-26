@@ -94,7 +94,7 @@ export default function TradeDetailsScreen() {
         </div>
 
         {/* Контейнер сообщений - занимает весь оставшийся экран */}
-        <div className="flex-1 flex flex-col gap-3 overflow-y-auto scroll-hide mt-4 bg-[#212839] rounded-t-xl rounded-b-xl p-4 sm:p-3">
+        <div className="flex-1 flex flex-col gap-3 overflow-y-auto scroll-hide mt-4 bg-[#1a2338] rounded-t-xl rounded-b-xl p-4 sm:p-3">
           <style>
             {`
               .scroll-hide::-webkit-scrollbar { display: none; }
