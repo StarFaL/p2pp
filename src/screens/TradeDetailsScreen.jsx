@@ -53,7 +53,7 @@ export default function TradeDetailsScreen() {
     if (trade?.messages?.length) {
       const baseHeight = 150;
       const perMessage = 60;
-      const maxHeight = window.innerHeight * 0.40;
+      const maxHeight = window.innerHeight * 0.35; // немного меньше, чем было (уменьшено на ~1см)
       setMessagesHeight(Math.min(baseHeight + trade.messages.length * perMessage, maxHeight));
     }
   }, [trade?.messages]);
@@ -67,10 +67,14 @@ export default function TradeDetailsScreen() {
       className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden"
       style={{ paddingTop: '2cm' }}
     >
-      <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col flex-grow overflow-hidden">
-        {/* Заголовок */}
-        <h1 className="text-xl font-bold text-center">Trade Details</h1>
+      {/* Заголовок вынесен отдельно */}
+      <div className="w-full max-w-md mb-3">
+        <h1 className="text-xl font-bold text-center text-white">Trade Details</h1>
+      </div>
 
+      {/* Основной контейнер */}
+      <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col flex-grow overflow-hidden"
+           style={{ minHeight: 'calc(100% - 3.5rem)' /* уменьшаем высоту примерно на 1см */ }}>
         <div className="space-y-4">
           <div className="flex items-center">
             <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-600" />
