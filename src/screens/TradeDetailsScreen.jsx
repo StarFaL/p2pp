@@ -53,7 +53,7 @@ export default function TradeDetailsScreen() {
     if (trade?.messages?.length) {
       const baseHeight = 150;
       const perMessage = 60;
-      const maxHeight = window.innerHeight * 0.35; // немного меньше, чем было (уменьшено на ~1см)
+      const maxHeight = window.innerHeight * 0.40;
       setMessagesHeight(Math.min(baseHeight + trade.messages.length * perMessage, maxHeight));
     }
   }, [trade?.messages]);
@@ -81,6 +81,7 @@ export default function TradeDetailsScreen() {
             <span className="ml-2 font-bold text-[#00a968]">{trade.username}</span>
             <span className="ml-auto text-[#00a968] text-sm">{trade.status}</span>
           </div>
+
 
           <div className="text-center">
             <p className="text-2xl sm:text-3xl font-bold text-[#00a968]">$ {trade.amount}</p>
