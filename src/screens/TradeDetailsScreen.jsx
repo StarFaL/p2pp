@@ -3,6 +3,7 @@ import { AppContext } from '../contexts/AppContext';
 
 export default function TradeDetailsScreen() {
   const { state, dispatch } = useContext(AppContext);
+
   const [trade, setTrade] = useState({
     id: 1,
     username: 'Alice',
@@ -14,11 +15,12 @@ export default function TradeDetailsScreen() {
       { text: 'Yes, sending payment now.', time: '10:22' },
     ],
   });
+
   const [message, setMessage] = useState('');
   const [paymentSent, setPaymentSent] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const messagesEndRef = useRef(null);
-  const [messagesHeight, setMessagesHeight] = useState(100);
+  const [messagesHeight, setMessagesHeight] = useState(150);
 
   const handleSend = () => {
     if (!message.trim()) return;
@@ -34,9 +36,7 @@ export default function TradeDetailsScreen() {
     setPaymentSent(true);
     setShowConfirmation(true);
 
-    // Симуляция подтверждения через 2 секунды
     setTimeout(() => {
-      // Добавляем запись в историю транзакций
       const newTransaction = {
         id: (state.transactions?.length || 0) + 1,
         type: 'Buy BTC',
@@ -44,22 +44,16 @@ export default function TradeDetailsScreen() {
         date: new Date().toLocaleDateString(),
         details: `Paid by user ${trade.username}`,
       };
-      dispatch({
-        type: 'ADD_TRANSACTION',
-        payload: newTransaction,
-      });
-
-      // Закрываем модальное окно ожидания
+      dispatch({ type: 'ADD_TRANSACTION', payload: newTransaction });
       setShowConfirmation(false);
     }, 2000);
   };
 
-  // Автоподстройка высоты сообщений
   useEffect(() => {
     if (trade?.messages?.length) {
-      const baseHeight = 100;
+      const baseHeight = 150;
       const perMessage = 60;
-      const maxHeight = window.innerHeight * 0.35;
+      const maxHeight = window.innerHeight * 0.40;
       setMessagesHeight(Math.min(baseHeight + trade.messages.length * perMessage, maxHeight));
     }
   }, [trade?.messages]);
@@ -69,8 +63,12 @@ export default function TradeDetailsScreen() {
   }, [trade?.messages]);
 
   return (
-    <div className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden" style={{ paddingTop: '2cm' }}>
-      <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md space-y-5 flex flex-col flex-grow overflow-hidden">
+    <div
+      className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden"
+      style={{ paddingTop: '2cm' }}
+    >
+      <div className="w-full max-w-md bg-[#1a2338] p-5 rounded-2xl shadow-md flex flex-col flex-grow overflow-hidden">
+        {/* Заголовок */}
         <h1 className="text-xl font-bold text-center">Trade Details</h1>
 
         <div className="space-y-4">
@@ -103,8 +101,11 @@ export default function TradeDetailsScreen() {
           )}
         </div>
 
-        {/* Контейнер сообщений */}
-        <div className="flex flex-col gap-3 mt-4 overflow-y-auto scroll-hide" style={{ maxHeight: `${messagesHeight}px` }}>
+        {/* Контейнер сообщений с скруглением сверху и снизу */}
+        <div
+          className="flex flex-col gap-3 overflow-y-auto scroll-hide mt-4 bg-[#1a2338] rounded-t-xl rounded-b-xl p-4"
+          style={{ maxHeight: `${messagesHeight}px` }}
+        >
           <style>
             {`
               .scroll-hide::-webkit-scrollbar { display: none; }
@@ -116,7 +117,7 @@ export default function TradeDetailsScreen() {
           {trade.messages.map((msg, idx) => (
             <div key={idx} className="flex items-start fade-in-msg" style={{ animationDelay: `${idx * 0.1}s` }}>
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-600" />
-              <div className="ml-2 bg-[#1a2338] p-3 sm:p-4 rounded-2xl flex-1">
+              <div className="ml-2 bg-[#00613c] p-3 sm:p-4 rounded-2xl flex-1">
                 <p className="text-base">{msg.text}</p>
               </div>
               <span className="ml-2 text-gray-400 text-xs mt-1">{msg.time}</span>
@@ -126,7 +127,7 @@ export default function TradeDetailsScreen() {
         </div>
 
         {/* Ввод сообщения */}
-        <div className="mt-4 relative w-full">
+        <div className="relative w-full mt-3">
           <input
             type="text"
             placeholder="Type a message..."
