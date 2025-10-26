@@ -106,9 +106,9 @@ export default function TradeDetailsScreen() {
           )}
         </div>
 
-        {/* Контейнер сообщений с скруглением сверху и снизу */}
+            {/* Контейнер сообщений с скруглением сверху и снизу */}
         <div
-          className="flex flex-col gap-3 overflow-y-auto scroll-hide mt-4 bg-[#1a2338] rounded-t-xl rounded-b-xl p-4"
+          className="flex flex-col gap-3 overflow-y-auto scroll-hide mt-4 bg-[#212839] rounded-t-xl rounded-b-xl p-4"
           style={{ maxHeight: `${messagesHeight}px` }}
         >
           <style>
@@ -122,7 +122,7 @@ export default function TradeDetailsScreen() {
           {trade.messages.map((msg, idx) => (
             <div key={idx} className="flex items-start fade-in-msg" style={{ animationDelay: `${idx * 0.1}s` }}>
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-600" />
-              <div className="ml-2 bg-[#00613c] p-3 sm:p-4 rounded-2xl flex-1">
+              <div className="ml-2 bg-[#1a2338]] p-3 sm:p-4 rounded-2xl flex-1">
                 <p className="text-base">{msg.text}</p>
               </div>
               <span className="ml-2 text-gray-400 text-xs mt-1">{msg.time}</span>
