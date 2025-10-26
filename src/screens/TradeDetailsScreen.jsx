@@ -53,8 +53,10 @@ export default function TradeDetailsScreen() {
   }, [trade?.messages]);
 
   return (
-    <div className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pt-8 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden min-h-screen">
-
+    <div
+      className="fixed inset-0 bg-[#0b1120] flex flex-col items-center px-4 pb-[calc(env(safe-area-inset-bottom)+80px)] overflow-hidden min-h-screen"
+      style={{ paddingTop: '2cm' }} // смещаем всё вниз на 2см
+    >
       {/* Заголовок */}
       <div className="w-full max-w-md mb-3">
         <h1 className="text-xl sm:text-lg font-bold text-center text-white">Trade Details</h1>
@@ -93,7 +95,7 @@ export default function TradeDetailsScreen() {
           )}
         </div>
 
-        {/* Контейнер сообщений - занимает весь оставшийся экран */}
+        {/* Контейнер сообщений */}
         <div className="flex-1 flex flex-col gap-3 overflow-y-auto scroll-hide mt-4 bg-[#1a2338] rounded-t-xl rounded-b-xl p-4 sm:p-3">
           <style>
             {`
